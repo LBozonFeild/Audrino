@@ -4,7 +4,8 @@
  * the inverse for the mapped set and honestly reports everything it skips.
  * Coordinates: 1 wokwi unit ≈ 0.254 mm (10 u = 0.1"), shifted into our world.
  */
-import type { ComponentPlacement, BoardPlacement, Net, Project, WireSegment } from "@audrino/schema";
+import type { ComponentPlacement, BoardPlacement, Project } from "@audrino/schema";
+import { buildNetsAndWires } from "./netsFromConnections";
 import { partDef, validateProject, M0_PIN_CATALOG } from "@audrino/schema";
 import { createEmptyProject } from "./load";
 
@@ -135,14 +136,6 @@ function propsFor(wType: string, attrs: Record<string, string>, type: string): R
   return base;
 }
 
-function rotatedPin(mm: { w: number; h: number }, x: number, y: number, rot: number): [number, number] {
-  const r = ((rot % 360) + 360) % 360;
-  if (r === 90) return [mm.h - y, x];
-  if (r === 180) return [mm.w - x, mm.h - y];
-  if (r === 270) return [y, mm.w - x];
-  return [x, y];
-}
-
 /** `"part:pin"` (wokwi) — fall back to first "."-split for hand-written files. */
 function splitEndpoint(ep: string): { ref: string; pin: string } | null {
   const i = ep.indexOf(":");
@@ -186,25 +179,12 @@ export function importWokwiDiagram(raw: string | WokwiDiagram, opts: { sketch?: 
     else components.push({ id, type: map.type, props: propsFor(p.type, p.attrs ?? {}, map.type), transform });
   }
 
-  // connections -> nets (union pin endpoints), wires = straight pin-to-pin chains
-  const parent = new Map<string, string>();
-  const find = (x: string): string => {
-    const p2 = parent.get(x) ?? x;
-    if (p2 !== x) {
-      const r = find(p2);
-      parent.set(x, r);
-      return r;
-    }
-    parent.set(x, x);
-    return x;
-  };
-  const union = (a: string, b: string) => parent.set(find(a), find(b));
   const resolved: [string, string][] = [];
 
   for (const c of d.connections ?? []) {
-    const a = splitEndpoint(String(c[0] ?? ""));
-    const b = splitEndpoint(String(c[1] ?? ""));
-    if (!a || !b) {
+    const a2 = splitEndpoint(String(c[0] ?? ""));
+    const b2 = splitEndpoint(String(c[1] ?? ""));
+    if (!a2 || !b2) {
       warnings.push(`skipped malformed connection ${JSON.stringify([c[0], c[1]])}`);
       continue;
     }
@@ -216,51 +196,16 @@ export function importWokwiDiagram(raw: string | WokwiDiagram, opts: { sketch?: 
       if (!ourPin || !M0_PIN_CATALOG[ourType]?.includes(ourPin)) return null;
       return `${ep.ref}:${ourPin}`;
     };
-    const pa = mapPin(a);
-    const pb = mapPin(b);
+    const pa = mapPin(a2);
+    const pb = mapPin(b2);
     if (!pa || !pb) {
       warnings.push(`skipped connection ${c[0]} → ${c[1]} (unknown endpoint)`);
       continue;
     }
     resolved.push([pa, pb]);
-    union(pa, pb);
   }
 
-  const groups = new Map<string, string[]>();
-  for (const pin of parent.keys()) {
-    const root = find(pin);
-    const g = groups.get(root) ?? [];
-    g.push(pin);
-    groups.set(root, g);
-  }
-
-  const nets: Net[] = [];
-  const wires: WireSegment[] = [];
-  let nSeq = 0;
-  let wSeq = 0;
-  const entities = [...boards, ...components];
-  const pinPos = (key: string): [number, number] | null => {
-    const [ref, pinId] = key.split(":");
-    const e = entities.find((x) => x.id === ref);
-    if (!e) return null;
-    const def = partDef(e.type);
-    const pin = def?.pins.find((p) => p.id === pinId);
-    if (!def || !pin) return null;
-    const [rx, ry] = rotatedPin(def.size_mm, pin.x, pin.y, e.transform.rotation_deg ?? 0);
-    return [e.transform.x + rx, e.transform.y + ry];
-  };
-
-  for (const pins of groups.values()) {
-    if (pins.length < 2) continue;
-    const netId = `net${++nSeq}`;
-    nets.push({ id: netId, pins: [...pins].sort() });
-    for (let i = 1; i < pins.length; i++) {
-      const a = pinPos(pins[i - 1]);
-      const b = pinPos(pins[i]);
-      if (!a || !b) continue;
-      wires.push({ id: `w${++wSeq}`, net: netId, points: [a, b] });
-    }
-  }
+  const { nets, wires } = buildNetsAndWires(resolved, [...boards, ...components]);
 
   const doc = createEmptyProject();
   doc.meta.name = (opts.name ?? "wokwi import").slice(0, 80);

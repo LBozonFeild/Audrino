@@ -159,3 +159,22 @@ _Reviewed against PLAN's instrument/teaching goals and the perfectionist standar
 | Teaching | ✅ 3 lessons on the real fixtures with declarative CheckSpecs (`simRan`, `serialIncludes`, `probeAdded`, `pinToggled`, `pinLevel`, `ledLit`) evaluated live against sim + trace state — steps tick ✓ only when the circuit really did the thing. Blink (first toggle), Traffic light (observe green phase), Two-channel logic analysis (fixture + alternating firmware — complementary squares). Progress persists; completion toasts |
 | Honest scope cut | Servo-arm lesson skipped: the fixture's `#include <Servo.h>` is not in the shim core (M2 library support) — a lesson must never dead-end on a compile error. Two-channel lab teaches the instrument better anyway |
 | Chain | ✅ `npm run test:chain` **149/149** (schema 70 + sim 16 + web 63 — 12 new: trace 2, learn 6, scope-ui 4), `npm run typecheck` 0 (after fixing a worker `trace` shorthand that a parallel verify had raced past) |
+
+---
+
+### Round: AI circuit generation (semantic spawn + build card)
+
+**QA pass** 2026-09-25 — `dsl/netsFromConnections` + `dsl/spawn` + `SpawnSection`; wokwi refactored onto the shared net/wire builder (behavior-preserving).
+
+| Area | What shipped | Verification |
+|---|---|---|
+| `netsFromConnections.ts` | Shared `buildNetsAndWires(pairs, entities)` + `pinWorldPos` (rotation-aware world pin positions) — one series-safe union-find implementation for both Wokwi import and AI spawn; wires = straight pin-to-pin chains per net (pins−1) | wokwi tests 3/3 still green after refactor; spawn blink golden = 3 nets/3 wires |
+| `dsl/spawn.ts` | `parseSpawn` (bare JSON → fenced ```json → brace blob; rejects prose-only) + `buildSpawnProject`: semantic pins/refs (no mm), auto-layout (board left, parts grid), pin resolution by id **or** name (case-insensitive), value parsing (220/4.7k Ω, 10uF, "red"), unknown types/pins degrade to warnings (never throw), **`validateProject` gate before display**, build-card meta `doc.ai{bom,wiringSteps,explanation}` + auto sketch; `buildSpawnMessages` + `coreCatalogDigest()` (~54 core types with pin ids/names) so the model designs from the real catalog | 5 unit tests: parse ladder ×3, blink golden (refs/props/nets/wires/meta), degradation, aliases |
+| `SpawnSection` | Prompt + example chips (chips FILL the input), Generate → model → card (title, board, part count, BOM, wiring steps, explanation, warnings) → **Open in editor** (`loadProject` = one undo reverts all) / Discard. **One self-repair retry** feeds `validateProject` errors back to the model (test asserts the error reaches the request body). No model → honest error ("configure a model…"); model garbage → real error, never a silent fixture | spawn-ui 2/2: generate→card→open→undo golden; garbage×2 → error + 2 fetches + busy cleared |
+| AiPanel | Mock Quick start (`matchFixture`) REMOVED — Learn tab owns offline demos; AI tab owns model work | ai tests 7/7 green |
+
+**Design rules enforced by `buildSpawnMessages`:** model returns semantic JSON only (no millimeters — layout is ours); `board1` is implicit (never in parts); every LED gets a 220–330Ω series resistor in the spec; names/refs arbitrary.
+
+_Chain_ **156/156** (schema 70 + sim 16 + web 70: spawn 5 + spawn-ui 2 + existing 63) · _typecheck_ 0.
+
+_Live fixtures kept:_ `importWokwiDiagram` asserts unchanged (series kept, pin merges correct) after the shared-builder refactor.

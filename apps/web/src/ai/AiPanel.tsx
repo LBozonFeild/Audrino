@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { matchFixture, loadFixture, type FixtureId } from "../dsl/load";
 import { useSimStore } from "../sim/SimProvider";
 import { useEditorStore } from "../state/store";
 import {
@@ -12,6 +11,7 @@ import {
 } from "./aiClient";
 import { useAiStore, CLOUD_PROVIDERS, DEFAULT_MODELS } from "./aiStore";
 import { unifiedDiff } from "./diff";
+import { SpawnSection } from "./SpawnSection";
 import type { AiProvider } from "../server/ai-proxy";
 
 const PROVIDERS: { id: AiProvider; label: string }[] = [
@@ -19,12 +19,6 @@ const PROVIDERS: { id: AiProvider; label: string }[] = [
   { id: "openai", label: "OpenAI" },
   { id: "anthropic", label: "Anthropic" },
   { id: "openai-compatible", label: "OpenAI-compatible" },
-];
-
-const STARTERS: { label: string; prompt: string }[] = [
-  { label: "💡 Blink", prompt: "blink an LED" },
-  { label: "🚦 Traffic light", prompt: "traffic light" },
-  { label: "🦾 Servo arm", prompt: "a servo arm that waves" },
 ];
 
 const SLOW_MS = 2000;
@@ -46,7 +40,6 @@ export function AiPanel(props: { notify: (msg: string) => void }) {
   const simError = useSimStore((s) => s.error);
   const simLines = useSimStore((s) => s.lines);
 
-  const [prompt, setPrompt] = useState("");
   const [reqError, setReqError] = useState<string | null>(null);
   const [doctorBusy, setDoctorBusy] = useState(false);
   const timer = useRef<number | undefined>(undefined);
@@ -75,17 +68,6 @@ export function AiPanel(props: { notify: (msg: string) => void }) {
     timer.current = window.setInterval(() => useAiStore.getState().tick(250), 250);
     return () => window.clearInterval(timer.current);
   }, [a.busy]);
-
-  const quickStart = (text: string) => {
-    if (!text.trim()) {
-      props.notify("Type a prompt or pick a starter");
-      return;
-    }
-    const id: FixtureId = matchFixture(text);
-    const project = loadFixture(id);
-    const feedback = useEditorStore.getState().loadProject(project);
-    props.notify(feedback ?? `"${project.meta.name}" spawned — one undo (Ctrl+Z) reverts it all`);
-  };
 
   const runDoctor = async () => {
     setDoctorBusy(true);
@@ -187,28 +169,7 @@ export function AiPanel(props: { notify: (msg: string) => void }) {
           border-top: 1px solid rgba(255,255,255,.08); }
       `}</style>
 
-      <div className="ai-sec" style={{ borderTop: "none", paddingTop: 0 }}>
-        <div className="dim">Quick start — typed fixtures while the model warms up</div>
-        <div className="row">
-          <input
-            style={{ flex: 1 }}
-            value={prompt}
-            placeholder="e.g. traffic light"
-            onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") quickStart(prompt);
-            }}
-          />
-          <button onClick={() => quickStart(prompt)}>Spawn</button>
-        </div>
-        <div className="row" style={{ flexWrap: "wrap" }}>
-          {STARTERS.map((s) => (
-            <button key={s.label} onClick={() => quickStart(s.prompt)}>
-              {s.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <SpawnSection notify={props.notify} />
 
       <div className="ai-sec">
         <h3 style={{ margin: 0 }}>Model</h3>
