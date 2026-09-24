@@ -3,6 +3,8 @@ import { AiPanel } from "./ai/AiPanel";
 import { Canvas } from "./canvas/Canvas";
 import { CodePanel } from "./editor/CodePanel";
 import { InspectPanel } from "./inspect/InspectPanel";
+import { LearnPanel } from "./learn/LearnPanel";
+import { ScopePanel } from "./scope/ScopePanel";
 import { Palette } from "./palette/Palette";
 import { SerialPanel } from "./serial/SerialPanel";
 import { docLooksTrivial, loadAutosave, scheduleAutosave } from "./dsl/autosave";
@@ -14,7 +16,9 @@ import { Topbar } from "./topbar/Topbar";
 const TABS: { id: Tab; label: string }[] = [
   { id: "code", label: "Code" },
   { id: "serial", label: "Serial" },
+  { id: "scope", label: "Scope" },
   { id: "ai", label: "AI ✨" },
+  { id: "learn", label: "Learn" },
   { id: "inspect", label: "Inspect" },
 ];
 
@@ -135,7 +139,9 @@ export function App() {
           </div>
           {activeTab === "code" && <CodePanel />}
           {activeTab === "serial" && <SerialPanel />}
+          {activeTab === "scope" && <ScopePanel notify={notify} />}
           {activeTab === "ai" && <AiPanel notify={notify} />}
+          {activeTab === "learn" && <LearnPanel notify={notify} />}
           {activeTab === "inspect" && <InspectPanel />}
         </aside>
       </div>

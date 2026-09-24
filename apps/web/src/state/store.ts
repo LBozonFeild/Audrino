@@ -5,7 +5,7 @@ import * as ops from "./ops";
 import type { Clipboard, OpResult } from "./ops";
 
 export type Tool = "select" | "inspect" | "wire" | "delete";
-export type Tab = "code" | "serial" | "ai" | "inspect";
+export type Tab = "code" | "serial" | "scope" | "ai" | "learn" | "inspect";
 
 const HISTORY_CAP = 100;
 

@@ -144,3 +144,18 @@ _Reviewed against PLAN §11.4 (share = snapshot link), §12.1–12.2 (accounts +
 | Protection (§12.2) | ✅ scrypt N=16384 + per-user salt + timingSafeEqual (plaintext never on disk — tested); 256-bit session tokens stored SHA-256-hashed in HttpOnly SameSite=Lax cookies (+Secure on https); logout-everywhere revokes all; per-IP rate limits (signup 5/h, login 10/5min, general 120/min); 2 MB body cap (413); strict input validation + control-char strip + length caps + minimal slur blocklist; Origin allowlist (403 cross-site); daily save quota (429, UTC reset); append-only audit log (no secrets); export excludes hash/salt/sessions; delete-account wipes user + projects + sessions |
 | Documented tier gap | Local tier auto-verifies at signup (no SMTP); `verified` flag + gates exist for managed auth (§12.1). Storage is single-process file-based (`cache/accounts/`, gitignored) — multi-instance + Postgres/RLS = managed tier (§13) |
 | Chain | ✅ `npm run test:chain` **137/137** (schema 70 + sim 14 + web 53 — 20 new: accounts-api 10, share 3, wokwi 3, account-ui 4), `npm run typecheck` 0 — re-verified after a sandbox `node_modules`/`ziglang` prune forced `npm ci` + `pip install --break-system-packages --user ziglang` |
+
+
+---
+
+## QA round — probes / scope / teaching (2026-09-24)
+
+_Reviewed against PLAN's instrument/teaching goals and the perfectionist standard._
+
+| Check | Result |
+|---|---|
+| Trace engine | ✅ `RunRequest.trace {pins, strideMs}` + `onTrace` hook — fixed-stride `ProbeSample{probe, atMs, v}` streamed from the co-sim loop (`probeNode` resolution cached per run); unknown probe keys stream **NaN, never silent** (tested); golden: blink @0.5 ms/3 s ⇒ exactly 6001 samples/channel, monotonic time, 5V rail accurate, D13 shows both levels + first second high |
+| Scope + logic analyzer | ✅ Scope tab: digital lanes as step waves (>2.5 V = high), analog lanes with 0/2.5/5 V grid, shared time axis with ms ticks, hover cursor + per-channel voltage readout (`nearestSample` binary search), probe picker over every catalog pin of placed parts, per-lane D/A toggle, 8-channel cap with friendly error, ring buffer 6000 samples/channel, channels persist (`audrino-trace-v1`) |
+| Teaching | ✅ 3 lessons on the real fixtures with declarative CheckSpecs (`simRan`, `serialIncludes`, `probeAdded`, `pinToggled`, `pinLevel`, `ledLit`) evaluated live against sim + trace state — steps tick ✓ only when the circuit really did the thing. Blink (first toggle), Traffic light (observe green phase), Two-channel logic analysis (fixture + alternating firmware — complementary squares). Progress persists; completion toasts |
+| Honest scope cut | Servo-arm lesson skipped: the fixture's `#include <Servo.h>` is not in the shim core (M2 library support) — a lesson must never dead-end on a compile error. Two-channel lab teaches the instrument better anyway |
+| Chain | ✅ `npm run test:chain` **149/149** (schema 70 + sim 16 + web 63 — 12 new: trace 2, learn 6, scope-ui 4), `npm run typecheck` 0 (after fixing a worker `trace` shorthand that a parallel verify had raced past) |

@@ -46,6 +46,9 @@ export interface RunRequest extends CircuitSpec {
   hex: string;
   /** Sim end time; default = last deadline/probe + 200 ms, else 1000 ms. */
   untilMs?: number;
+  /** Continuous trace (scope/logic-analyzer): sample these pin probes ("ref:pin")
+   *  at a fixed sim-time stride; streamed via the onTrace hook. */
+  trace?: { pins: string[]; strideMs: number };
   /** Golden-style checkpoints: each line must arrive by its ms. */
   serialBy?: SerialDeadline[];
   probes?: { probe: string; atMs: number }[];

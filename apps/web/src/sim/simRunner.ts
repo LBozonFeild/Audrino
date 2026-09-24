@@ -2,7 +2,7 @@
  * Sim runner service (DI seam): default = Web Worker executing the real engine
  * in @audrino/sim; tests inject a fake with __setSimRunner.
  */
-import type { CircuitSpec, SerialLine, SimLiveState, SimResult, SketchSource } from "@audrino/sim";
+import type { CircuitSpec, ProbeSample, SerialLine, SimLiveState, SimResult, SketchSource } from "@audrino/sim";
 
 export interface SimRunJob {
   stop(): void;
@@ -17,7 +17,9 @@ export interface SimRunner {
       onState: (state: SimLiveState) => void;
       onDone: (result: SimResult) => void;
       onError: (message: string) => void;
+      onTrace?: (sample: ProbeSample) => void;
     },
+    opts?: { tracePins?: string[] },
   ): SimRunJob;
 }
 
@@ -40,16 +42,18 @@ export async function compileSketchHttp(sketch: SketchSource): Promise<CompiledF
 }
 
 export const workerSimRunner: SimRunner = {
-  run(circuit, sketch, hooks) {
+  run(circuit, sketch, hooks, opts) {
     const worker = new Worker(new URL("./simWorker.ts", import.meta.url), { type: "module" });
     let done = false;
     worker.onmessage = (e: MessageEvent) => {
       const msg = e.data as
         | { type: "line"; line: SerialLine }
         | { type: "state"; state: SimLiveState }
+        | { type: "trace"; sample: ProbeSample }
         | { type: "done"; result: SimResult }
         | { type: "error"; message: string };
       if (msg.type === "line") hooks.onLine(msg.line);
+      else if (msg.type === "trace") hooks.onTrace?.(msg.sample);
       else if (msg.type === "state") hooks.onState(msg.state);
       else if (msg.type === "done") {
         done = true;
@@ -67,7 +71,13 @@ export const workerSimRunner: SimRunner = {
       worker.terminate();
     };
     compileSketchHttp(sketch)
-      .then((fw) => worker.postMessage({ circuit, hex: fw.hex }))
+      .then((fw) =>
+        worker.postMessage({
+          circuit,
+          hex: fw.hex,
+          trace: opts?.tracePins?.length ? { pins: opts.tracePins, strideMs: 0.5 } : undefined,
+        }),
+      )
       .catch((e: unknown) => {
         done = true;
         hooks.onError(e instanceof Error ? e.message : String(e));

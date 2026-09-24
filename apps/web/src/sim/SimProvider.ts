@@ -7,6 +7,7 @@ import type { Project } from "@audrino/schema";
 import type { LedState, PinModeState, SerialLine, SimLiveState, SimResult } from "@audrino/sim";
 import { projectToCircuit } from "./projectCircuit";
 import { getSimRunner, type SimRunJob } from "./simRunner";
+import { useTraceStore } from "./traceStore";
 
 export type SimStatus = "idle" | "compiling" | "running" | "done" | "error";
 
@@ -49,6 +50,11 @@ export const useSimStore = create<SimState>((set, get) => ({
         job = null;
         set({ status: "error", error: message });
       },
+      onTrace(sample) {
+        useTraceStore.getState().append(sample.probe, sample.atMs, sample.v);
+      },
+    }, {
+      tracePins: useTraceStore.getState().channels.map((c) => c.pin),
     });
     if (get().status === "compiling") set({ status: "running" });
   },

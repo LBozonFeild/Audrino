@@ -30,7 +30,7 @@ export function serialSatisfied(actual: SerialLine[], by: { ms: number; line: st
 
 export function runSimulation(
   req: RunRequest,
-  hooks?: { onSerial?: (line: SerialLine) => void; onState?: (state: SimLiveState) => void },
+  hooks?: { onSerial?: (line: SerialLine) => void; onState?: (state: SimLiveState) => void; onTrace?: (s: ProbeSample) => void },
 ): SimResult {
   const nl = buildNetlist(req);
   const flash = parseFirmware(req.hex);
@@ -87,6 +87,21 @@ export function runSimulation(
   };
   sampleProbes(0);
 
+  /* Continuous trace (scope): fixed-stride samples of the requested probes. */
+  const strideMs = (req.trace?.strideMs ?? 0) > 0 ? req.trace!.strideMs : 0.5;
+  const traceNodes = (req.trace?.pins ?? []).map((probe) => ({ probe, node: nl.probeNode(probe) }));
+  let nextTraceAt = 0;
+  const sampleTrace = (tMs: number) => {
+    if (traceNodes.length === 0) return;
+    while (nextTraceAt <= tMs) {
+      for (const tn of traceNodes) {
+        hooks?.onTrace?.({ probe: tn.probe, atMs: tMs, v: tn.node === null ? Number.NaN : v[tn.node] });
+      }
+      nextTraceAt += strideMs;
+    }
+  };
+  sampleTrace(0);
+
   /* live LED/pin state (change-driven) for the canvas */
   const stateOf = (): SimLiveState => {
     const leds: LedState[] = nl.leds.map((l) => {
@@ -134,6 +149,7 @@ export function runSimulation(
       refresh();
     }
     sampleProbes(t);
+    sampleTrace(t);
     emitState();
     if (req.serialBy && serialSatisfied(serial, req.serialBy)) break;
   }
