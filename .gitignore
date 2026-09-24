@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+coverage/
+.vercel/
+.output/
+*.local
+.DS_Store
+*.tsbuildinfo
+.cache/
+bin/

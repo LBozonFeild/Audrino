@@ -1,0 +1,44 @@
+{
+  "meta": { "name": "Traffic light", "dslVersion": 2, "boardId": "board1" },
+  "boards": [{ "id": "board1", "type": "arduino-uno", "transform": { "x": 60, "y": 70 } }],
+  "components": [
+    { "id": "rR", "type": "resistor", "props": { "resistance_ohms": 220 }, "transform": { "x": 330, "y": 60 } },
+    { "id": "ledR", "type": "led", "props": { "color": "red" }, "transform": { "x": 470, "y": 60 } },
+    { "id": "rY", "type": "resistor", "props": { "resistance_ohms": 220 }, "transform": { "x": 330, "y": 200 } },
+    { "id": "ledY", "type": "led", "props": { "color": "yellow" }, "transform": { "x": 470, "y": 200 } },
+    { "id": "rG", "type": "resistor", "props": { "resistance_ohms": 220 }, "transform": { "x": 330, "y": 340 } },
+    { "id": "ledG", "type": "led", "props": { "color": "green" }, "transform": { "x": 470, "y": 340 } }
+  ],
+  "nets": [
+    { "id": "net-d10", "pins": ["board1:D10", "rR:1"] },
+    { "id": "net-r", "pins": ["rR:2", "ledR:A"] },
+    { "id": "net-d9", "pins": ["board1:D9", "rY:1"] },
+    { "id": "net-y", "pins": ["rY:2", "ledY:A"] },
+    { "id": "net-d8", "pins": ["board1:D8", "rG:1"] },
+    { "id": "net-g", "pins": ["rG:2", "ledG:A"] },
+    { "id": "net-gnd", "pins": ["board1:GND", "ledR:K", "ledY:K", "ledG:K"] }
+  ],
+  "wires": [
+    { "id": "w1", "net": "net-d10", "points": [[280, 120], [330, 90]] },
+    { "id": "w2", "net": "net-r", "points": [[420, 90], [470, 90]] },
+    { "id": "w3", "net": "net-d9", "points": [[280, 150], [305, 150], [305, 230], [330, 230]] },
+    { "id": "w4", "net": "net-y", "points": [[420, 230], [470, 230]] },
+    { "id": "w5", "net": "net-d8", "points": [[280, 180], [290, 180], [290, 370], [330, 370]] },
+    { "id": "w6", "net": "net-g", "points": [[420, 370], [470, 370]] },
+    { "id": "w7", "net": "net-gnd", "points": [[170, 220], [170, 450], [515, 450], [515, 400]] }
+  ],
+  "code": {
+    "main": "sketch.ino",
+    "files": {
+      "sketch.ino": "const int RED = 10, YELLOW = 9, GREEN = 8;\n\nvoid setup() {\n  pinMode(RED, OUTPUT);\n  pinMode(YELLOW, OUTPUT);\n  pinMode(GREEN, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(GREEN, HIGH); delay(4000); digitalWrite(GREEN, LOW);\n  digitalWrite(YELLOW, HIGH); delay(1000); digitalWrite(YELLOW, LOW);\n  digitalWrite(RED, HIGH); delay(4000); digitalWrite(RED, LOW);\n}\n"
+    }
+  },
+  "build": { "fqbn": "arduino:avr:uno", "core": "arduino:avr@1.8.6", "libraries": [] },
+  "sim": { "render_fps": 60 },
+  "ai": {
+    "prompt": "traffic light",
+    "explanation": "Three LEDs cycle green → yellow → red like a real signal.",
+    "bom": ["1× Arduino-compatible Uno", "3× LED (red, yellow, green)", "3× 220Ω resistor"],
+    "wiringSteps": ["D10 → 220Ω → red", "D9 → 220Ω → yellow", "D8 → 220Ω → green", "All cathodes → GND"]
+  }
+}
