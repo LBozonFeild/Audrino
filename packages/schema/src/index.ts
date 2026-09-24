@@ -21,7 +21,7 @@ export type {
 } from "./types";
 export { parsePinRef, formatPinRef } from "./pinref";
 export { validateProject } from "./validator";
-export { M0_PIN_CATALOG, PART_DEFINITIONS, partDef } from "./parts";
+export { bridgeMatesOf, M0_PIN_CATALOG, PART_DEFINITIONS, partDef } from "./parts";
 export type { PartCategory, PartDefinition, PartPin } from "./parts";
 export type { ValidationError, ValidationResult, ValidatorOptions } from "./validator";
 export { deriveManifest } from "./manifest";

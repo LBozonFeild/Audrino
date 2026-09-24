@@ -46,6 +46,15 @@ export function buildNetsAndWires(pairs: [string, string][], entities: EntityPla
   for (const [pa, pb] of pairs) {
     union(pa, pb);
   }
+  // Internal strips (breadboard columns / rail halves) common every hole that
+  // is actually wired: a wire on `bb:a1` and another on `bb:e1` share a node.
+  for (const e of entities) {
+    const def = partDef(e.type);
+    for (const group of def?.bridges ?? []) {
+      const present = group.map((pid) => `${e.id}:${pid}`).filter((k) => parent.has(k));
+      for (let i = 1; i < present.length; i++) union(present[0], present[i]);
+    }
+  }
 
   const groups = new Map<string, string[]>();
   for (const pin of parent.keys()) {

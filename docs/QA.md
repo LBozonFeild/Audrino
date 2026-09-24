@@ -178,3 +178,22 @@ _Reviewed against PLAN's instrument/teaching goals and the perfectionist standar
 _Chain_ **156/156** (schema 70 + sim 16 + web 70: spawn 5 + spawn-ui 2 + existing 63) · _typecheck_ 0.
 
 _Live fixtures kept:_ `importWokwiDiagram` asserts unchanged (series kept, pin merges correct) after the shared-builder refactor.
+
+---
+
+### Round: photoreal part art + real breadboards (170/400/830)
+
+**QA pass** 2026-09-25 — canvas art depth + true solderless-breadboard models with internal strip connectivity; Topbar history/fit.
+
+| Area | What shipped | Verification |
+|---|---|---|
+| `ArtDefs` (PartGlyph) | Shared photoreal materials: steel/brass/black/Abs/ceramic/can gradients, 6 radial **epoxy LED domes**, `matLift` drop-shadow — mounted once per canvas (document-scoped url refs) | typecheck 0; LED + resistor rebuilt on them |
+| Part art | LED: radial dome + rim + flange + internal anvil/bond + specular (per-color domes). Resistor: ceramic gradient, **steel end caps**, value-coded bands (existing `bandCodes`) + sheen | existing art tests still green |
+| Breadboards | `breadboard-170` (17×10 = 170), `breadboard-400` (30×10 + 4×25 rails = 400), `breadboard-830` (63×10 + 4×50 split rails = 830) — 2.54 mm pitch, a–j rows, `nt/pt/pb/nb` rail strips; art: molded ABS + bevel + center channel + recessed sockets with clip glints + red/blue rail stripes with +/− marks + column numbers + row letters + lift shadow | schema 3 tests: exact counts 170/400/830, bridge groups (17 / 34 / 71), split-rail isolation |
+| **Strip connectivity (`bridges`)** | `PartDefinition.bridges?: string[][]` (column tie-points, rail halves) + `bridgeMatesOf()`. Wired into **all three net paths**: `buildNetsAndWires` (import/spawn), `connect()` (live editing — bridge-aware net lookup + multi-net absorb), `mergeNetsByBridges()` in `projectToCircuit` (sim gets one node per strip even for pre-fix docs) | web 5 tests: import merge golden (4-pin net, wires pins−1), separate columns stay separate, `connect()` merges + relabels wires to one net, sim merge repair, spawn aliases |
+| Spawn | `breadboard`→400, mini-breadboard→170, half→400, full→830 aliases + in core catalog | alias golden |
+| Topbar | ↶ Undo / ↷ Redo (history-aware disabled states) + ⊡ Fit (`viewStore.resetView`) | typecheck 0 |
+
+_Chain_ **164/164** (schema 73 + sim 16 + web 75) · _typecheck_ 0.
+
+_Notes:_ wire casing/sag/hot-net highlight and wheel-zoom preventDefault were already in place (verified, kept). Rail naming: top edge − then + (MB-102 silkscreen convention); 830 rail rows split at center into 2×25-hole halves (true MB-102 topology). Follow-ups: photoreal shading for the remaining batch-art long tail, k-LOD socket collapse on breadboards at low zoom.

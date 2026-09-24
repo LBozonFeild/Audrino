@@ -5,6 +5,7 @@ import type {
   Project,
   WireSegment,
 } from "@audrino/schema";
+import { bridgeMatesOf } from "@audrino/schema";
 import { M0_PIN_CATALOG, parsePinRef, partDef, validateProject } from "@audrino/schema";
 
 /** Clipboard payload (M0-SPEC §4): boards + components + their nets (pins ⊆ copies) + wires. */
@@ -239,36 +240,46 @@ export function connect(
   }
 
   const ids = collectIds(doc);
-  const netOf = (pin: string) => doc.nets.find((n) => n.pins.includes(pin)) ?? null;
-  const netA = netOf(a);
-  const netB = netOf(b);
+  // A pin's electrical node includes its part's internal strips (breadboard
+  // columns / rails): wires landing on any hole of a strip share one net.
+  const nodeKeys = (pin: string): string[] => {
+    const ref = parsePinRef(pin);
+    if (!ref) return [pin];
+    const entity = [...doc.boards, ...doc.components].find((e) => e.id === ref.componentId);
+    const mates = entity ? bridgeMatesOf(entity.type, ref.pinId) : [];
+    return mates.length > 0 ? mates.map((m) => `${ref.componentId}:${m}`) : [pin];
+  };
+  const netsTouching = (pin: string): Net[] => {
+    const keys = new Set(nodeKeys(pin));
+    return doc.nets.filter((n) => n.pins.some((p) => keys.has(p)));
+  };
+  const involved = [...netsTouching(a), ...netsTouching(b)];
+  const seen = new Set<string>();
+  const mergeList = involved.filter((n) => (seen.has(n.id) ? false : (seen.add(n.id), true)));
 
   let nets: Net[];
   let relabelFrom: string | null = null;
   let netId: string;
-  if (!netA && !netB) {
+  const keepBoth = (n: Net): Net => ({
+    ...n,
+    pins: [...n.pins, ...[a, b].filter((p) => !n.pins.includes(p))],
+  });
+  if (mergeList.length === 0) {
     netId = uniqueId("net", ids);
     nets = [...doc.nets, { id: netId, pins: [a, b] }];
-  } else if (netA && !netB) {
-    netId = netA.id;
-    nets = doc.nets.map((n) => (n.id === netA.id ? { ...n, pins: [...n.pins, b] } : n));
-  } else if (!netA && netB) {
-    netId = netB.id;
-    nets = doc.nets.map((n) => (n.id === netB.id ? { ...n, pins: [a, ...n.pins] } : n));
-  } else if (netA!.id === netB!.id) {
-    netId = netA!.id;
-    nets = doc.nets;
   } else {
-    // Merge netB into netA (inv1 keeps pins unique across nets).
-    netId = netA!.id;
-    relabelFrom = netB!.id;
-    const absorbed = netB!.pins.filter((p) => !netA!.pins.includes(p));
+    // Absorb every touched net into the first (bridge strips can reach several).
+    const keeper = mergeList[0]!;
+    netId = keeper.id;
+    relabelFrom = mergeList.length > 1 ? mergeList.slice(1).map((n) => n.id).join("|") : null;
+    const drop = new Set(mergeList.slice(1).map((n) => n.id));
     nets = doc.nets
-      .filter((n) => n.id !== netB!.id)
-      .map((n) => (n.id === netA!.id ? { ...n, pins: [...n.pins, ...absorbed] } : n));
+      .filter((n) => !drop.has(n.id))
+      .map((n) => (n.id === keeper.id ? keepBoth({ ...n, pins: [...n.pins, ...mergeList.slice(1).flatMap((m) => m.pins.filter((p) => !keeper.pins.includes(p)))] }) : n));
   }
 
-  const existing = doc.wires.map((w) => (relabelFrom && w.net === relabelFrom ? { ...w, net: netId } : w));
+  const relabelSet = new Set((relabelFrom ?? "").split("|").filter(Boolean));
+  const existing = doc.wires.map((w) => (relabelSet.has(w.net) ? { ...w, net: netId } : w));
   const wire: WireSegment = { id: uniqueId("wire", ids), net: netId, points };
   return ok({ ...doc, nets, wires: [...existing, wire] });
 }

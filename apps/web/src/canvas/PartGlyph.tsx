@@ -168,6 +168,59 @@ function Chip({ x, y, w, h, label }: { x: number; y: number; w: number; h: numbe
   );
 }
 
+/** Shared photoreal materials (gradients, epoxy domes, lift shadows). SVG
+ *  url() refs are document-scoped — mount once per canvas (see Canvas.tsx). */
+export function ArtDefs() {
+  return (
+    <defs>
+      <linearGradient id="matSteel" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#fdfefe" />
+        <stop offset="0.35" stopColor="#c3cad2" />
+        <stop offset="0.65" stopColor="#8e97a2" />
+        <stop offset="1" stopColor="#5c6570" />
+      </linearGradient>
+      <linearGradient id="matBrass" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#ffe9b0" />
+        <stop offset="0.5" stopColor="#d8a13e" />
+        <stop offset="1" stopColor="#8f5f18" />
+      </linearGradient>
+      <linearGradient id="matBlack" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#55555c" />
+        <stop offset="0.4" stopColor="#2c2c33" />
+        <stop offset="1" stopColor="#101014" />
+      </linearGradient>
+      <linearGradient id="matAbs" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#fffef8" />
+        <stop offset="0.55" stopColor="#f0efe6" />
+        <stop offset="1" stopColor="#d6d4c6" />
+      </linearGradient>
+      <linearGradient id="matCeramic" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#f6e3b4" />
+        <stop offset="0.5" stopColor="#e2c288" />
+        <stop offset="1" stopColor="#b98f52" />
+      </linearGradient>
+      <linearGradient id="matCan" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stopColor="#f4f7fa" />
+        <stop offset="0.45" stopColor="#aab3bd" />
+        <stop offset="1" stopColor="#5f6872" />
+      </linearGradient>
+      {(["red", "green", "blue", "yellow", "white", "orange"] as const).map((c) => {
+        const pair = LED_COLORS[c] ?? LED_COLORS.red!;
+        return (
+          <radialGradient key={c} id={`matDome-${c}`} cx="0.35" cy="0.28" r="0.95">
+            <stop offset="0" stopColor="#fff" stopOpacity="0.9" />
+            <stop offset="0.35" stopColor={pair[0]} stopOpacity="0.95" />
+            <stop offset="1" stopColor={pair[1]} />
+          </radialGradient>
+        );
+      })}
+      <filter id="matLift" x="-40%" y="-40%" width="180%" height="180%">
+        <feDropShadow dx="0.15" dy="0.5" stdDeviation="0.35" floodColor="#000" floodOpacity="0.3" />
+      </filter>
+    </defs>
+  );
+}
+
 type ArtFn = (d: PartDefinition, values: Record<string, unknown>) => ReactElement;
 
 // ---- boards --------------------------------------------------------------------
@@ -296,7 +349,8 @@ const Pico: ArtFn = (d) => (
 
 // ---- leds / displays --------------------------------------------------------------
 const Led: ArtFn = (d, values) => {
-  const [lens, rim] = LED_COLORS[String(values.color ?? "red")] ?? LED_COLORS.red;
+  const colorName = String(values.color ?? "red");
+  const [lens, rim] = LED_COLORS[colorName] ?? LED_COLORS.red;
   const a = d.pins[0];
   const k = d.pins[1];
   const r = 3;
@@ -305,8 +359,8 @@ const Led: ArtFn = (d, values) => {
   const half = Math.sqrt(r * r - 2.2 * 2.2);
   return (
     <g>
-      <path d={`M 8.2 ${cy - half} A ${r} ${r} 0 1 0 8.2 ${cy + half} Z`} fill={lens} stroke={rim} strokeWidth={0.4} />
-      <ellipse cx={4.9} cy={3.9} rx={1.25} ry={0.8} fill="#fff" opacity={0.5} transform="rotate(-30 4.9 3.9)" />
+      <path d={`M 8.2 ${cy - half} A ${r} ${r} 0 1 0 8.2 ${cy + half} Z`} fill={`url(#matDome-${LED_COLORS[colorName] ? colorName : "red"})`} stroke={rim} strokeWidth={0.35} />
+      <ellipse cx={4.9} cy={3.9} rx={1.25} ry={0.8} fill="#fff" opacity={0.55} transform="rotate(-30 4.9 3.9)" />
       <circle cx={5.1} cy={cy} r={0.55} fill={METAL} />
       <path d="M 6.6 3.6 L 7.5 3.6 L 7.5 7.6 L 6.6 7.6 Z" fill={rim} opacity={0.55} />
       <path d={`M ${a.x + 2} ${a.y} L 5.1 ${cy + 0.6}`} stroke={LEAD} strokeWidth={0.75} fill="none" strokeLinecap="round" />
@@ -402,8 +456,10 @@ const Resistor: ArtFn = (d, values) => {
     <g>
       <Lead x1={d.pins[0].x} y1={4} x2={4.5} y2={4} w={0.8} />
       <Lead x1={17.5} y1={4} x2={d.pins[1].x} y2={4} w={0.8} />
-      <rect x={4.5} y={1.3} width={13} height={5.4} rx={2.2} fill={CERAMIC} stroke="#b09060" strokeWidth={0.3} />
-      <rect x={5.2} y={1.7} width={11.6} height={0.9} rx={0.4} fill="#fff" opacity={0.25} />
+      <rect x={4.5} y={1.3} width={13} height={5.4} rx={2.2} fill="url(#matCeramic)" stroke="#b09060" strokeWidth={0.3} />
+      <rect x={4.5} y={1.3} width={1.4} height={5.4} rx={0.6} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
+      <rect x={16.1} y={1.3} width={1.4} height={5.4} rx={0.6} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
+      <rect x={5.9} y={1.75} width={10} height={0.85} rx={0.4} fill="#fff" opacity={0.3} />
       {bands.map(([x, c]) => (
         <rect key={x} x={x} y={1.3} width={0.95} height={5.4} fill={c} />
       ))}
@@ -495,9 +551,83 @@ const Potentiometer: ArtFn = () => (
   </g>
 );
 
+/** Solderless breadboard — molded ABS body, beveled edge, center channel,
+ *  recessed sockets with steel clip glints, red/blue rail stripes with +/−
+ *  end marks, column numbers and a–j row letters. */
+const HOLE_RE = /^([a-j])(\d+)$/;
+const RAIL_RE = /^([np][tb])(\d+)$/;
+
+function breadboardArt(withLabels: boolean): ArtFn {
+  return (d) => {
+    const { w, h } = d.size_mm;
+    const holes = d.pins.filter((p) => HOLE_RE.test(p.id));
+    const rails = d.pins.filter((p) => RAIL_RE.test(p.id));
+    const cols = Math.max(...holes.map((p) => Number(HOLE_RE.exec(p.id)![2])));
+    const rows = [...new Set(holes.map((p) => HOLE_RE.exec(p.id)![1]))].sort();
+    const rowY = new Map(rows.map((L) => [L, holes.find((p) => p.id.startsWith(L))!.y]));
+    const fieldTop = Math.min(...holes.map((p) => p.y)) - 1.27;
+    const midY = ((rowY.get("e") ?? h / 2) + (rowY.get("f") ?? h / 2)) / 2;
+    const railRows = [...new Set(rails.map((p) => RAIL_RE.exec(p.id)![1]))].sort(
+      (a, b) => rails.find((p) => p.id.startsWith(a))!.y - rails.find((p) => p.id.startsWith(b))!.y,
+    );
+    const socket = (p: { x: number; y: number; id: string }) => (
+      <g key={p.id} style={{ pointerEvents: "none" }}>
+        <circle cx={p.x} cy={p.y} r={0.74} fill="#5c5648" />
+        <circle cx={p.x} cy={p.y} r={0.44} fill="#14161a" />
+        <path d={`M ${p.x - 0.3} ${p.y - 0.24} A 0.4 0.4 0 0 1 ${p.x + 0.28} ${p.y - 0.3}`} stroke="#c9ced6" strokeWidth={0.14} fill="none" opacity={0.9} />
+      </g>
+    );
+    return (
+      <g>
+        <g filter="url(#matLift)">
+          <rect x={0.3} y={0.3} width={w - 0.6} height={h - 0.6} rx={1.2} fill="url(#matAbs)" stroke="#b9b5a2" strokeWidth={0.4} />
+          <rect x={0.9} y={0.9} width={w - 1.8} height={h - 1.8} rx={0.9} fill="none" stroke="#fff" strokeOpacity={0.8} strokeWidth={0.3} />
+          {rowY.has("e") && rowY.has("f") && (
+            <>
+              <rect x={1.6} y={midY - 0.8} width={w - 3.2} height={1.6} rx={0.8} fill="#d2cfbe" />
+              <rect x={1.6} y={midY - 0.8} width={w - 3.2} height={0.55} rx={0.28} fill="#a9a592" opacity={0.6} />
+            </>
+          )}
+          {railRows.map((rr) => {
+            const pts = rails.filter((p) => p.id.startsWith(rr));
+            const plus = pts[0]!.name === "+";
+            const y = pts[0]!.y;
+            const x0 = pts[0]!.x - 1.27;
+            const x1 = pts[pts.length - 1]!.x + 1.27;
+            return (
+              <g key={rr} style={{ pointerEvents: "none" }}>
+                <rect x={x0} y={y + (plus ? 0.95 : -1.25)} width={x1 - x0} height={0.3} fill={plus ? "#e23b3b" : "#2f5fd6"} opacity={0.85} />
+                <Silk x={x0 - 0.7} y={y + 0.5} size={1.3} fill={plus ? "#c22" : "#26c"}>{plus ? "+" : "\u2212"}</Silk>
+                <Silk x={x1 + 0.7} y={y + 0.5} size={1.3} fill={plus ? "#c22" : "#26c"}>{plus ? "+" : "\u2212"}</Silk>
+              </g>
+            );
+          })}
+          {withLabels && (
+            <g style={{ pointerEvents: "none" }} fontFamily="ui-monospace, Menlo, monospace">
+              {Array.from({ length: cols }, (_, c) => (
+                <text key={c} x={holes.find((p) => HOLE_RE.exec(p.id)![2] === String(c + 1))!.x} y={fieldTop - 0.2} fontSize={1.05} fill="#8f8a78" textAnchor="middle">
+                  {c + 1}
+                </text>
+              ))}
+              {rows.map((L) => (
+                <text key={L} x={1.1} y={rowY.get(L)! + 0.4} fontSize={0.95} fill="#8f8a78" textAnchor="start">
+                  {L}
+                </text>
+              ))}
+            </g>
+          )}
+          {holes.map(socket)}
+          {rails.map(socket)}
+          <rect x={0.3} y={h - 1.4} width={w - 0.6} height={0.6} rx={0.3} fill="#000" opacity={0.06} />
+        </g>
+      </g>
+    );
+  };
+}
+
 const BreadboardMini: ArtFn = (d) => (
   <g>
-    <rect x={0.5} y={1} width={29} height={22} rx={1} fill="#f2f0e8" stroke="#c9c5b4" strokeWidth={0.35} />
+    <rect x={0.5} y={1} width={29} height={22} rx={1} fill="url(#matAbs)" stroke="#c9c5b4" strokeWidth={0.35} />
     <line x1={2} y1={12} x2={28} y2={12} stroke="#c9c5b4" strokeWidth={0.3} strokeDasharray="1 0.8" />
     <line x1={3} y1={3.5} x2={27} y2={3.5} stroke="#c22" strokeWidth={0.3} />
     <line x1={3} y1={20.5} x2={27} y2={20.5} stroke="#26c" strokeWidth={0.3} />
@@ -917,6 +1047,9 @@ export const LEGACY_ART: Record<string, ArtFn> = {
   thermistor: Thermistor,
   potentiometer: Potentiometer,
   "breadboard-mini": BreadboardMini,
+  "breadboard-170": breadboardArt(true),
+  "breadboard-400": breadboardArt(true),
+  "breadboard-830": breadboardArt(true),
   "transistor-npn": to92("NPN"),
   "transistor-pnp": to92("PNP"),
   "mosfet-n": to220("MOSFET"),

@@ -3,7 +3,7 @@ import type { Transform } from "@audrino/schema";
 import { M0_PIN_CATALOG, parsePinRef, partDef } from "@audrino/schema";
 import { useEditorStore } from "../state/store";
 import type { Tool } from "../state/store";
-import { PartGlyph, partSize, pinWorldPos } from "./PartGlyph";
+import { ArtDefs, PartGlyph, partSize, pinWorldPos } from "./PartGlyph";
 import { memo } from "react";
 import { useSimStore } from "../sim/SimProvider";
 import { useViewStore, VIEW_W, VIEW_H } from "./viewStore";
@@ -311,6 +311,7 @@ export function Canvas(props: {
         }}
         onClick={onBackgroundClick}
       >
+        <ArtDefs />
         <defs>
           <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
             <circle cx="1" cy="1" r="1" fill="var(--bench-bg-grid)" />

@@ -34,6 +34,10 @@ export interface PartDefinition {
   size_mm: { w: number; h: number };
   pins: PartPin[];
   defaultProps: Record<string, unknown>;
+  /** Groups of pin ids internally commoned by the part (breadboard strips:
+   *  column tie-points and power-rail halves). Net builders union these so a
+   *  wire landing on any hole of a strip reaches every hole of that strip. */
+  bridges?: string[][];
 }
 
 type PinSpec = string | [string, string];
@@ -1040,7 +1044,91 @@ const BASE_DEFS: PartDefinition[] = [
 
 ];
 
-export const PART_DEFINITIONS: PartDefinition[] = [...BASE_DEFS, ...buildFamilyDefs(BASE_DEFS)];
+// --------------------------------------------------------------- breadboards
+/** Real solderless breadboards: 2.54 mm pitch, ten-row field (a–e over f–j)
+ *  split by a center channel; optional power rails along the top and bottom
+ *  edges (25-hole strips on the 400, 50-hole rows split into 2×25 on the 830).
+ *  Every column is a tie-point strip — expressed as `bridges`. */
+const PITCH = 2.54;
+const ROWS = "abcdefghij";
+
+function breadboardDef(
+  type: string,
+  label: string,
+  cols: number,
+  railHoles: 0 | 25 | 50,
+  splits: boolean,
+): PartDefinition {
+  const marginX = 1.5;
+  const fieldW = cols * PITCH;
+  const w = fieldW + marginX * 2;
+  const channel = railHoles === 0 ? 1 : 2.2;
+  const fieldH = 10 * PITCH + channel;
+  const h = railHoles === 0 ? fieldH + 3.6 : 55;
+  const yTop = (h - fieldH) / 2;
+  const hx = (c: number) => marginX + PITCH / 2 + PITCH * c;
+  const hy = (r: number) => yTop + PITCH / 2 + PITCH * r + (r >= 5 ? channel : 0);
+  const pins: PartPin[] = [];
+  const bridges: string[][] = [];
+  for (let c = 0; c < cols; c++) {
+    const colIds: string[] = [];
+    for (let r = 0; r < 10; r++) {
+      const id = `${ROWS[r]}${c + 1}`;
+      pins.push(px(id, id, hx(c), hy(r)));
+      colIds.push(id);
+    }
+    bridges.push(colIds);
+  }
+  if (railHoles > 0) {
+    const span = (railHoles - 1) * PITCH;
+    const rx = (i: number) => marginX + (fieldW - span) / 2 + PITCH * i;
+    // top edge: − then + (mirrors MB-102 silkscreen); bottom edge: + then −
+    const rows: { ids: string[]; name: string; y: number }[] = [
+      { ids: [], name: "−", y: 3.2 },
+      { ids: [], name: "+", y: 3.2 + PITCH },
+      { ids: [], name: "+", y: h - 3.2 - PITCH },
+      { ids: [], name: "−", y: h - 3.2 },
+    ];
+    const rowId = (row: number, i: number) => ["nt", "pt", "pb", "nb"][row] + String(i + 1);
+    for (let i = 0; i < railHoles; i++) {
+      for (let row = 0; row < 4; row++) {
+        const id = rowId(row, i);
+        rows[row].ids.push(id);
+        pins.push(px(id, rows[row].name, rx(i), rows[row].y));
+      }
+    }
+    for (const row of rows) {
+      if (splits) {
+        bridges.push(row.ids.slice(0, railHoles / 2));
+        bridges.push(row.ids.slice(railHoles / 2));
+      } else {
+        bridges.push(row.ids);
+      }
+    }
+  }
+  return { type, label, category: "passive", size_mm: { w, h }, pins, defaultProps: {}, bridges };
+}
+
+const BREADBOARD_DEFS: PartDefinition[] = [
+  breadboardDef("breadboard-170", "BB170", 17, 0, false),
+  breadboardDef("breadboard-400", "BB400", 30, 25, false),
+  breadboardDef("breadboard-830", "BB830", 63, 50, true),
+];
+
+/** Pin ids commoned internally with `pinId` on `type` (empty when none). */
+export function bridgeMatesOf(type: string, pinId: string): string[] {
+  const def = partDef(type);
+  for (const group of def?.bridges ?? []) {
+    if (group.includes(pinId)) return group;
+  }
+  return [];
+}
+
+export const PART_DEFINITIONS: PartDefinition[] = [
+  ...BASE_DEFS,
+  ...BREADBOARD_DEFS,
+  ...buildFamilyDefs([...BASE_DEFS, ...BREADBOARD_DEFS]),
+];
 
 /** Validator pin catalog derived from the definitions (id lists only). */
 export const M0_PIN_CATALOG: Record<string, string[]> = Object.fromEntries(

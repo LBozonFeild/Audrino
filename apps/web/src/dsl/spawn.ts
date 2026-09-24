@@ -62,7 +62,10 @@ const TYPE_ALIASES: Record<string, string> = {
   "lm35": "lm35", "mq-2": "mq-2", gas: "mq-2", "bmp280": "bmp280",
   "ne555": "ne555", "555": "ne555", "l293d": "l293d", "uln2003": "uln2003",
   "regulator-7805": "regulator-7805", "7805": "regulator-7805", "lm317": "lm317",
-  "breadboard": "breadboard-mini", "breadboard-mini": "breadboard-mini",
+  "breadboard": "breadboard-400", "breadboard-mini": "breadboard-mini",
+  "breadboard-170": "breadboard-170", "mini-breadboard": "breadboard-170",
+  "breadboard-400": "breadboard-400", "half-breadboard": "breadboard-400",
+  "breadboard-830": "breadboard-830", "full-breadboard": "breadboard-830",
   "battery": "battery-9v", "battery-9v": "battery-9v",
 };
 
@@ -76,7 +79,8 @@ const CORE_TYPES = [
   "sg90-servo", "dc-motor", "buzzer", "speaker", "relay-module", "stepper-28byj",
   "dht11", "dht22", "hc-sr04", "bmp280", "mq-2", "pir", "mpu6050", "ds18b20", "lm35",
   "74hc595", "ne555", "l293d", "uln2003", "cd4017", "atmega328p-dip",
-  "regulator-7805", "lm317", "breadboard-mini", "battery-9v", "terminal-2",
+  "regulator-7805", "lm317", "breadboard-170", "breadboard-400", "breadboard-830",
+  "breadboard-mini", "battery-9v", "terminal-2",
 ];
 
 export function normalizeType(raw: string): string | null {

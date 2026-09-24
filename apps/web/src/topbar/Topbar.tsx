@@ -3,6 +3,7 @@ import { useEditorStore } from "../state/store";
 import { SharePopover } from "./SharePopover";
 import { useSimStore } from "../sim/SimProvider";
 import { ThemePicker } from "./ThemePicker";
+import { useViewStore } from "../canvas/viewStore";
 
 export function Topbar(props: { notify: (msg: string) => void }) {
   const doc = useEditorStore((s) => s.doc);
@@ -11,6 +12,8 @@ export function Topbar(props: { notify: (msg: string) => void }) {
   const stop = useSimStore((s) => s.stop);
   const resetSim = useSimStore((s) => s.reset);
 
+  const histLen = useEditorStore((s) => s.history.past.length);
+  const futLen = useEditorStore((s) => s.history.future.length);
   const board = doc.boards.find((b) => b.id === doc.meta.boardId) ?? doc.boards[0];
   const running = status === "running" || status === "compiling";
 
@@ -34,6 +37,29 @@ export function Topbar(props: { notify: (msg: string) => void }) {
       {status === "error" && <span className="badge warn">sim error</span>}
       {status === "done" && <span className="badge">sim done</span>}
       <span className="spacer" />
+      <button
+        title="Undo (Ctrl+Z)"
+        disabled={histLen === 0}
+        onClick={() => {
+          useEditorStore.getState().undo();
+          props.notify("Undone");
+        }}
+      >
+        ↶
+      </button>
+      <button
+        title="Redo (Ctrl+Y)"
+        disabled={futLen === 0}
+        onClick={() => {
+          useEditorStore.getState().redo();
+          props.notify("Redone");
+        }}
+      >
+        ↷
+      </button>
+      <button title="Fit view (reset zoom)" onClick={() => useViewStore.getState().resetView()}>
+        ⊡ Fit
+      </button>
       <ThemePicker />
       <SharePopover notify={props.notify} />
       <AccountPopover notify={props.notify} />
