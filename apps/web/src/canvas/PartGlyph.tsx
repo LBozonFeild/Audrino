@@ -41,7 +41,22 @@ export function pinWorldPos(
 ): [number, number] | null {
   const local = pinLocalPos(entity.type, pinId);
   if (!local) return null;
-  return [entity.transform.x + local.x, entity.transform.y + local.y];
+  // Must match the art's `rotate(rot, w/2, h/2)` — spin around the bbox center.
+  const { w, h } = partSize(entity.type);
+  const rot = (((entity.transform.rotation_deg ?? 0) % 360) + 360) % 360;
+  let lx = local.x;
+  let ly = local.y;
+  if (rot === 90) {
+    lx = (w + h) / 2 - local.y;
+    ly = local.x + (h - w) / 2;
+  } else if (rot === 180) {
+    lx = w - local.x;
+    ly = h - local.y;
+  } else if (rot === 270) {
+    lx = local.y + (w - h) / 2;
+    ly = (w + h) / 2 - local.x;
+  }
+  return [entity.transform.x + lx, entity.transform.y + ly];
 }
 
 // ---- palette ---------------------------------------------------------------

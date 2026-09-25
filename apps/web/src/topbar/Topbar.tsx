@@ -4,6 +4,7 @@ import { SharePopover } from "./SharePopover";
 import { useSimStore } from "../sim/SimProvider";
 import { ThemePicker } from "./ThemePicker";
 import { useViewStore } from "../canvas/viewStore";
+import { docBBox } from "../state/ops";
 
 export function Topbar(props: { notify: (msg: string) => void }) {
   const doc = useEditorStore((s) => s.doc);
@@ -57,7 +58,20 @@ export function Topbar(props: { notify: (msg: string) => void }) {
       >
         ↷
       </button>
-      <button title="Fit view (reset zoom)" onClick={() => useViewStore.getState().resetView()}>
+      <button
+        title="Rotate selection (R)"
+        onClick={() => {
+          const s = useEditorStore.getState();
+          const msg = s.rotate(s.selection);
+          if (msg) props.notify(msg);
+        }}
+      >
+        ↻
+      </button>
+      <button
+        title="Fit view to circuit"
+        onClick={() => useViewStore.getState().fitContent(docBBox(useEditorStore.getState().doc))}
+      >
         ⊡ Fit
       </button>
       <ThemePicker />

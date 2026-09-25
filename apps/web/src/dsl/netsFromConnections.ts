@@ -14,10 +14,12 @@ export interface EntityPlace {
 }
 
 function rotatedPin(mm: { w: number; h: number }, x: number, y: number, rot: number): [number, number] {
+  // Center-rotation convention — must match PartGlyph's render/pinWorldPos
+  // (`rotate(rot, w/2, h/2)`), which differs from corner math on non-square parts.
   const r = ((rot % 360) + 360) % 360;
-  if (r === 90) return [mm.h - y, x];
+  if (r === 90) return [(mm.w + mm.h) / 2 - y, x + (mm.h - mm.w) / 2];
   if (r === 180) return [mm.w - x, mm.h - y];
-  if (r === 270) return [y, mm.w - x];
+  if (r === 270) return [y + (mm.w - mm.h) / 2, (mm.w + mm.h) / 2 - x];
   return [x, y];
 }
 

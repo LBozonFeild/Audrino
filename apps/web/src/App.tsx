@@ -10,6 +10,8 @@ import { SerialPanel } from "./serial/SerialPanel";
 import { docLooksTrivial, loadAutosave, scheduleAutosave } from "./dsl/autosave";
 import { decodeShare, tokenFromHash } from "./dsl/share";
 import { useEditorStore } from "./state/store";
+import { useViewStore } from "./canvas/viewStore";
+import { docBBox } from "./state/ops";
 import type { Tab } from "./state/store";
 import { Topbar } from "./topbar/Topbar";
 
@@ -46,6 +48,7 @@ export function App() {
       const saved = loadAutosave();
       if (saved && !docLooksTrivial(saved)) {
         useEditorStore.getState().loadProject(saved);
+        useViewStore.getState().fitContent(docBBox(useEditorStore.getState().doc));
         notify("Restored unsaved work from this browser");
         return;
       }
@@ -54,6 +57,7 @@ export function App() {
         const shared = await decodeShare(token);
         if (shared) {
           useEditorStore.getState().loadProject(shared);
+          useViewStore.getState().fitContent(docBBox(useEditorStore.getState().doc));
           notify("Loaded shared project — Save it to keep it");
         } else notify("Share link is damaged or too old");
       }
@@ -100,6 +104,10 @@ export function App() {
       } else if (mod && key === "d") {
         e.preventDefault();
         const msg = store.duplicate();
+        if (msg) notify(msg);
+      } else if (!mod && key === "r" && store.selection.length > 0) {
+        e.preventDefault();
+        const msg = store.rotate(store.selection, e.shiftKey ? -90 : 90);
         if (msg) notify(msg);
       } else if (e.key === "Delete" || e.key === "Backspace") {
         e.preventDefault();

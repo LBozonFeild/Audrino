@@ -7,6 +7,7 @@ import type {
 } from "@audrino/schema";
 import { bridgeMatesOf } from "@audrino/schema";
 import { M0_PIN_CATALOG, parsePinRef, partDef, validateProject } from "@audrino/schema";
+import { relayoutWires } from "../dsl/netsFromConnections";
 
 /** Clipboard payload (M0-SPEC §4): boards + components + their nets (pins ⊆ copies) + wires. */
 export interface Clipboard {
@@ -105,6 +106,55 @@ export function place(
   return ok({ ...doc, components: [...doc.components, component] }, [id]);
 }
 
+/**
+ * Rotate the selection in 90° steps around each part's bbox center (the art
+ * and pin math already spin around that center). Wire endpoints re-land on the
+ * new pin positions — wires are visual-only; nets are topological.
+ */
+export function rotate(doc: Project, ids: string[], delta = 90): OpResult {
+  if (ids.length === 0) return fail("nothing selected");
+  const sel = new Set(ids);
+  const spin = <T extends { id: string; transform: { x: number; y: number; rotation_deg?: number } }>(e: T): T =>
+    sel.has(e.id)
+      ? {
+          ...e,
+          transform: {
+            ...e.transform,
+            rotation_deg: ((((e.transform.rotation_deg ?? 0) + delta) % 360) + 360) % 360,
+          },
+        }
+      : e;
+  const next: Project = {
+    ...doc,
+    boards: doc.boards.map(spin),
+    components: doc.components.map(spin),
+    wires: doc.wires.map((w) => ({ ...w, points: w.points.map((p) => [p[0], p[1]] as [number, number]) })),
+  };
+  relayoutWires(next);
+  return ok(next);
+}
+
+/** Content bounding box (rotation-aware) for fit-to-content; null when empty. */
+export function docBBox(doc: Project): { minX: number; minY: number; maxX: number; maxY: number } | null {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  const acc = (e: { type: string; transform: { x: number; y: number; rotation_deg?: number } }) => {
+    const s = partDef(e.type)?.size_mm ?? { w: 0, h: 0 };
+    const turned = (((e.transform.rotation_deg ?? 0) % 180) + 180) % 180 !== 0;
+    const bw = turned ? s.h : s.w;
+    const bh = turned ? s.w : s.h;
+    minX = Math.min(minX, e.transform.x);
+    minY = Math.min(minY, e.transform.y);
+    maxX = Math.max(maxX, e.transform.x + bw);
+    maxY = Math.max(maxY, e.transform.y + bh);
+  };
+  doc.boards.forEach(acc);
+  doc.components.forEach(acc);
+  return Number.isFinite(minX) ? { minX, minY, maxX, maxY } : null;
+}
+
 export function move(doc: Project, ids: string[], dx: number, dy: number): OpResult {
   if (ids.length === 0) return fail("nothing selected");
   if (dx === 0 && dy === 0) return ok(doc);
@@ -112,12 +162,15 @@ export function move(doc: Project, ids: string[], dx: number, dy: number): OpRes
 
   // Uniform clamped delta so relative layout and wire anchors stay in sync.
   let loX = -Infinity, hiX = Infinity, loY = -Infinity, hiY = Infinity;
-  const bound = (e: { type?: string; size_mm?: { w: number; h: number }; transform: { x: number; y: number } }) => {
+  const bound = (e: { type?: string; size_mm?: { w: number; h: number }; transform: { x: number; y: number; rotation_deg?: number } }) => {
     const s = e.size_mm ?? (e.type ? partDef(e.type)?.size_mm : undefined) ?? { w: 0, h: 0 };
+    const turned = (((e.transform.rotation_deg ?? 0) % 180) + 180) % 180 !== 0;
+    const bw = turned ? s.h : s.w;
+    const bh = turned ? s.w : s.h;
     loX = Math.max(loX, -e.transform.x);
-    hiX = Math.min(hiX, CANVAS_W - s.w - e.transform.x);
+    hiX = Math.min(hiX, CANVAS_W - bw - e.transform.x);
     loY = Math.max(loY, -e.transform.y);
-    hiY = Math.min(hiY, CANVAS_H - s.h - e.transform.y);
+    hiY = Math.min(hiY, CANVAS_H - bh - e.transform.y);
   };
   doc.boards.forEach((b) => moving.has(b.id) && bound(b));
   doc.components.forEach((c) => moving.has(c.id) && bound(c));

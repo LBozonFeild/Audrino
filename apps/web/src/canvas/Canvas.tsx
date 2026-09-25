@@ -7,7 +7,7 @@ import { ArtDefs, PartGlyph, partSize, pinWorldPos } from "./PartGlyph";
 import { PIN_HIT_S, PIN_PAD_S, pinLabel } from "./pinLabel";
 import { memo } from "react";
 import { useSimStore } from "../sim/SimProvider";
-import { useViewStore, VIEW_W, VIEW_H } from "./viewStore";
+import { useViewStore, VIEW_W, VIEW_H, DEFAULT_K } from "./viewStore";
 
 const TOOLS: { id: Tool; label: string }[] = [
   { id: "select", label: "Select" },
@@ -244,6 +244,9 @@ export function Canvas(props: {
     setWireFrom(null);
   };
 
+  const zoomCenter = (factor: number) => {
+    useViewStore.getState().zoomAt(view.x + VIEW_W / (2 * view.k), view.y + VIEW_H / (2 * view.k), factor);
+  };
   const empty = entities.length === 0 && (doc.mechanics?.bodies.length ?? 0) === 0;
 
   return (
@@ -258,6 +261,11 @@ export function Canvas(props: {
             {t.label}
           </button>
         ))}
+        <span className="zoom-ctl">
+          <button title="Zoom out" onClick={() => zoomCenter(1 / 1.25)}>−</button>
+          <span className="zoom-pct">{Math.round((view.k / DEFAULT_K) * 100)}%</span>
+          <button title="Zoom in" onClick={() => zoomCenter(1.25)}>+</button>
+        </span>
         <span className="hint">
           {props.pendingPlace
             ? `click canvas to place ${props.pendingPlace.type} · ESC clears`

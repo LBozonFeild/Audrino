@@ -29,6 +29,7 @@ interface EditorStore {
   move(ids: string[], dx: number, dy: number): string | null;
   removeIds(ids: string[]): string | null;
   deleteSelection(): string | null;
+  rotate(ids: string[], delta?: number): string | null;
   connect(a: string, b: string, points: [number, number][]): string | null;
   setCode(name: string, content: string): string | null;
   loadProject(next: Project): string | null;
@@ -87,6 +88,7 @@ export const useEditorStore = create<EditorStore>()((set, get) => {
       return feedback;
     },
     deleteSelection: () => get().removeIds(get().selection),
+    rotate: (ids, delta = 90) => commit(ops.rotate(get().doc, ids, delta)),
     connect: (a, b, points) => commit(ops.connect(get().doc, a, b, points)),
     setCode: (name, content) => commit(ops.setCodeFile(get().doc, name, content)),
     loadProject: (raw) => {

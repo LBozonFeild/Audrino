@@ -303,3 +303,25 @@ _Chain_ **169/169** (schema 75 + sim 16 + web 78) · _typecheck_ 0.
 - Chain 172/172 (schema 75 + sim 16 + web 81); art smoke clean; typecheck 0.
 - Splice lesson: PartGlyph to92/to220 texts DIFFER from batch2/extra copies —
   probe repr before swap; a failed assert aborts the whole file write (safe).
+
+## Editor tools round (rotate, fit-to-content, zoom controls, themes) — 2026-09-25
+
+- "do other improvements" — editor quality pass (undo/redo already existed):
+- **Rotate (R / Shift+R / ↻ button)**: 90° steps around the bbox center, undo-
+  integrated; wires re-land on the new pin positions (relayoutWires). Data model
+  had rotation_deg but zero UI since M0.
+- **Rotation math bug fixed (load-bearing)**: the art renders `rotate(rot, w/2,
+  h/2)` (center) but pinWorldPos ignored rotation (PartGlyph) and rotatedPin
+  used corner math (netsFromConnections) — they only agreed on squares. Both now
+  share the center convention; editor-tools.test pins all three at every 90°.
+- **True fit-to-content**: `viewStore.fitContent(docBBox(doc))` — pads 16mm,
+  clamps k∈[0.15,8], centers content; "Fit view" button + auto-fit on autosave/
+  share load (at k=5 a saved circuit elsewhere in the world opened on empty grid).
+- **Zoom controls** in the tool strip: −/＋ (×1.25) + % readout (100% = DEFAULT_K 5).
+- **4 new themes** (48 total): AMOLED Black, Rosé Pine, Kanagawa, Everforest —
+  pre-validated against themes.test WCAG floors (fg/bg+panel ≥4.5, ink/accent
+  ≥4.5, dim/panel + wire/canvas ≥3); names/ids unique (nord/dracula/solarized
+  duplicates rejected by the test and replaced with fresh palettes).
+- Chain 178/178 (schema 75 + sim 16 + web 87); typecheck 0. New tests:
+  editor-tools.test.ts (rotate wrap, wire re-land, pin-math consistency,
+  fit clamp/center, docBBox rotation-swap).

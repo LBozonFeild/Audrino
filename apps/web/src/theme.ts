@@ -67,18 +67,10 @@ export const THEMES: Theme[] = [
     "#efe2c8", "#f6ecd8", "#d4c2a0", "#f9f1de", "#ecdfc4", "#d9c9a8",
     "#4a3b26", "#8d7a5c", "#a05a2c", "#6b8f3a", "#fff8ea", "#6b8f3a", "#b23c2a",
     "#ecdfc4", "#e8d9ba", "0 8px 22px rgba(90,60,20,.16)", "#6d5a40")),
-  t("nord", "Nord", mk(
-    "#2e3440", "#3b4252", "#4c566a", "#363d4c", "#434c5e", "#4c566a",
-    "#eceff4", "#9aa5b8", "#88c0d0", "#ebcb8b", "#20242c", "#a3be8c", "#bf616a",
-    "#2e3440", "#434c5e", "0 10px 28px rgba(0,0,0,.4)", "#d8dee9")),
   t("nord-light", "Nord Light", mk(
     "#e9eef4", "#f2f5f9", "#c5d0de", "#ffffff", "#e6ebf2", "#d2dbe6",
     "#2e3440", "#6b7788", "#57779f", "#a3566a", "#ffffff", "#2f7d4f", "#bf616a",
     "#e6ebf2", "#dde6f0", "0 8px 22px rgba(40,60,90,.12)", "#434c5e")),
-  t("dracula", "Dracula", mk(
-    "#1e1f29", "#242632", "#3a3d52", "#282a3a", "#323449", "#42455e",
-    "#f8f8f2", "#8b8fa8", "#bd93f9", "#ff79c6", "#191a21", "#50fa7b", "#ff5555",
-    "#23242f", "#33354a", "0 10px 30px rgba(0,0,0,.5)", "#f8f8f2")),
   t("monokai", "Monokai", mk(
     "#20211c", "#272822", "#3e3d32", "#2d2e27", "#383931", "#494a3e",
     "#f8f8f2", "#92927f", "#f92672", "#a6e22e", "#1a1b16", "#a6e22e", "#fd5ff1",
@@ -99,10 +91,6 @@ export const THEMES: Theme[] = [
     "#002b36", "#063440", "#17505f", "#073642", "#0a4050", "#1a5a6b",
     "#eee8d5", "#839496", "#2074af", "#b58900", "#fdf6e3", "#859900", "#dc322f",
     "#073642", "#0a4050", "0 10px 28px rgba(0,0,0,.4)", "#93a1a1")),
-  t("solarized-light", "Solarized Light", mk(
-    "#fdf6e3", "#eee8d5", "#c9c0a5", "#fdf6e3", "#eee8d5", "#d8cfb2",
-    "#586e75", "#849090", "#2074af", "#cb4b16", "#fdf6e3", "#859900", "#dc322f",
-    "#eee8d5", "#e4dcc7", "0 8px 22px rgba(90,80,40,.14)", "#657b83")),
   t("catppuccin-mocha", "Catppuccin Mocha", mk(
     "#181825", "#1e1e2e", "#313244", "#1e1e2e", "#252536", "#3b3b52",
     "#cdd6f4", "#7f849c", "#cba6f7", "#89b4fa", "#11111b", "#a6e3a1", "#f38ba8",
@@ -219,6 +207,34 @@ export const THEMES: Theme[] = [
     "#f3e7d3", "#f8efdd", "#d9c5a0", "#fdf6e9", "#efe2c8", "#dcc9a5",
     "#5a4632", "#9b8668", "#9c6638", "#4f9d8d", "#fffaf0", "#6a9f4e", "#c4503c",
     "#efe2c8", "#eadbc0", "0 8px 22px rgba(120,90,40,.16)", "#6d5943")),
+  t("dracula", "Dracula", mk(
+    "#282a36", "#21222c", "#44475a", "#343746", "#424455", "#44475a",
+    "#f8f8f2", "#b9c0d0", "#bd93f9", "#ffb86c", "#1a1026", "#50fa7b", "#ff5555",
+    "#424455", "#424455", "0 10px 30px rgba(0,0,0,.4)", "#8be9fd")),
+  t("nord", "Nord", mk(
+    "#2e3440", "#3b4252", "#4c566a", "#3b4252", "#434c5e", "#4c566a",
+    "#eceff4", "#c3cad6", "#88c0d0", "#ebcb8b", "#1c2733", "#a3be8c", "#bf616a",
+    "#434c5e", "#434c5e", "0 10px 30px rgba(0,0,0,.4)", "#d8dee9")),
+  t("solarized-light", "Solarized Light", mk(
+    "#fdf6e3", "#eee8d5", "#d3cbb7", "#fdf6e3", "#eee8d5", "#d3cbb7",
+    "#073642", "#5f7076", "#b3341a", "#b58900", "#ffffff", "#5c7a00", "#c0221f",
+    "#eee8d5", "#eee8d5", "0 10px 30px rgba(0,0,0,.14)", "#657b83")),
+  t("amoled", "AMOLED Black", mk(
+    "#000000", "#060606", "#222222", "#0d0d0d", "#181818", "#282828",
+    "#fafafa", "#a8a8b0", "#22d3ee", "#f472b6", "#062a30", "#34d399", "#f87171",
+    "#181818", "#181818", "0 10px 30px rgba(0,0,0,.4)", "#e5e5e5")),
+  t("rose-pine", "Rosé Pine", mk(
+    "#191724", "#1f1d2e", "#2a273a", "#262336", "#2a273a", "#393552",
+    "#e0def4", "#908caa", "#c4a7e7", "#f6c177", "#1e1430", "#9ccfd8", "#eb6f92",
+    "#2a273a", "#2a273a", "0 10px 30px rgba(0,0,0,.4)", "#a59bc4")),
+  t("kanagawa", "Kanagawa", mk(
+    "#1f1f28", "#16161d", "#363646", "#2a2a37", "#363646", "#54546d",
+    "#dcd7ba", "#a8a296", "#7e9cd8", "#ffa066", "#10131c", "#98bb6c", "#e46876",
+    "#363646", "#363646", "0 10px 30px rgba(0,0,0,.4)", "#c0a583")),
+  t("everforest", "Everforest", mk(
+    "#2d353b", "#272e33", "#3d484d", "#343f44", "#3d484d", "#475258",
+    "#d3c6aa", "#9da9a0", "#a7c080", "#e69875", "#1e2420", "#83c092", "#e67e80",
+    "#3d484d", "#3d484d", "0 10px 30px rgba(0,0,0,.4)", "#d3c6aa")),
 ];
 
 const VAR_MAP: Record<keyof Theme["vars"], string> = {

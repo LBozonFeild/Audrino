@@ -772,3 +772,34 @@ textarea:focus {
 .pin-dot.st-low { fill: #3a3f45; stroke: #22262b; }
 .pin-dot.st-pullup { fill: #c9a227; stroke: #8a6f16; }
 .pin-dot.st-z { fill: transparent; }
+
+/* zoom controls in the tool strip */
+.zoom-ctl {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 4px;
+}
+
+.zoom-ctl button {
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--bench-fg);
+  cursor: pointer;
+  padding: 2px 7px;
+}
+
+.zoom-ctl button:hover {
+  background: var(--bench-hover);
+}
+
+.zoom-pct {
+  min-width: 44px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--bench-fg-dim);
+}
