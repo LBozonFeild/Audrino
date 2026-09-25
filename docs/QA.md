@@ -290,3 +290,16 @@ _Chain_ **169/169** (schema 75 + sim 16 + web 78) · _typecheck_ 0.
 - Env: per-turn reset wipes node_modules + system zig — recovery = `npm ci` +
   `pip install --break-system-packages ziglang` (+ git fetch/reset/restore if
   the worktree re-clones).
+
+## Component size pass 3 (zoom 5x + second body pass) — 2026-09-25
+
+- User: "increase the size of the components" (3rd ask) — went big:
+- **Default/reset zoom 3.5 → 5** (view ~144mm across; UNO ≈ half the canvas).
+- **Second body pass on the 15 core parts** (pins held again): resistor body
+  16×7→18×7.7 + 2mm end caps; LED dome r 3.9→4.6; RGB LED r 4.1→4.8; ceramic
+  cap blob +30%; electrolytic can →9.6×13.2; inductor →12×7; diode →8.4×5;
+  LDR face r→6; thermistor bead r→4; pot →11.6×10.9 + dial r3.2; TO-92 →9.2mm
+  D-shape; TO-220 →10.8mm; pushbutton plate →12mm + cap r4.2; toggle →10.8mm.
+- Chain 172/172 (schema 75 + sim 16 + web 81); art smoke clean; typecheck 0.
+- Splice lesson: PartGlyph to92/to220 texts DIFFER from batch2/extra copies —
+  probe repr before swap; a failed assert aborts the whole file write (safe).
