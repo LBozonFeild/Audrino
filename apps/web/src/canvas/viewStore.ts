@@ -23,7 +23,7 @@ interface ViewState {
 }
 
 export const useViewStore = create<ViewState>((set, get) => ({
-  view: { x: 0, y: 0, k: 2.5 }, // default zoom: parts read at Tinkercad scale
+  view: { x: 0, y: 0, k: 3.5 }, // default zoom: components read large
   setView: (view) => set({ view: { ...view, k: Math.min(MAX_K, Math.max(MIN_K, view.k)) } }),
   zoomAt: (wx, wy, factor) => {
     const { x, y, k } = get().view;
@@ -32,5 +32,5 @@ export const useViewStore = create<ViewState>((set, get) => ({
     set({ view: { x: wx - ((wx - x) * k) / k2, y: wy - ((wy - y) * k) / k2, k: k2 } });
   },
   panBy: (dx, dy) => set((s) => ({ view: { ...s.view, x: s.view.x + dx, y: s.view.y + dy } })),
-  resetView: () => set({ view: { x: 0, y: 0, k: 2.5 } }),
+  resetView: () => set({ view: { x: 0, y: 0, k: 3.5 } }),
 }));

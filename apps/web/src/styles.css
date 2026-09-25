@@ -357,8 +357,8 @@ textarea:focus {
 }
 
 .pal-glyph {
-  width: 40px;
-  height: 28px;
+  width: 76px;
+  height: 56px;
   flex: none;
   background: var(--bench-input);
   border: 1px solid var(--bench-border);
@@ -492,7 +492,7 @@ textarea:focus {
 .pin-label {
   fill: var(--bench-fg-dim);
   font-family: var(--font-mono);
-  font-size: 1.8px;
+  font-size: 2.4px;
   font-weight: 600;
   paint-order: stroke;
   stroke: var(--bench-canvas);
@@ -515,7 +515,7 @@ textarea:focus {
 .part-label {
   fill: var(--bench-fg-dim);
   font-family: var(--font-mono);
-  font-size: 2.4px;
+  font-size: 3.2px;
   font-weight: 500;
   paint-order: stroke;
   stroke: var(--bench-canvas);

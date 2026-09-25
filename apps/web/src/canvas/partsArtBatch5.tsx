@@ -48,12 +48,12 @@ const dipArt: ArtFn = (d) => {
   const label = text(d);
   return (
     <g>
-      <rect x={2} y={0.8} width={w - 4} height={h - 1.6} rx={0.8} fill="#171a1f" stroke="#000" strokeWidth={0.3} />
-      <path d={`M ${w / 2 - 0.4} 0.8 a 1.6 1.6 0 0 0 -3.2 0`} fill="#0a0c0f" />
+      <rect x={1.2} y={0.5} width={w - 2.4} height={h - 1} rx={0.8} fill="#171a1f" stroke="#000" strokeWidth={0.3} />
+      <path d={`M ${w / 2 - 0.5} 0.5 a 2 2 0 0 0 -4 0`} fill="#0a0c0f" />
       {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x < w / 2 ? 2 : w - 2} y1={p.y < 1 || p.y > h - 1 ? (p.y < 1 ? 1.4 : h - 1.4) : p.y} x2={p.x} y2={p.y} w={0.5} />
+        <Lead key={p.id} x1={p.x < w / 2 ? 1.2 : w - 1.2} y1={p.y < 1 || p.y > h - 1 ? (p.y < 1 ? 1.1 : h - 1.1) : p.y} x2={p.x} y2={p.y} w={0.5} />
       ))}
-      <Silk x={w / 2} y={h / 2 + 1.1} size={Math.min(2.4, 14 / label.length)}>{label}</Silk>
+      <Silk x={w / 2} y={h / 2 + 1.1} size={Math.min(3, 17 / label.length)}>{label}</Silk>
     </g>
   );
 };
@@ -63,8 +63,8 @@ const to92Art: ArtFn = (d) => {
   const label = text(d);
   return (
     <g>
-      <circle cx={w / 2} cy={h / 2 - 1.4} r={w * 0.44} fill="#1c222b" stroke="#000" strokeWidth={0.25} />
-      <Silk x={w / 2} y={h / 2 - 0.9} size={Math.min(1, 7 / label.length)}>{label}</Silk>
+      <circle cx={w / 2} cy={h / 2 - 1.4} r={w * 0.52} fill="#1c222b" stroke="#000" strokeWidth={0.25} />
+      <Silk x={w / 2} y={h / 2 - 0.9} size={Math.min(1.3, 9 / label.length)}>{label}</Silk>
       {d.pins.map((p) => (
         <Lead key={p.id} x1={p.x} y1={h - 2.4} x2={p.x} y2={p.y} w={0.5} />
       ))}
@@ -77,11 +77,11 @@ const to220Art: ArtFn = (d) => {
   const label = text(d);
   return (
     <g>
-      <rect x={0.8} y={0.8} width={w - 1.6} height={h * 0.72} rx={0.8} fill="#22262d" stroke="#000" strokeWidth={0.3} />
-      <rect x={w / 2 - 2} y={1.6} width={4} height={3} rx={2} fill={METAL_D} />
-      <Silk x={w / 2} y={h * 0.5} size={Math.min(2, 20 / label.length)}>{label}</Silk>
+      <rect x={0.4} y={0.4} width={w - 0.8} height={h * 0.78} rx={0.8} fill="#22262d" stroke="#000" strokeWidth={0.3} />
+      <rect x={w / 2 - 2.5} y={1.5} width={5} height={3.5} rx={2.2} fill={METAL_D} />
+      <Silk x={w / 2} y={h * 0.52} size={Math.min(2.5, 24 / label.length)}>{label}</Silk>
       {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x} y1={h * 0.78} x2={p.x} y2={p.y} w={0.6} />
+        <Lead key={p.id} x1={p.x} y1={h * 0.84} x2={p.x} y2={p.y} w={0.6} />
       ))}
     </g>
   );

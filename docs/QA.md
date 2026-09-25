@@ -274,3 +274,19 @@ _Chain_ **169/169** (schema 75 + sim 16 + web 78) · _typecheck_ 0.
 - Env note: post-reset recovery this round = `git fetch origin arena/01a0c931-audrino`
   + `git reset --mixed FETCH_HEAD` + `git restore --worktree --staged .` +
   `npm ci` + `pip install --break-system-packages ziglang`.
+
+## Component size pass 2 (bigger again) — 2026-09-25
+
+- User: "increase the size of the components" (2nd ask) — everything reads bigger:
+- **Default/reset zoom 2.5 → 3.5** (view ~206mm across; UNO fills ~1/3 of canvas).
+- **Palette thumbnails 40×28 → 76×56px** (`.pal-glyph`) — parts read at picker scale.
+- **Silk labels up**: `.pin-label` 1.8→2.4mm, `.part-label` 2.4→3.2mm.
+- **Chip/transistor family factories grown** (shared by hundreds of catalog parts,
+  missed in pass 1): `dip()` in partsArtBatch2 + partsArtExtra (body insets
+  2.5/1.8→1.6/1.1mm, bigger notch/dot/silk), batch5 `dipArt` (insets→1.2/0.5),
+  `to92` copies (body→8.2mm D-shape), `to220` copies (tab/body→9.6mm),
+  batch5 `to92Art` (r 0.44w→0.52w) + `to220Art` (body→h*0.78). Pins unmoved.
+- Chain 172/172 (schema 75 + sim 16 + web 81); art smoke clean; typecheck 0.
+- Env: per-turn reset wipes node_modules + system zig — recovery = `npm ci` +
+  `pip install --break-system-packages ziglang` (+ git fetch/reset/restore if
+  the worktree re-clones).
