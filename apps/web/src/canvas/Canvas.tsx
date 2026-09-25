@@ -4,6 +4,7 @@ import { M0_PIN_CATALOG, parsePinRef, partDef } from "@audrino/schema";
 import { useEditorStore } from "../state/store";
 import type { Tool } from "../state/store";
 import { ArtDefs, PartGlyph, partSize, pinWorldPos } from "./PartGlyph";
+import { pinLabel } from "./pinLabel";
 import { memo } from "react";
 import { useSimStore } from "../sim/SimProvider";
 import { useViewStore, VIEW_W, VIEW_H } from "./viewStore";
@@ -369,20 +370,47 @@ export function Canvas(props: {
                 const isWireLive = wireFrom === pin;
                 const netId = doc.nets.find((n) => n.pins.includes(pin))?.id ?? null;
                 const hot = hoverNet !== null && netId === hoverNet;
-                const pinName = partDef(e.type)?.pins.find((p) => p.id === pinId)?.name ?? pinId;
+                const def = partDef(e.type);
+                const pinDef = def?.pins.find((p) => p.id === pinId);
+                const pinName = pinDef?.name ?? pinId;
                 const simState = simPins[pin];
                 const stClass = simState ? ` st-${simState}` : "";
+                // Square pad — real female-header/solder spots are square.
+                const s = tool === "wire" ? 6 : 4.4;
+                const label = pinLabel(pinId, pinName);
+                // Boards carry their own silkscreen in the art; components get
+                // always-on labels beside the pad (no hover needed).
+                const showLabel = !e.isBoard && (def?.pins.length ?? 0) <= 40;
+                const { w: pw, h: ph } = partSize(e.type);
+                const dx = world[0] - (t.x + pw / 2);
+                const dy = world[1] - (t.y + ph / 2);
+                const side = Math.abs(dx) * ph > Math.abs(dy) * pw ? (dx > 0 ? "r" : "l") : dy > 0 ? "b" : "t";
+                const lx = side === "r" ? world[0] + 3.2 : side === "l" ? world[0] - 3.2 : world[0];
+                const ly = side === "b" ? world[1] + 4.4 : side === "t" ? world[1] - 2.6 : world[1] + 1.1;
                 return (
-                  <circle
-                    key={pin}
-                    className={`pin-dot${stClass}${hot ? " hot" : ""}${isWireLive ? " wire-live" : ""}`}
-                    cx={world[0]}
-                    cy={world[1]}
-                    r={tool === "wire" ? 3 : 2.2}
-                    onClick={(ev) => onPinClick(ev, pin)}
-                  >
-                    <title>{`${pinId}${pinName !== pinId ? " · " + pinName : ""}${netId ? " → " + netId : ""}`}</title>
-                  </circle>
+                  <g key={pin}>
+                    <rect
+                      className={`pin-dot${stClass}${hot ? " hot" : ""}${isWireLive ? " wire-live" : ""}`}
+                      x={world[0] - s / 2}
+                      y={world[1] - s / 2}
+                      width={s}
+                      height={s}
+                      rx={0.8}
+                      onClick={(ev) => onPinClick(ev, pin)}
+                    >
+                      <title>{`${pinId}${pinName !== pinId ? " · " + pinName : ""}${netId ? " → " + netId : ""}`}</title>
+                    </rect>
+                    {showLabel && (
+                      <text
+                        className="pin-label"
+                        x={lx}
+                        y={ly}
+                        textAnchor={side === "r" ? "start" : side === "l" ? "end" : "middle"}
+                      >
+                        {label}
+                      </text>
+                    )}
+                  </g>
                 );
               })}
             </g>

@@ -470,7 +470,18 @@ textarea:focus {
 .pin-dot.hot,
 .pin-dot.wire-live {
   fill: var(--bench-accent);
-  r: 3.4;
+  stroke-width: 1.1;
+}
+
+.pin-label {
+  fill: var(--bench-fg-dim);
+  font-family: var(--font-mono);
+  font-size: 2px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: var(--bench-canvas);
+  stroke-width: 0.55px;
+  pointer-events: none;
 }
 
 .wire-group {

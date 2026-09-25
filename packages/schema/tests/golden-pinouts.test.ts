@@ -76,16 +76,27 @@ describe("golden pinouts — boards & MCU", () => {
   });
 
   it("UNO keeps its frozen M0 working-subset headers (see docs/QA.md)", () => {
+    // Freeze contract: the M0 working-subset ids are immutable — old projects
+    // must always resolve (id-first lookup). VIN/RST names are frozen too.
+    // 2026-09-25 (photoreal R3 round): EXTENDED with real-board pins
+    // (AREF/IOREF + two extra grounds GND1/GND2 — all /^GND/i pins unify to
+    // ground in the netlist); D-pin display names became the real silk
+    // numbers ("0"…"13"). Additions append to the lists below, never rename.
     const got = pins("arduino-uno");
-    expect(Object.keys(got).sort()).toEqual(
-      [
-        "A0", "A1", "A2", "A3", "A4", "A5",
-        "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12", "D13",
-        "GND", "RST", "3V3", "5V", "VIN",
-      ].sort(),
-    );
+    const FROZEN_UNO_IDS = [
+      "A0", "A1", "A2", "A3", "A4", "A5",
+      "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12", "D13",
+      "GND", "RST", "3V3", "5V", "VIN",
+    ];
+    const R3_ADDITIONS = ["AREF", "IOREF", "GND1", "GND2"];
+    for (const id of FROZEN_UNO_IDS) expect(got[id], `frozen ${id}`).toBeDefined();
+    expect(Object.keys(got).sort()).toEqual([...FROZEN_UNO_IDS, ...R3_ADDITIONS].sort());
     expect(got.VIN).toBe("Vin");
     expect(got.RST).toBe("Reset");
+    expect(got.GND1).toBe("GND"); // silkscreen says GND at all three grounds
+    expect(got.GND2).toBe("GND");
+    expect(got.D0).toBe("0"); // real silk numbers ("TX→1"/"RX←0" arrows are art)
+    expect(got.D13).toBe("13");
   });
 });
 

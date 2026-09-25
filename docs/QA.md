@@ -197,3 +197,21 @@ _Live fixtures kept:_ `importWokwiDiagram` asserts unchanged (series kept, pin m
 _Chain_ **164/164** (schema 73 + sim 16 + web 75) · _typecheck_ 0.
 
 _Notes:_ wire casing/sag/hot-net highlight and wheel-zoom preventDefault were already in place (verified, kept). Rail naming: top edge − then + (MB-102 silkscreen convention); 830 rail rows split at center into 2×25-hole halves (true MB-102 topology). Follow-ups: photoreal shading for the remaining batch-art long tail, k-LOD socket collapse on breadboards at low zoom.
+
+---
+
+### Round: UNO R3 photoreal silkscreen + square wiring spots + always-on labels
+
+**QA pass** 2026-09-25 — user ask: "uno has rx and tx but i cant see them… spots for wiring like square as in real life including the labels that i can view without hovering" (with the official UNO R3 render as reference).
+
+| Area | What shipped | Verification |
+|---|---|---|
+| UNO R3 pinout | Full real-board headers at **2.54 mm pitch**: top `AREF GND 13…TX→1 RX←0` (D0 rightmost, real order), power `IOREF Reset 3V3 5V GND GND Vin`, analog `A0–A5` right-aligned. Ids kept (D0-D13/A0-A5/VIN/GND/5V/3V3/RST); added `AREF, IOREF, GND1, GND2` (all /^GND/i unify to ground in netlist). D-names = real silk numbers ("0"…"13") | schema `uno-r3.test.ts` ×2 (29 pins, pitch, full order) + golden-pinouts freeze AMENDED to documented-superset (M0 ids immutable + VIN/RST names frozen + R3 additions listed) |
+| UNO art | TX/RX/L/ON status LEDs with silk labels, red reset actuator, USB-B shell/tongue/gold contacts, DIP-28 with 14 legs/side + notch + pin-1 dot, 16.000 crystal, ICSP + label, MEGA16U2/regulator/SMD clusters, ∞ ARDUINO + UNO oval logo, group captions DIGITAL (PWM ~)/POWER/ANALOG IN, per-pin silk names, ~ under PWM pins, TX→/RX← arrows | typecheck 0; chain green |
+| Square wiring spots | `SquareHole` female-header sockets (gold rim + square bore + clip) in every `Header`; breadboard sockets square recesses; canvas `pin-dot` circles → rounded **squares** (class kept for goldens) | chain green (DOM goldens unchanged classes) |
+| Labels without hover | Canvas `<text class="pin-label">` beside every pad (≤40-pin parts), `pinLabel(id,name)` rule = short name else id (shows "0","Vin","GND","Anode"); boards carry real silkscreen in art (`PinSilk` on Nano/ESP32/NodeMcu/Pico; Uno has its own full silk); tooltip `<title>` retained as extra | `pin-label.test.ts` (7 cases) |
+| Tooling triage | sim 8/16 failures were the vanished pip ziglang (twice) — reinstalled **system-wide** (`pip install --break-system-packages ziglang`, probe `python3 -m ziglang version`) | sim 16/16 after restore |
+
+_Chain_ **167/167** (schema 75 + sim 16 + web 76) · _typecheck_ 0.
+
+_Freeze contract note:_ `golden-pinouts.test.ts` UNO block now documents the evolution — additions append to `FROZEN_UNO_IDS`/`R3_ADDITIONS`, renames of frozen ids or VIN/RST names are forbidden. Wokwi/sim/fixtures unaffected (id-first resolution; fixtures carry nets, no wire geometry).
