@@ -4,7 +4,7 @@ import { M0_PIN_CATALOG, parsePinRef, partDef } from "@audrino/schema";
 import { useEditorStore } from "../state/store";
 import type { Tool } from "../state/store";
 import { ArtDefs, PartGlyph, partSize, pinWorldPos } from "./PartGlyph";
-import { pinLabel } from "./pinLabel";
+import { PIN_HIT_S, PIN_PAD_S, pinLabel } from "./pinLabel";
 import { memo } from "react";
 import { useSimStore } from "../sim/SimProvider";
 import { useViewStore, VIEW_W, VIEW_H } from "./viewStore";
@@ -313,6 +313,16 @@ export function Canvas(props: {
         onClick={onBackgroundClick}
       >
         <ArtDefs />
+        {/* Tinkercad-style workplane grid (world units — pans/zooms with the view) */}
+        <rect
+          className="workplane-grid"
+          x={-3000}
+          y={-3000}
+          width={6000}
+          height={6000}
+          fill="url(#matGridMajor)"
+          style={{ pointerEvents: "none" }}
+        />
         <defs>
           <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
             <circle cx="1" cy="1" r="1" fill="var(--bench-bg-grid)" />
@@ -375,8 +385,7 @@ export function Canvas(props: {
                 const pinName = pinDef?.name ?? pinId;
                 const simState = simPins[pin];
                 const stClass = simState ? ` st-${simState}` : "";
-                // Square pad — real female-header/solder spots are square.
-                const s = tool === "wire" ? 6 : 4.4;
+                // Tiny square socket (visible) + pitch-safe hit box (clickable).
                 const label = pinLabel(pinId, pinName);
                 // Boards carry their own silkscreen in the art; components get
                 // always-on labels beside the pad (no hover needed).
@@ -390,16 +399,25 @@ export function Canvas(props: {
                 return (
                   <g key={pin}>
                     <rect
-                      className={`pin-dot${stClass}${hot ? " hot" : ""}${isWireLive ? " wire-live" : ""}`}
-                      x={world[0] - s / 2}
-                      y={world[1] - s / 2}
-                      width={s}
-                      height={s}
-                      rx={0.8}
+                      className="pin-hit"
+                      x={world[0] - PIN_HIT_S / 2}
+                      y={world[1] - PIN_HIT_S / 2}
+                      width={PIN_HIT_S}
+                      height={PIN_HIT_S}
+                      rx={0.5}
                       onClick={(ev) => onPinClick(ev, pin)}
                     >
                       <title>{`${pinId}${pinName !== pinId ? " · " + pinName : ""}${netId ? " → " + netId : ""}`}</title>
                     </rect>
+                    <rect
+                      className={`pin-dot${stClass}${hot ? " hot" : ""}${isWireLive ? " wire-live" : ""}`}
+                      x={world[0] - PIN_PAD_S / 2}
+                      y={world[1] - PIN_PAD_S / 2}
+                      width={PIN_PAD_S}
+                      height={PIN_PAD_S}
+                      rx={0.4}
+                      style={{ pointerEvents: "none" }}
+                    />
                     {showLabel && (
                       <text
                         className="pin-label"

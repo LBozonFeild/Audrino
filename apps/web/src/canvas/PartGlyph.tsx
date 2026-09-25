@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 import type { PartDefinition, Transform } from "@audrino/schema";
 import { partDef } from "@audrino/schema";
 import { EXTRA_ART } from "./partsArtExtra";
+import { partNameLabel } from "./pinLabel";
 import { BATCH2_ART } from "./partsArtBatch2";
 import { BATCH3_ART } from "./partsArtBatch3";
 import { BATCH4_ART } from "./partsArtBatch4";
@@ -139,6 +140,7 @@ function Header({ pts, vertical }: { pts: { x: number; y: number }[]; vertical?:
   const h = (v ? Math.max(...ys) - Math.min(...ys) : 0) + 2.7;
   return (
     <g>
+      <rect x={x - 0.4} y={y - 0.4} width={w + 0.8} height={h + 0.8} rx={0.7} fill="none" stroke="#fff" strokeOpacity={0.3} strokeWidth={0.22} />
       <rect x={x} y={y} width={w} height={h} rx={0.5} fill="#16181d" stroke="#0b0d10" strokeWidth={0.25} />
       <rect x={x} y={y} width={w} height={0.7} rx={0.3} fill="#fff" opacity={0.1} />
       {pts.map((p) => (
@@ -227,6 +229,13 @@ export function ArtDefs() {
           </radialGradient>
         );
       })}
+      <pattern id="matGrid" width="5" height="5" patternUnits="userSpaceOnUse">
+        <path className="grid-line" d="M 5 0 L 0 0 L 0 5" fill="none" />
+      </pattern>
+      <pattern id="matGridMajor" width="25" height="25" patternUnits="userSpaceOnUse">
+        <rect width="25" height="25" fill="url(#matGrid)" />
+        <path className="grid-line-major" d="M 25 0 L 0 0 L 0 25" fill="none" />
+      </pattern>
       <filter id="matLift" x="-40%" y="-40%" width="180%" height="180%">
         <feDropShadow dx="0.15" dy="0.5" stdDeviation="0.35" floodColor="#000" floodOpacity="0.3" />
       </filter>
@@ -374,6 +383,14 @@ const Uno: ArtFn = (d) => {
       {botR.map((p) => (
         <Silk key={`s${p.id}`} x={p.x} y={49.3} size={1.15} fill={SILK}>{p.name}</Silk>
       ))}
+      {/* faint copper traces under the solder mask */}
+      <g fill="none" stroke="#fff" strokeOpacity={0.07} strokeWidth={0.55}>
+        <path d="M 40 31 L 40 43 L 31 47" />
+        <path d="M 45 31 L 47 45 L 55 49" />
+        <path d="M 33 19 L 28 13 L 33 6" />
+        <path d="M 51 19 L 57 14" />
+        <path d="M 22 27 L 18 20" />
+      </g>
       {/* headers with square female sockets */}
       <Header pts={top.slice(0, 8)} />
       <Header pts={top.slice(8)} />
@@ -687,7 +704,7 @@ function breadboardArt(withLabels: boolean): ArtFn {
     );
     return (
       <g>
-        <g filter="url(#matLift)">
+        <g>
           <rect x={0.3} y={0.3} width={w - 0.6} height={h - 0.6} rx={1.2} fill="url(#matAbs)" stroke="#b9b5a2" strokeWidth={0.4} />
           <rect x={0.9} y={0.9} width={w - 1.8} height={h - 1.8} rx={0.9} fill="none" stroke="#fff" strokeOpacity={0.8} strokeWidth={0.3} />
           {rowY.has("e") && rowY.has("f") && (
@@ -1226,7 +1243,12 @@ export const PartGlyph = memo(function PartGlyph(props: {
           : `translate(${props.transform.x} ${props.transform.y})`
       }
     >
-      {art}
+      <g filter="url(#matLift)">{art}</g>
+      {props.partRef && !props.board && (
+        <text className="part-label" x={w / 2} y={h + 2.8} textAnchor="middle">
+          {partNameLabel(props.partRef, props.values ?? {})}
+        </text>
+      )}
       {lit && (
         <g className="led-glow" style={{ pointerEvents: "none" }}>
           <circle cx={w / 2} cy={h / 2} r={Math.max(w, h) * 0.72} fill="#ffb84d" opacity={0.2} />

@@ -215,3 +215,20 @@ _Notes:_ wire casing/sag/hot-net highlight and wheel-zoom preventDefault were al
 _Chain_ **167/167** (schema 75 + sim 16 + web 76) · _typecheck_ 0.
 
 _Freeze contract note:_ `golden-pinouts.test.ts` UNO block now documents the evolution — additions append to `FROZEN_UNO_IDS`/`R3_ADDITIONS`, renames of frozen ids or VIN/RST names are forbidden. Wokwi/sim/fixtures unaffected (id-first resolution; fixtures carry nets, no wire geometry).
+
+---
+
+### Round: pitch-safe pads + Tinkercad depth pass
+
+**QA pass** 2026-09-25 — user feedback: "the squares hitboxes are too big so they overlap and increase the detail even further just like tinkercad".
+
+| Area | What shipped | Verification |
+|---|---|---|
+| Pad geometry | Visible socket shrunk to **1.9 mm** (gold rim + dark bore via CSS) and made inert; separate transparent **2.4 mm hit box** carries the click + tooltip — strictly under the catalog's 2.54 mm minimum pitch, so neighbors can never overlap (was 4.4/6 mm squares colliding on headers) | `pin-label.test.ts` geometry golden: `PIN_PAD_S < PIN_HIT_S < 2.54` |
+| Tinkercad name plates | Every non-board part prints `ref · value` below it (`partNameLabel`: 220Ω / 4.7kΩ / 1MΩ, 100nF/µF, color) — always visible, halo-stroked `.part-label` | unit golden ×6 formats |
+| Universal depth | Every part art wrapped in `matLift` contact shadow at the glyph root (breadboard's inner wrapper deduped) — consistent "sitting on the workplane" look | typecheck 0 |
+| Workplane grid | Tinkercad-style 5 mm grid + 25 mm majors (`matGrid`/`matGridMajor` patterns, theme-aware `--bench-fg-dim`), world-space so it pans/zooms with the view | renders under parts/wires |
+| Board detail | White silkscreen outlines around every header strip (real boards print them); faint copper traces under the UNO solder mask | visual |
+| Phantom test error fixed | `workerSimRunner` threw uncaught `Worker is not defined` in jsdom (vitest "Unhandled Errors") — now a clean `hooks.onError` + no-op `SimRunJob` | chain runs with zero unhandled errors; tooltip golden re-pointed to `.pin-hit title` |
+
+_Chain_ **169/169** (schema 75 + sim 16 + web 78) · _typecheck_ 0.

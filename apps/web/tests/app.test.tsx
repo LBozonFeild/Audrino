@@ -100,7 +100,8 @@ describe("canvas affordances", () => {
     act(() => {
       useEditorStore.getState().place("component", "resistor", 20, 20);
     });
-    const titles = [...container.querySelectorAll(".canvas-svg .pin-dot title")].map((t) => t.textContent);
+    // tooltip rides the pin's hit box (.pin-hit) — the visible socket is inert
+    const titles = [...container.querySelectorAll(".canvas-svg .pin-hit title")].map((t) => t.textContent);
     expect(titles).toContain("1");
     expect(titles).toContain("2");
   });

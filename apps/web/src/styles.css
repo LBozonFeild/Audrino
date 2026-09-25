@@ -460,11 +460,17 @@ textarea:focus {
   stroke-dasharray: 4 3;
 }
 
-.pin-dot {
-  fill: var(--bench-fg-dim);
-  stroke: var(--bench-canvas);
-  stroke-width: 0.8;
+.pin-hit {
+  fill: transparent;
   cursor: crosshair;
+}
+
+/* tiny gold-rimmed socket with a dark bore (real header look) */
+.pin-dot {
+  fill: #171a1f;
+  stroke: #c9a227;
+  stroke-width: 0.34;
+  pointer-events: none;
 }
 
 .pin-dot.hot,
@@ -476,11 +482,34 @@ textarea:focus {
 .pin-label {
   fill: var(--bench-fg-dim);
   font-family: var(--font-mono);
-  font-size: 2px;
+  font-size: 1.8px;
   font-weight: 600;
   paint-order: stroke;
   stroke: var(--bench-canvas);
-  stroke-width: 0.55px;
+  stroke-width: 0.5px;
+  pointer-events: none;
+}
+
+.grid-line {
+  stroke: var(--bench-fg-dim);
+  stroke-opacity: 0.13;
+  stroke-width: 0.07;
+}
+
+.grid-line-major {
+  stroke: var(--bench-fg-dim);
+  stroke-opacity: 0.22;
+  stroke-width: 0.11;
+}
+
+.part-label {
+  fill: var(--bench-fg-dim);
+  font-family: var(--font-mono);
+  font-size: 2.4px;
+  font-weight: 500;
+  paint-order: stroke;
+  stroke: var(--bench-canvas);
+  stroke-width: 0.6px;
   pointer-events: none;
 }
 

@@ -43,7 +43,16 @@ export async function compileSketchHttp(sketch: SketchSource): Promise<CompiledF
 
 export const workerSimRunner: SimRunner = {
   run(circuit, sketch, hooks, opts) {
-    const worker = new Worker(new URL("./simWorker.ts", import.meta.url), { type: "module" });
+    // Environments without Web Workers (jsdom tests) must fail cleanly — an
+    // uncaught constructor throw surfaces as a phantom test error.
+    let worker: Worker;
+    try {
+      if (typeof Worker === "undefined") throw new Error("no Worker in this environment");
+      worker = new Worker(new URL("./simWorker.ts", import.meta.url), { type: "module" });
+    } catch (e) {
+      hooks.onError(e instanceof Error ? e.message : String(e));
+      return { stop() {} };
+    }
     let done = false;
     worker.onmessage = (e: MessageEvent) => {
       const msg = e.data as
