@@ -254,3 +254,23 @@ _Chain_ **169/169** (schema 75 + sim 16 + web 78) · _typecheck_ 0.
   remote docs, AI, lessons). Interior waypoints preserved. Tested.
 - Golden pinout freeze amended as superset (`R3_ADDITIONS` incl SCL/SDA).
 - Chain 172/172 (schema 75 + sim 16 + web 81); typecheck 0 errors (tsc clean exit).
+
+## Component scale + default zoom (Tinkercad-size parts) — 2026-09-25
+
+- User: "increase the size of the components". Two levers, both shipped:
+- **Default/reset zoom k 1 → 2.5** (viewStore): the view showed 720 mm across
+  at k=1 — parts rendered postage-stamp size. Now ~288 mm across: a UNO fills
+  ~24% of the canvas width, Tinkercad-like. Only perf-scale.test pins k
+  explicitly; no golden asserted the old default.
+- **Body-art growth pass** (pins untouched — breadboard pitch contract held):
+  resistor 13×5.4→16×7 body + chunkier bands; LED dome r3→3.9; RGB LED r3.4→4.1;
+  ceramic cap +35%; electrolytic can 7×10.5→8.6×12.4; inductor 9×5→10.6×6.2;
+  diode 6×3.2→7.2×4.2; LDR face r4.8→5.5; thermistor bead r2.5→3.3;
+  pot body 10×10→11.2×10.4 + dial r2.8; TO-92 body →8×8; TO-220 tab/body
+  →9.6 wide; pushbutton plate 9→10.4 + cap r3.4; toggle body →9.4×6.
+  All within def bboxes; lead endpoints stay exactly on pin coords.
+- Chain 172/172 (schema 75 + sim 16 + web 81); art render smoke (1000+ types)
+  clean; typecheck 0.
+- Env note: post-reset recovery this round = `git fetch origin arena/01a0c931-audrino`
+  + `git reset --mixed FETCH_HEAD` + `git restore --worktree --staged .` +
+  `npm ci` + `pip install --break-system-packages ziglang`.

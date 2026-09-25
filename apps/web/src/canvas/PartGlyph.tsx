@@ -478,32 +478,32 @@ const Led: ArtFn = (d, values) => {
   const [lens, rim] = LED_COLORS[colorName] ?? LED_COLORS.red;
   const a = d.pins[0];
   const k = d.pins[1];
-  const r = 3;
+  const r = 3.9;
   const cx = 6;
-  const cy = 5.6;
-  const half = Math.sqrt(r * r - 2.2 * 2.2);
+  const cy = 5.5;
+  const half = Math.sqrt(r * r - 2.9 * 2.9);
   return (
     <g>
-      <path d={`M 8.2 ${cy - half} A ${r} ${r} 0 1 0 8.2 ${cy + half} Z`} fill={`url(#matDome-${LED_COLORS[colorName] ? colorName : "red"})`} stroke={rim} strokeWidth={0.35} />
-      <ellipse cx={4.9} cy={3.9} rx={1.25} ry={0.8} fill="#fff" opacity={0.55} transform="rotate(-30 4.9 3.9)" />
-      <circle cx={5.1} cy={cy} r={0.55} fill={METAL} />
-      <path d="M 6.6 3.6 L 7.5 3.6 L 7.5 7.6 L 6.6 7.6 Z" fill={rim} opacity={0.55} />
-      <path d={`M ${a.x + 2} ${a.y} L 5.1 ${cy + 0.6}`} stroke={LEAD} strokeWidth={0.75} fill="none" strokeLinecap="round" />
-      <path d={`M ${k.x - 2} ${k.y} L 7.2 ${cy + 1}`} stroke={LEAD} strokeWidth={0.75} fill="none" strokeLinecap="round" />
+      <path d={`M 8.9 ${cy - half} A ${r} ${r} 0 1 0 8.9 ${cy + half} Z`} fill={`url(#matDome-${LED_COLORS[colorName] ? colorName : "red"})`} stroke={rim} strokeWidth={0.35} />
+      <ellipse cx={4.5} cy={3.3} rx={1.55} ry={0.95} fill="#fff" opacity={0.55} transform="rotate(-30 4.5 3.3)" />
+      <circle cx={5} cy={cy} r={0.7} fill={METAL} />
+      <path d="M 6.8 3.2 L 7.9 3.2 L 7.9 7.8 L 6.8 7.8 Z" fill={rim} opacity={0.55} />
+      <path d={`M ${a.x + 2} ${a.y} L 5 ${cy + 0.8}`} stroke={LEAD} strokeWidth={0.75} fill="none" strokeLinecap="round" />
+      <path d={`M ${k.x - 2} ${k.y} L 7.5 ${cy + 1.3}`} stroke={LEAD} strokeWidth={0.75} fill="none" strokeLinecap="round" />
     </g>
   );
 };
 
 const RgbLed: ArtFn = (d) => (
   <g>
-    <circle cx={7} cy={6.4} r={3.4} fill="#dfe6ee" stroke="#9aa7b4" strokeWidth={0.4} />
-    <ellipse cx={5.6} cy={4.6} rx={1.3} ry={0.85} fill="#fff" opacity={0.55} transform="rotate(-30 5.6 4.6)" />
-    <circle cx={5.6} cy={6.2} r={0.6} fill="#e33" />
-    <circle cx={7} cy={6.2} r={0.6} fill="#3c6" />
-    <circle cx={8.4} cy={6.2} r={0.6} fill="#48f" />
-    <rect x={5.2} y={7.4} width={3.6} height={0.8} rx={0.3} fill={METAL_D} />
+    <circle cx={7} cy={6.1} r={4.1} fill="#dfe6ee" stroke="#9aa7b4" strokeWidth={0.4} />
+    <ellipse cx={5.3} cy={4} rx={1.5} ry={0.95} fill="#fff" opacity={0.55} transform="rotate(-30 5.3 4)" />
+    <circle cx={5.4} cy={5.9} r={0.75} fill="#e33" />
+    <circle cx={7} cy={5.9} r={0.75} fill="#3c6" />
+    <circle cx={8.6} cy={5.9} r={0.75} fill="#48f" />
+    <rect x={4.9} y={7.4} width={4.2} height={0.95} rx={0.35} fill={METAL_D} />
     {d.pins.map((p, i) => (
-      <Lead key={p.id} x1={4.2 + i * 1.9} y1={9.2} x2={p.x} y2={p.y} />
+      <Lead key={p.id} x1={4.2 + i * 1.9} y1={9.6} x2={p.x} y2={p.y} />
     ))}
   </g>
 );
@@ -572,21 +572,21 @@ const Resistor: ArtFn = (d, values) => {
   const ohms = Number(values.resistance_ohms ?? 220);
   const [b1, b2, mult] = bandCodes(ohms);
   const bands: [number, string][] = [
-    [6, BAND_COLORS[b1]],
-    [8, BAND_COLORS[b2]],
-    [12.6, BAND_COLORS[mult + 1] ?? "#7a4a1e"],
-    [15.4, GOLD],
+    [5.2, BAND_COLORS[b1]],
+    [7.6, BAND_COLORS[b2]],
+    [13, BAND_COLORS[mult + 1] ?? "#7a4a1e"],
+    [16.2, GOLD],
   ];
   return (
     <g>
-      <Lead x1={d.pins[0].x} y1={4} x2={4.5} y2={4} w={0.8} />
-      <Lead x1={17.5} y1={4} x2={d.pins[1].x} y2={4} w={0.8} />
-      <rect x={4.5} y={1.3} width={13} height={5.4} rx={2.2} fill="url(#matCeramic)" stroke="#b09060" strokeWidth={0.3} />
-      <rect x={4.5} y={1.3} width={1.4} height={5.4} rx={0.6} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
-      <rect x={16.1} y={1.3} width={1.4} height={5.4} rx={0.6} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
-      <rect x={5.9} y={1.75} width={10} height={0.85} rx={0.4} fill="#fff" opacity={0.3} />
+      <Lead x1={d.pins[0].x} y1={4} x2={3} y2={4} w={0.8} />
+      <Lead x1={19} y1={4} x2={d.pins[1].x} y2={4} w={0.8} />
+      <rect x={3} y={0.5} width={16} height={7} rx={2.8} fill="url(#matCeramic)" stroke="#b09060" strokeWidth={0.3} />
+      <rect x={3} y={0.5} width={1.8} height={7} rx={0.7} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
+      <rect x={17.2} y={0.5} width={1.8} height={7} rx={0.7} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
+      <rect x={4.8} y={1.1} width={12.4} height={1.1} rx={0.5} fill="#fff" opacity={0.3} />
       {bands.map(([x, c]) => (
-        <rect key={x} x={x} y={1.3} width={0.95} height={5.4} fill={c} />
+        <rect key={x} x={x} y={0.5} width={1.15} height={7} fill={c} />
       ))}
     </g>
   );
@@ -594,85 +594,85 @@ const Resistor: ArtFn = (d, values) => {
 
 const Capacitor: ArtFn = () => (
   <g>
-    <path d="M 3.5 3 Q 6 1.2 8.5 3 L 8.5 7.6 Q 6 9.4 3.5 7.6 Z" fill="#e3c95f" stroke="#b9a13e" strokeWidth={0.3} />
-    <rect x={4.6} y={2.8} width={2.6} height={0.8} rx={0.3} fill="#fff" opacity={0.3} />
-    <Lead x1={5} y1={8} x2={4} y2={10} />
-    <Lead x1={7} y1={8} x2={8} y2={10} />
+    <path d="M 2.7 2.3 Q 6 0.3 9.3 2.3 L 9.3 8.3 Q 6 10.3 2.7 8.3 Z" fill="#e3c95f" stroke="#b9a13e" strokeWidth={0.3} />
+    <rect x={4.1} y={2.5} width={3.2} height={0.95} rx={0.35} fill="#fff" opacity={0.3} />
+    <Lead x1={5} y1={8.6} x2={4} y2={10} />
+    <Lead x1={7} y1={8.6} x2={8} y2={10} />
   </g>
 );
 
 const Electrolytic: ArtFn = () => (
   <g>
-    <rect x={2.5} y={1.5} width={7} height={10.5} rx={0.7} fill="#2b3a67" stroke="#1c2745" strokeWidth={0.3} />
-    <rect x={2.5} y={1.5} width={7} height={1.8} rx={0.5} fill={METAL} stroke={METAL_D} strokeWidth={0.2} />
-    <line x1={4.5} y1={2.4} x2={7.5} y2={2.4} stroke={METAL_D} strokeWidth={0.25} />
-    <line x1={6} y1={1.7} x2={6} y2={3.1} stroke={METAL_D} strokeWidth={0.25} />
-    <rect x={2.5} y={3.3} width={1.6} height={8.7} fill="#dfe6ee" opacity={0.85} />
-    <Silk x={3.3} y={6} size={1.2} fill="#1c2745" weight={800}>−</Silk>
-    <Silk x={3.3} y={8.4} size={1.2} fill="#1c2745" weight={800}>−</Silk>
-    <Silk x={6.8} y={8} size={1.2}>100µ</Silk>
-    <Lead x1={4.5} y1={12} x2={4} y2={16} />
-    <Lead x1={7.5} y1={12} x2={8} y2={16} />
+    <rect x={1.7} y={0.5} width={8.6} height={12.4} rx={0.8} fill="#2b3a67" stroke="#1c2745" strokeWidth={0.3} />
+    <rect x={1.7} y={0.5} width={8.6} height={2.1} rx={0.5} fill={METAL} stroke={METAL_D} strokeWidth={0.2} />
+    <line x1={4.1} y1={1.55} x2={7.9} y2={1.55} stroke={METAL_D} strokeWidth={0.25} />
+    <line x1={6} y1={0.7} x2={6} y2={2.4} stroke={METAL_D} strokeWidth={0.25} />
+    <rect x={1.7} y={2.6} width={1.95} height={10.3} fill="#dfe6ee" opacity={0.85} />
+    <Silk x={2.7} y={5.8} size={1.3} fill="#1c2745" weight={800}>−</Silk>
+    <Silk x={2.7} y={8.6} size={1.3} fill="#1c2745" weight={800}>−</Silk>
+    <Silk x={7.2} y={8.4} size={1.3}>100µ</Silk>
+    <Lead x1={4.5} y1={12.9} x2={4} y2={16} />
+    <Lead x1={7.5} y1={12.9} x2={8} y2={16} />
   </g>
 );
 
 const Inductor: ArtFn = () => (
   <g>
-    <Lead x1={0} y1={5} x2={3.5} y2={5} w={0.8} />
-    <Lead x1={12.5} y1={5} x2={16} y2={5} w={0.8} />
-    <rect x={3.5} y={2.5} width={9} height={5} rx={0.6} fill="#3a4a3a" stroke="#253025" strokeWidth={0.3} />
+    <Lead x1={0} y1={5} x2={2.7} y2={5} w={0.8} />
+    <Lead x1={13.3} y1={5} x2={16} y2={5} w={0.8} />
+    <rect x={2.7} y={1.9} width={10.6} height={6.2} rx={0.7} fill="#3a4a3a" stroke="#253025" strokeWidth={0.3} />
     {[0, 1, 2, 3, 4].map((i) => (
-      <path key={i} d={`M ${4.4 + i * 1.7} 2.8 Q ${5.3 + i * 1.7} 5 ${4.4 + i * 1.7} 7.2`} fill="none" stroke="#c87f2f" strokeWidth={0.55} />
+      <path key={i} d={`M ${3.8 + i * 1.95} 2.2 Q ${4.85 + i * 1.95} 5 ${3.8 + i * 1.95} 7.8`} fill="none" stroke="#c87f2f" strokeWidth={0.6} />
     ))}
   </g>
 );
 
 const Diode: ArtFn = () => (
   <g>
-    <Lead x1={0} y1={3} x2={5} y2={3} w={0.75} />
-    <Lead x1={11} y1={3} x2={16} y2={3} w={0.75} />
-    <rect x={5} y={1.4} width={6} height={3.2} rx={0.9} fill="#17181c" stroke="#000" strokeWidth={0.2} />
-    <rect x={5.5} y={1.7} width={4.4} height={0.6} rx={0.3} fill="#fff" opacity={0.18} />
-    <rect x={9.2} y={1.4} width={1} height={3.2} fill="#d8d8d8" />
+    <Lead x1={0} y1={3} x2={4.4} y2={3} w={0.75} />
+    <Lead x1={11.6} y1={3} x2={16} y2={3} w={0.75} />
+    <rect x={4.4} y={0.9} width={7.2} height={4.2} rx={1.1} fill="#17181c" stroke="#000" strokeWidth={0.2} />
+    <rect x={5} y={1.3} width={5.4} height={0.75} rx={0.35} fill="#fff" opacity={0.18} />
+    <rect x={9.7} y={0.9} width={1.15} height={4.2} fill="#d8d8d8" />
   </g>
 );
 
 const Ldr: ArtFn = () => (
   <g>
-    <circle cx={6} cy={6} r={4.8} fill="#27332c" stroke="#151c18" strokeWidth={0.35} />
+    <circle cx={6} cy={5.7} r={5.5} fill="#27332c" stroke="#151c18" strokeWidth={0.35} />
     <polyline
-      points="3.4,2.6 8.6,3.8 3.4,5 8.6,6.2 3.4,7.4 8.6,8.6 3.4,9.8"
+      points="2.9,1.9 9.1,3.3 2.9,4.7 9.1,6.1 2.9,7.5 9.1,8.9 2.9,10.3"
       fill="none"
       stroke="#c9b458"
-      strokeWidth={0.5}
+      strokeWidth={0.55}
       strokeLinejoin="round"
     />
-    <path d="M 3 3.5 A 4.2 4.2 0 0 1 6 1.9" stroke="#fff" strokeWidth={0.5} opacity={0.25} fill="none" />
-    <Lead x1={5} y1={10.6} x2={4} y2={14} />
-    <Lead x1={7} y1={10.6} x2={8} y2={14} />
+    <path d="M 2.6 3.4 A 5 5 0 0 1 6 0.8" stroke="#fff" strokeWidth={0.5} opacity={0.25} fill="none" />
+    <Lead x1={5} y1={11.2} x2={4} y2={14} />
+    <Lead x1={7} y1={11.2} x2={8} y2={14} />
   </g>
 );
 
 const Thermistor: ArtFn = () => (
   <g>
-    <circle cx={5} cy={4} r={2.5} fill="#3a6ea5" stroke="#274e78" strokeWidth={0.3} />
-    <circle cx={4.2} cy={3.2} r={0.8} fill="#fff" opacity={0.35} />
-    <Lead x1={4} y1={6.2} x2={3} y2={12} />
-    <Lead x1={6} y1={6.2} x2={7} y2={12} />
+    <circle cx={5} cy={4.2} r={3.3} fill="#3a6ea5" stroke="#274e78" strokeWidth={0.3} />
+    <circle cx={3.9} cy={3.1} r={1} fill="#fff" opacity={0.35} />
+    <Lead x1={4} y1={7} x2={3} y2={12} />
+    <Lead x1={6} y1={7} x2={7} y2={12} />
   </g>
 );
 
 const Potentiometer: ArtFn = () => (
   <g>
-    <rect x={1} y={1} width={10} height={10} rx={0.7} fill="#2b5ea8" stroke="#224a82" strokeWidth={0.3} />
-    <circle cx={6} cy={6} r={2.2} fill={GOLD} stroke="#8a7420" strokeWidth={0.25} />
-    <line x1={4.5} y1={6} x2={7.5} y2={6} stroke="#8a7420" strokeWidth={0.35} />
-    <line x1={6} y1={4.5} x2={6} y2={7.5} stroke="#8a7420" strokeWidth={0.35} />
-    <Silk x={2.4} y={2.8} size={1} fill="#d7dee9">1</Silk>
-    <Silk x={9.6} y={2.8} size={1} fill="#d7dee9">3</Silk>
-    <Lead x1={2} y1={11} x2={2} y2={14} />
-    <Lead x1={6} y1={11} x2={6} y2={14} />
-    <Lead x1={10} y1={11} x2={10} y2={14} />
+    <rect x={0.4} y={0.4} width={11.2} height={10.4} rx={0.8} fill="#2b5ea8" stroke="#224a82" strokeWidth={0.3} />
+    <circle cx={6} cy={5.8} r={2.8} fill={GOLD} stroke="#8a7420" strokeWidth={0.25} />
+    <line x1={4.1} y1={5.8} x2={7.9} y2={5.8} stroke="#8a7420" strokeWidth={0.4} />
+    <line x1={6} y1={3.9} x2={6} y2={7.7} stroke="#8a7420" strokeWidth={0.4} />
+    <Silk x={1.8} y={2.5} size={1.15} fill="#d7dee9">1</Silk>
+    <Silk x={10.2} y={2.5} size={1.15} fill="#d7dee9">3</Silk>
+    <Lead x1={2} y1={10.8} x2={2} y2={14} />
+    <Lead x1={6} y1={10.8} x2={6} y2={14} />
+    <Lead x1={10} y1={10.8} x2={10} y2={14} />
   </g>
 );
 
@@ -771,12 +771,12 @@ const BreadboardMini: ArtFn = (d) => (
 function to92(label: string): ArtFn {
   return () => (
     <g>
-      <path d="M 2.6 8.5 L 2.6 5 A 3.4 3.4 0 0 1 9.4 5 L 9.4 8.5 Z" fill="#1a1c20" stroke="#000" strokeWidth={0.25} />
-      <path d="M 3.4 4.6 A 2.6 2.6 0 0 1 6 2.7" stroke="#fff" strokeWidth={0.4} opacity={0.16} fill="none" />
-      <Silk x={6} y={1.6} size={1.4}>{label}</Silk>
-      <Lead x1={3} y1={8.5} x2={3} y2={12} />
-      <Lead x1={6} y1={8.5} x2={6} y2={12} />
-      <Lead x1={9} y1={8.5} x2={9} y2={12} />
+      <path d="M 2 9.1 L 2 5 A 4 4 0 0 1 10 5 L 10 9.1 Z" fill="#1a1c20" stroke="#000" strokeWidth={0.25} />
+      <path d="M 2.9 4.5 A 3.1 3.1 0 0 1 6 2.1" stroke="#fff" strokeWidth={0.4} opacity={0.16} fill="none" />
+      <Silk x={6} y={1.2} size={1.6}>{label}</Silk>
+      <Lead x1={3} y1={9.1} x2={3} y2={12} />
+      <Lead x1={6} y1={9.1} x2={6} y2={12} />
+      <Lead x1={9} y1={9.1} x2={9} y2={12} />
     </g>
   );
 }
@@ -784,13 +784,13 @@ function to92(label: string): ArtFn {
 function to220(label: string): ArtFn {
   return () => (
     <g>
-      <rect x={2} y={0.5} width={8} height={5.5} rx={0.4} fill={METAL} stroke={METAL_D} strokeWidth={0.3} />
-      <circle cx={6} cy={3.2} r={1.15} fill="#5c6572" stroke={METAL_D} strokeWidth={0.2} />
-      <rect x={2} y={6} width={8} height={6} rx={0.4} fill="#17181c" stroke="#000" strokeWidth={0.25} />
-      <Silk x={6} y={9.8} size={1.5}>{label}</Silk>
-      <Lead x1={3} y1={12} x2={3} y2={16} />
-      <Lead x1={6} y1={12} x2={6} y2={16} />
-      <Lead x1={9} y1={12} x2={9} y2={16} />
+      <rect x={1.2} y={0.3} width={9.6} height={6.4} rx={0.4} fill={METAL} stroke={METAL_D} strokeWidth={0.3} />
+      <circle cx={6} cy={3.4} r={1.4} fill="#5c6572" stroke={METAL_D} strokeWidth={0.2} />
+      <rect x={1.2} y={6.7} width={9.6} height={6.9} rx={0.4} fill="#17181c" stroke="#000" strokeWidth={0.25} />
+      <Silk x={6} y={11} size={1.7}>{label}</Silk>
+      <Lead x1={3} y1={13.6} x2={3} y2={16} />
+      <Lead x1={6} y1={13.6} x2={6} y2={16} />
+      <Lead x1={9} y1={13.6} x2={9} y2={16} />
     </g>
   );
 }
@@ -798,29 +798,29 @@ function to220(label: string): ArtFn {
 // ---- input ---------------------------------------------------------------------------
 const Pushbutton: ArtFn = () => (
   <g>
-    <Lead x1={0} y1={7} x2={2.5} y2={7} w={0.8} />
-    <Lead x1={11.5} y1={7} x2={14} y2={7} w={0.8} />
-    <rect x={2.5} y={2.5} width={9} height={9} rx={0.6} fill="#9aa7b4" stroke={METAL_D} strokeWidth={0.3} />
-    <rect x={3.8} y={3.8} width={6.4} height={6.4} rx={0.4} fill="#c0c8d0" stroke={METAL_D} strokeWidth={0.2} />
-    <circle cx={7} cy={7} r={2.9} fill="#1a1c20" stroke="#000" strokeWidth={0.25} />
-    <path d="M 5.2 5.4 A 2.4 2.4 0 0 1 7 4.6" stroke="#fff" strokeWidth={0.45} opacity={0.22} fill="none" />
-    <rect x={3.6} y={11.5} width={1.3} height={1.8} fill={METAL_D} />
-    <rect x={9.1} y={11.5} width={1.3} height={1.8} fill={METAL_D} />
-    <rect x={3.6} y={0.7} width={1.3} height={1.8} fill={METAL_D} />
-    <rect x={9.1} y={0.7} width={1.3} height={1.8} fill={METAL_D} />
+    <Lead x1={0} y1={7} x2={1.8} y2={7} w={0.8} />
+    <Lead x1={12.2} y1={7} x2={14} y2={7} w={0.8} />
+    <rect x={1.8} y={1.8} width={10.4} height={10.4} rx={0.7} fill="#9aa7b4" stroke={METAL_D} strokeWidth={0.3} />
+    <rect x={3.3} y={3.3} width={7.4} height={7.4} rx={0.45} fill="#c0c8d0" stroke={METAL_D} strokeWidth={0.2} />
+    <circle cx={7} cy={7} r={3.4} fill="#1a1c20" stroke="#000" strokeWidth={0.25} />
+    <path d="M 4.9 5.1 A 2.8 2.8 0 0 1 7 4.2" stroke="#fff" strokeWidth={0.5} opacity={0.22} fill="none" />
+    <rect x={3.3} y={11.3} width={1.5} height={1.9} fill={METAL_D} />
+    <rect x={9.2} y={11.3} width={1.5} height={1.9} fill={METAL_D} />
+    <rect x={3.3} y={0.8} width={1.5} height={1.9} fill={METAL_D} />
+    <rect x={9.2} y={0.8} width={1.5} height={1.9} fill={METAL_D} />
   </g>
 );
 
 const ToggleSwitch: ArtFn = () => (
   <g>
-    <g transform="rotate(-28 7 5.5)">
-      <rect x={6.3} y={0.2} width={1.5} height={5.6} rx={0.75} fill={METAL_L} stroke={METAL_D} strokeWidth={0.2} />
+    <g transform="rotate(-28 7 5.2)">
+      <rect x={6.2} y={-0.6} width={1.7} height={6.4} rx={0.85} fill={METAL_L} stroke={METAL_D} strokeWidth={0.2} />
     </g>
-    <circle cx={7} cy={5.5} r={1.7} fill={METAL_D} stroke="#6f7a86" strokeWidth={0.25} />
-    <rect x={3} y={5} width={8} height={5} rx={0.7} fill="#8f9aa6" stroke={METAL_D} strokeWidth={0.3} />
-    <rect x={3} y={4.4} width={8} height={1.2} rx={0.5} fill={METAL} />
-    <Lead x1={4} y1={10} x2={4} y2={12} />
-    <Lead x1={10} y1={10} x2={10} y2={12} />
+    <circle cx={7} cy={5.2} r={2} fill={METAL_D} stroke="#6f7a86" strokeWidth={0.25} />
+    <rect x={2.3} y={4.8} width={9.4} height={6} rx={0.8} fill="#8f9aa6" stroke={METAL_D} strokeWidth={0.3} />
+    <rect x={2.3} y={4.1} width={9.4} height={1.4} rx={0.55} fill={METAL} />
+    <Lead x1={4} y1={10.8} x2={4} y2={12} />
+    <Lead x1={10} y1={10.8} x2={10} y2={12} />
   </g>
 );
 
