@@ -77,9 +77,12 @@ const BASE_DEFS: PartDefinition[] = [
     category: "board",
     size_mm: { w: 69, h: 54 },
     pins: [
-      // digital header, left→right AREF GND 13…8 7…2 TX→1 RX←0 (2.54 pitch)
+      // digital header along the top (2.54 pitch): the real R3 has SCL/SDA at
+      // the left end of the 10-pin block, then AREF GND 13…8 | 7…TX→1 RX←0
       ...row(
         [
+          ["SCL", "SCL"],
+          ["SDA", "SDA"],
           ["AREF", "AREF"],
           ["GND1", "GND"],
           ["D13", "13"],
@@ -97,11 +100,11 @@ const BASE_DEFS: PartDefinition[] = [
           ["D1", "1"],
           ["D0", "0"],
         ],
-        2.4,
-        26.9,
-        65.0,
+        2.6,
+        22.5,
+        65.65,
       ),
-      // power header: IOREF RESET 3.3V 5V GND GND Vin
+      // power header at the shield-standard x (27.94 … 43.2): IOREF…Vin
       ...row(
         [
           ["IOREF", "IOREF"],
@@ -112,12 +115,12 @@ const BASE_DEFS: PartDefinition[] = [
           ["GND2", "GND"],
           ["VIN", "Vin"],
         ],
-        51.8,
-        13,
-        28.24,
+        51.5,
+        27.94,
+        43.18,
       ),
-      // analog in, right-aligned
-      ...row(["A0", "A1", "A2", "A3", "A4", "A5"], 51.8, 52.3, 65.0),
+      // analog in at the shield-standard x (50.8 … 63.5)
+      ...row(["A0", "A1", "A2", "A3", "A4", "A5"], 51.5, 50.8, 63.5),
     ],
     defaultProps: {},
   },

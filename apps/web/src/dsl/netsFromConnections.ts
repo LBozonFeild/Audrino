@@ -29,6 +29,53 @@ export function pinWorldPos(e: EntityPlace, pinId: string): [number, number] | n
   return [e.transform.x + rx, e.transform.y + ry];
 }
 
+/**
+ * Re-land saved wire geometry onto current pin positions. Pin coordinates are
+ * geometry of OUR catalog — when a pinout is corrected (matching real
+ * hardware), old saves still hold the old endpoint coordinates. Nets are
+ * topological (ref:pinId), so the circuit itself never breaks; this snaps each
+ * wire's endpoints to the nearest current pin of its net and keeps the user's
+ * interior waypoints. Every document entry (loadProject) runs it once.
+ */
+export function relayoutWires(doc: {
+  boards: EntityPlace[];
+  components: EntityPlace[];
+  nets: Net[];
+  wires: WireSegment[];
+}): void {
+  const entities = [...doc.boards, ...doc.components];
+  for (const w of doc.wires) {
+    const net = doc.nets.find((n) => n.id === w.net);
+    if (!net || w.points.length < 2) continue;
+    const spots: [number, number][] = [];
+    for (const key of net.pins) {
+      const i = key.indexOf(":");
+      const e = i > 0 ? entities.find((x) => x.id === key.slice(0, i)) : undefined;
+      const pos = e && i > 0 ? pinWorldPos(e, key.slice(i + 1)) : null;
+      if (pos) spots.push(pos);
+    }
+    if (spots.length < 2) continue;
+    const nearest = (pt: [number, number], banned: number): number => {
+      let bi = -1;
+      let bd = Infinity;
+      spots.forEach((s, i) => {
+        if (i === banned) return;
+        const dd = (s[0] - pt[0]) ** 2 + (s[1] - pt[1]) ** 2;
+        if (dd < bd) {
+          bd = dd;
+          bi = i;
+        }
+      });
+      return bi;
+    };
+    const aI = nearest(w.points[0], -1);
+    const bI = nearest(w.points[w.points.length - 1], aI);
+    if (aI < 0 || bI < 0) continue;
+    w.points[0] = [spots[aI][0], spots[aI][1]];
+    w.points[w.points.length - 1] = [spots[bI][0], spots[bI][1]];
+  }
+}
+
 /** pairs = resolved "ref:pinId" endpoints (one entry per wire). */
 export function buildNetsAndWires(pairs: [string, string][], entities: EntityPlace[]): { nets: Net[]; wires: WireSegment[] } {
   const parent = new Map<string, string>();

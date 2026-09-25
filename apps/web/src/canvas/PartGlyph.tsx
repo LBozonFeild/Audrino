@@ -269,18 +269,29 @@ type ArtFn = (d: PartDefinition, values: Record<string, unknown>) => ReactElemen
 
 // ---- boards --------------------------------------------------------------------
 const Uno: ArtFn = (d) => {
-  const top = d.pins.filter((p) => p.y < 10).sort((x, y) => x.x - y.x); // AREF GND 13…0
-  const botL = d.pins.filter((p) => p.y > 40).sort((x, y) => x.x - y.x).slice(0, 7); // power
-  const botR = d.pins.filter((p) => p.y > 40).sort((x, y) => x.x - y.x).slice(7); // analog
+  // Layout mirrors the genuine UNO R3 (shield-standard header coordinates):
+  // USB + reset top-left, SCL/SDA block then 13…8 | 7…0 along the top,
+  // crystal + ICSP left-center, ATmega328P DIP-28 center-right, POWER at
+  // x≈28 and ANALOG IN at x≈51 along the bottom, barrel jack bottom-left.
+  const top = d.pins.filter((p) => p.y < 10).sort((x, y) => x.x - y.x);
+  const bot = d.pins.filter((p) => p.y > 40).sort((x, y) => x.x - y.x);
+  const power = bot.filter((p) => !/^A[0-5]$/.test(p.id));
+  const analog = bot.filter((p) => /^A[0-5]$/.test(p.id));
   const PWM = new Set(["3", "5", "6", "9", "10", "11"]);
   const smd = (x: number, y: number, w = 2.2, h = 1.2, c = METAL_D) => (
     <rect key={`${x},${y}`} x={x} y={y} width={w} height={h} rx={0.2} fill={c} />
   );
-  const led = (x: number, y: number, label: string, c: string) => (
+  const statusLed = (x: number, y: number, label: string, c: string) => (
     <g key={label}>
-      <rect x={x} y={y} width={1.6} height={1.1} rx={0.3} fill="#e8e8ee" stroke={METAL_D} strokeWidth={0.15} />
-      <rect x={x + 0.25} y={y + 0.2} width={1.1} height={0.7} rx={0.2} fill={c} />
-      <Silk x={x - 0.5} y={y + 1.05} size={1.15} fill={SILK} anchor="end">{label}</Silk>
+      <Silk x={x - 0.6} y={y + 1.05} size={1.15} fill={SILK} anchor="end">{label}</Silk>
+      <rect x={x} y={y} width={1.7} height={1.15} rx={0.3} fill="#dfe4ea" stroke={METAL_D} strokeWidth={0.15} />
+      <rect x={x + 0.28} y={y + 0.22} width={1.14} height={0.7} rx={0.2} fill={c} />
+    </g>
+  );
+  const hole = (x: number, y: number) => (
+    <g key={`h${x},${y}`}>
+      <circle cx={x} cy={y} r={1.35} fill="#f3f2ea" stroke={METAL_D} strokeWidth={0.3} />
+      <circle cx={x} cy={y} r={0.85} fill="#c9c8be" stroke={METAL_D} strokeWidth={0.2} />
     </g>
   );
   return (
@@ -288,114 +299,103 @@ const Uno: ArtFn = (d) => {
       <rect x={0.3} y={0.3} width={68.4} height={53.4} rx={1.6} fill={PCB_BLUE} stroke={PCB_BLUE_D} strokeWidth={0.5} />
       <rect x={0.8} y={0.8} width={67.4} height={52.4} rx={1.3} fill="none" stroke="#fff" strokeOpacity={0.12} strokeWidth={0.4} />
       {[
-        [3, 3],
-        [66, 3],
-        [3, 51],
-        [66, 51],
-      ].map(([x, y]) => (
-        <circle key={`${x}`} cx={x} cy={y} r={0.9} fill="#0b4a76" stroke={METAL_D} strokeWidth={0.25} />
-      ))}
-      {/* USB-B with shell, tongue, contacts */}
-      <rect x={1.5} y={6} width={8} height={11} rx={0.8} fill={METAL} stroke={METAL_D} strokeWidth={0.3} />
-      <rect x={2.3} y={7.2} width={6.4} height={8.6} rx={0.5} fill="#8f9aa6" />
-      <rect x={2.9} y={8.2} width={5.2} height={6.6} rx={0.4} fill="#20242b" />
-      <rect x={3.6} y={10.2} width={3.8} height={2.6} rx={0.3} fill="#dfe4ea" />
+        [15.24, 2.6],
+        [14, 50.9],
+        [66, 17.8],
+        [66, 45.8],
+      ].map(([x, y]) => hole(x, y))}
+      {/* USB-B (shell, shield, tongue, contacts) */}
+      <rect x={0.5} y={8.5} width={10.5} height={11.5} rx={0.8} fill={METAL} stroke={METAL_D} strokeWidth={0.3} />
+      <rect x={1.3} y={9.7} width={8.9} height={9.1} rx={0.5} fill="#8f9aa6" />
+      <rect x={1.9} y={10.7} width={7.7} height={7.1} rx={0.4} fill="#20242b" />
+      <rect x={2.7} y={12.7} width={6.1} height={2.7} rx={0.3} fill="#dfe4ea" />
       {[0, 1, 2, 3].map((i) => (
-        <rect key={i} x={4.1 + i * 0.85} y={10.5} width={0.45} height={2} fill={GOLD} />
+        <rect key={i} x={3.3 + i * 1.35} y={13} width={0.5} height={2.1} fill={GOLD} />
       ))}
-      {/* barrel jack */}
-      <rect x={1.5} y={26} width={9} height={12} rx={0.8} fill={BLACK} stroke="#000" strokeWidth={0.3} />
-      <circle cx={6} cy={32} r={2.6} fill="#2b2f36" stroke="#000" strokeWidth={0.3} />
-      <circle cx={6} cy={32} r={1.1} fill="#050506" />
-      <rect x={10} y={29.5} width={2} height={5} rx={0.4} fill="#2b2f36" />
-      {/* ATmega328P DIP-28 (14 legs per side, notch + pin-1 dot) */}
-      <rect x={29} y={19} width={22} height={12} rx={0.6} fill={CHIP} stroke="#000" strokeWidth={0.25} />
-      <path d="M 29 23.5 A 1.6 1.6 0 0 0 29 26.5 Z" fill="#3a3f46" />
-      <circle cx={31.2} cy={21} r={0.5} fill="#3a3f46" />
+      {/* reset button — top-left beside the USB, red actuator */}
+      <rect x={5.2} y={1.8} width={6.4} height={5.8} rx={0.7} fill={METAL} stroke={METAL_D} strokeWidth={0.25} />
+      <circle cx={8.4} cy={4.7} r={1.8} fill="#c2262b" stroke="#7a1216" strokeWidth={0.25} />
+      <circle cx={7.8} cy={4.1} r={0.5} fill="#fff" opacity={0.35} />
+      {/* ATmega328P DIP-28 — 35.5 mm body, notch left, pin-1 dot */}
+      <rect x={33} y={33.2} width={33.5} height={11.6} rx={0.6} fill={CHIP} stroke="#000" strokeWidth={0.25} />
+      <path d="M 33 37.4 A 1.6 1.6 0 0 0 33 40.4 Z" fill="#3a3f46" />
+      <circle cx={35} cy={35.2} r={0.5} fill="#3a3f46" />
       {Array.from({ length: 14 }, (_, i) => (
         <g key={i}>
-          <rect x={29.6 + i * 1.52} y={18.1} width={0.9} height={0.9} fill={METAL_D} />
-          <rect x={29.6 + i * 1.52} y={31} width={0.9} height={0.9} fill={METAL_D} />
+          <rect x={33.9 + i * 2.32} y={32.3} width={1.1} height={0.95} fill={METAL_D} />
+          <rect x={33.9 + i * 2.32} y={44.75} width={1.1} height={0.95} fill={METAL_D} />
         </g>
       ))}
-      <Silk x={40} y={26.4} size={1.5} fill="#8f9aa6">ATMEGA328P</Silk>
-      <Silk x={40} y={23.4} size={0.95} fill="#5c6572">P-TH</Silk>
-      {/* reset button (red actuator, like the real R3) */}
-      <rect x={58} y={8} width={6.5} height={6} rx={0.8} fill={METAL} stroke={METAL_D} strokeWidth={0.25} />
-      <circle cx={61.25} cy={11} r={1.9} fill="#c2262b" stroke="#7a1216" strokeWidth={0.25} />
-      <circle cx={60.6} cy={10.3} r={0.55} fill="#fff" opacity={0.35} />
-      {/* crystal can + 16 MHz marking */}
-      <rect x={24} y={35} width={6} height={2.6} rx={1.2} fill={METAL} stroke={METAL_D} strokeWidth={0.2} />
-      <Silk x={27} y={39.2} size={0.85} fill={SILK}>16.000</Silk>
-      {/* ICSP 2×3 (round male pins) */}
+      <Silk x={49.7} y={40.4} size={1.5} fill="#8f9aa6">ATMEGA328P</Silk>
+      {/* crystal can + frequency marking */}
+      <rect x={16.5} y={26.5} width={9} height={3.4} rx={1.6} fill={METAL} stroke={METAL_D} strokeWidth={0.2} />
+      <Silk x={21} y={31.8} size={0.85} fill={SILK}>16.000</Silk>
+      {/* ICSP 2×3 (round male pins), center-left above the DIP */}
       {[
-        [55, 36],
-        [58.2, 36],
-        [61.4, 36],
-        [55, 39.4],
-        [58.2, 39.4],
-        [61.4, 39.4],
+        [22.5, 43.4],
+        [25.5, 43.4],
+        [28.5, 43.4],
+        [22.5, 46.4],
+        [25.5, 46.4],
+        [28.5, 46.4],
       ].map(([x, y]) => (
-        <Hole key={`${x}`} x={x} y={y} r={0.5} />
+        <Hole key={`${x},${y}`} x={x} y={y} r={0.5} />
       ))}
-      <Silk x={58.2} y={42.3} size={0.8} fill={SILK}>ICSP</Silk>
-      {/* SMD cluster: USB-serial chip, regulator + caps/resistors */}
-      <Chip x={13} y={22} w={7} h={5} label="MEGA16U2" />
-      <rect x={12} y={31} width={5} height={3.2} rx={0.3} fill="#2b2f36" stroke="#000" strokeWidth={0.15} />
-      {smd(17.6, 31.6, 1.2, 2)}
-      {smd(12, 40, 2.2, 1.2)}
-      {smd(16, 43, 2.2, 1.2)}
-      {smd(20, 39.5, 1.4, 1)}
-      {smd(21.5, 44, 1.8, 1)}
-      {smd(24.5, 44, 1.8, 1)}
-      {smd(52, 12, 1.8, 1, "#2b2f36")}
-      {smd(55, 12, 1.8, 1, CERAMIC)}
-      {smd(58, 44, 1.6, 1, "#2b2f36")}
-      {/* status LEDs: L · TX · RX · ON (real R3 silkscreen) */}
-      {led(33.5, 12.6, "L", "#e2b211")}
-      {led(31.8, 20.2, "TX", "#e2b211")}
-      {led(31.8, 23.4, "RX", "#e2b211")}
-      {led(66.2, 12.6, "ON", "#3c6")}
-      {/* ARDUINO logo + UNO oval */}
-      <Silk x={45.5} y={22} size={2.6} weight={800} fill={SILK}>∞</Silk>
-      <Silk x={47.5} y={24.8} size={1.7} weight={700} fill={SILK}>ARDUINO</Silk>
-      <rect x={52} y={15.2} width={12.5} height={7} rx={3.5} fill="none" stroke={SILK} strokeWidth={0.35} />
-      <Silk x={58.25} y={20.3} size={3.2} weight={800} fill={SILK}>UNO</Silk>
+      <Silk x={25.5} y={41.4} size={0.8} fill={SILK}>ICSP</Silk>
+      {/* barrel jack — bottom-left */}
+      <rect x={1.5} y={40} width={10} height={11.5} rx={0.8} fill={BLACK} stroke="#000" strokeWidth={0.3} />
+      <circle cx={6.5} cy={45.7} r={2.7} fill="#2b2f36" stroke="#000" strokeWidth={0.3} />
+      <circle cx={6.5} cy={45.7} r={1.1} fill="#050506" />
+      {/* SMD cluster: USB-serial bridge, regulator, caps/resistors */}
+      <Chip x={12.5} y={20.5} w={7} h={4.6} label="16U2" />
+      <rect x={11.5} y={32} width={5} height={3.2} rx={0.3} fill="#2b2f36" stroke="#000" strokeWidth={0.15} />
+      {smd(17.2, 32.8, 1.2, 1.8)}
+      {smd(12, 37, 2.2, 1.2)}
+      {smd(16, 37.5, 2.2, 1.2)}
+      {smd(18.5, 30.4, 1.4, 1)}
+      {smd(21, 31, 1.8, 1)}
+      {smd(23.4, 30.4, 1.6, 1, CERAMIC)}
+      {/* status LEDs: L · TX · RX (left of the logo) · ON (right edge) */}
+      {statusLed(24.2, 12.4, "L", "#e2b211")}
+      {statusLed(24.2, 16.3, "TX", "#e2b211")}
+      {statusLed(24.2, 20.2, "RX", "#e2b211")}
+      {statusLed(65.2, 14.2, "ON", "#3c6")}
+      {/* ∞ ARDUINO logo + UNO oval */}
+      <Silk x={38.5} y={18.5} size={3.2} weight={800} fill={SILK}>∞</Silk>
+      <Silk x={44.5} y={20.6} size={1.8} weight={700} fill={SILK}>ARDUINO</Silk>
+      <rect x={53.5} y={13.2} width={11.5} height={7} rx={3.5} fill="none" stroke={SILK} strokeWidth={0.35} />
+      <Silk x={59.25} y={18.3} size={3.2} weight={800} fill={SILK}>UNO</Silk>
+      {/* faint copper under the solder mask */}
+      <g fill="none" stroke="#fff" strokeOpacity={0.07} strokeWidth={0.55}>
+        <path d="M 30 33 L 27 28 L 30 24" />
+        <path d="M 40 32 L 38 27 L 42 24" />
+        <path d="M 55 33 L 58 28" />
+        <path d="M 20 34 L 16 36" />
+        <path d="M 45 45 L 45 48 L 50 49" />
+      </g>
       {/* silkscreen: digital group + PWM ~ + TX/RX arrows */}
-      <Silk x={33} y={8.4} size={1.2} fill={SILK} anchor="start">DIGITAL</Silk>
-      <Silk x={41.6} y={8.4} size={1.2} fill={SILK} anchor="start">(PWM ~)</Silk>
+      <Silk x={25} y={9.8} size={1.2} fill={SILK} anchor="start">DIGITAL (PWM ~)</Silk>
       {top.map((p) => (
-        <Silk key={`s${p.id}`} x={p.x} y={5.4} size={1.35} fill={SILK}>{p.name}</Silk>
+        <Silk key={`s${p.id}`} x={p.x} y={5.9} size={1.3} fill={SILK}>{p.name}</Silk>
       ))}
       {top
         .filter((p) => PWM.has(p.name))
         .map((p) => (
-          <Silk key={`p${p.id}`} x={p.x} y={7.0} size={1.2} fill={SILK}>~</Silk>
+          <Silk key={`p${p.id}`} x={p.x} y={7.5} size={1.2} fill={SILK}>~</Silk>
         ))}
-      <Silk x={top.find((p) => p.id === "D1")!.x} y={9.4} size={0.95} fill={SILK}>TX→</Silk>
-      <Silk x={top.find((p) => p.id === "D0")!.x} y={9.4} size={0.95} fill={SILK}>RX←</Silk>
+      <Silk x={top.find((p) => p.id === "D1")!.x - 0.4} y={9.8} size={0.95} fill={SILK}>TX-&gt;1</Silk>
+      <Silk x={top.find((p) => p.id === "D0")!.x - 0.4} y={9.8} size={0.95} fill={SILK}>RX-&lt;-0</Silk>
       {/* silkscreen: power + analog groups */}
-      <Silk x={20.6} y={45.6} size={1.35} fill={SILK}>POWER</Silk>
-      <Silk x={58.6} y={45.6} size={1.35} fill={SILK}>ANALOG IN</Silk>
-      {botL.map((p) => (
-        <Silk key={`s${p.id}`} x={p.x} y={49.3} size={1.15} fill={SILK}>{p.name}</Silk>
+      <Silk x={35.5} y={45.6} size={1.35} fill={SILK}>POWER</Silk>
+      <Silk x={57.2} y={45.6} size={1.35} fill={SILK}>ANALOG IN</Silk>
+      {[...power, ...analog].map((p) => (
+        <Silk key={`s${p.id}`} x={p.x} y={49.2} size={1.1} fill={SILK}>{p.name}</Silk>
       ))}
-      {botR.map((p) => (
-        <Silk key={`s${p.id}`} x={p.x} y={49.3} size={1.15} fill={SILK}>{p.name}</Silk>
-      ))}
-      {/* faint copper traces under the solder mask */}
-      <g fill="none" stroke="#fff" strokeOpacity={0.07} strokeWidth={0.55}>
-        <path d="M 40 31 L 40 43 L 31 47" />
-        <path d="M 45 31 L 47 45 L 55 49" />
-        <path d="M 33 19 L 28 13 L 33 6" />
-        <path d="M 51 19 L 57 14" />
-        <path d="M 22 27 L 18 20" />
-      </g>
       {/* headers with square female sockets */}
-      <Header pts={top.slice(0, 8)} />
-      <Header pts={top.slice(8)} />
-      <Header pts={botL} />
-      <Header pts={botR} />
+      <Header pts={top.slice(0, 10)} />
+      <Header pts={top.slice(10)} />
+      <Header pts={power} />
+      <Header pts={analog} />
     </g>
   );
 };

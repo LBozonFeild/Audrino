@@ -1,3 +1,4 @@
+import { relayoutWires } from "../dsl/netsFromConnections";
 import type { Project } from "@audrino/schema";
 import { create } from "zustand";
 import { createEmptyProject } from "../dsl/load";
@@ -88,7 +89,11 @@ export const useEditorStore = create<EditorStore>()((set, get) => {
     deleteSelection: () => get().removeIds(get().selection),
     connect: (a, b, points) => commit(ops.connect(get().doc, a, b, points)),
     setCode: (name, content) => commit(ops.setCodeFile(get().doc, name, content)),
-    loadProject: (next) => {
+    loadProject: (raw) => {
+      // Saved designs must survive pinout corrections: re-land wire geometry
+      // on the current pins (nets are topological — nothing electrical moves).
+      const next = structuredClone(raw);
+      relayoutWires(next);
       const feedback = commit(ops.replaceAll(get().doc, next));
       if (feedback === null) set({ selection: [] });
       return feedback;

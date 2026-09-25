@@ -465,12 +465,22 @@ textarea:focus {
   cursor: crosshair;
 }
 
-/* tiny gold-rimmed socket with a dark bore (real header look) */
+/* connectors get a tiny gold-rimmed socket; bare leads stay subtle dots */
 .pin-dot {
+  pointer-events: none;
+}
+
+.pin-dot.socket {
   fill: #171a1f;
   stroke: #c9a227;
   stroke-width: 0.34;
-  pointer-events: none;
+}
+
+.pin-dot.lead {
+  fill: var(--bench-fg-dim);
+  stroke: var(--bench-canvas);
+  stroke-width: 0.3;
+  opacity: 0.85;
 }
 
 .pin-dot.hot,

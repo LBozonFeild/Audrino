@@ -232,3 +232,25 @@ _Freeze contract note:_ `golden-pinouts.test.ts` UNO block now documents the evo
 | Phantom test error fixed | `workerSimRunner` threw uncaught `Worker is not defined` in jsdom (vitest "Unhandled Errors") — now a clean `hooks.onError` + no-op `SimRunJob` | chain runs with zero unhandled errors; tooltip golden re-pointed to `.pin-hit title` |
 
 _Chain_ **169/169** (schema 75 + sim 16 + web 78) · _typecheck_ 0.
+
+## Actual-designs alignment (truth to the real boards) — 2026-09-25
+
+- User flag: the art had drifted from the real designs. Restored fidelity (and the
+  saved-design protection the pin moves require):
+- **UNO R3 = the genuine layout**: 31 pins — digital header now SCL,SDA,AREF,GND
+  then 13…0 (R3's extra pair), POWER block at the shield-standard x≈27.9
+  (IOREF/Reset/3V3/5V/GND/GND/Vin), ANALOG IN at x≈50.8; drawing matches:
+  reset top-left beside the USB, USB-B shell + tongue + contacts, white mounting
+  holes at the true coordinates, L/TX/RX LEDs + ON LED, ∞ ARDUINO + UNO oval,
+  16 MHz crystal can, ICSP 2×3 (round pins) center-left, ATmega328P DIP-28
+  (35.5 mm, notch + pin-1 dot + legs) center-right, barrel jack bottom-left,
+  `TX->1`/`RX<-0` silk (the real boards' marks), DIGITAL (PWM ~) + POWER +
+  ANALOG IN captions, ~ marks on 3/5/6/9/10/11.
+- **Pin pads tell the truth**: gold sockets ONLY on real connectors (boards +
+  breadboards); bare leads get subtle dots (no invented sockets on LEDs/ICs).
+- **Saved designs survive pinout corrections**: `relayoutWires` re-lands saved
+  wire endpoints onto the nearest current pins of their net (topological
+  `ref:pinId` — never electrical) at every `loadProject` entry (autosave, share,
+  remote docs, AI, lessons). Interior waypoints preserved. Tested.
+- Golden pinout freeze amended as superset (`R3_ADDITIONS` incl SCL/SDA).
+- Chain 172/172 (schema 75 + sim 16 + web 81); typecheck 0 errors (tsc clean exit).

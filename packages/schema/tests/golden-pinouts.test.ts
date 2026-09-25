@@ -88,15 +88,17 @@ describe("golden pinouts — boards & MCU", () => {
       "D0", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "D11", "D12", "D13",
       "GND", "RST", "3V3", "5V", "VIN",
     ];
-    const R3_ADDITIONS = ["AREF", "IOREF", "GND1", "GND2"];
+    const R3_ADDITIONS = ["AREF", "IOREF", "GND1", "GND2", "SCL", "SDA"];
     for (const id of FROZEN_UNO_IDS) expect(got[id], `frozen ${id}`).toBeDefined();
     expect(Object.keys(got).sort()).toEqual([...FROZEN_UNO_IDS, ...R3_ADDITIONS].sort());
     expect(got.VIN).toBe("Vin");
     expect(got.RST).toBe("Reset");
     expect(got.GND1).toBe("GND"); // silkscreen says GND at all three grounds
     expect(got.GND2).toBe("GND");
-    expect(got.D0).toBe("0"); // real silk numbers ("TX→1"/"RX←0" arrows are art)
+    expect(got.D0).toBe("0"); // real silk numbers ("TX->1"/"RX<-0" arrows are art)
     expect(got.D13).toBe("13");
+    expect(got.SCL).toBe("SCL"); // R3 dedicated I2C pins at the top-left of digital
+    expect(got.SDA).toBe("SDA");
   });
 });
 

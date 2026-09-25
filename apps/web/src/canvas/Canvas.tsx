@@ -410,7 +410,7 @@ export function Canvas(props: {
                       <title>{`${pinId}${pinName !== pinId ? " · " + pinName : ""}${netId ? " → " + netId : ""}`}</title>
                     </rect>
                     <rect
-                      className={`pin-dot${stClass}${hot ? " hot" : ""}${isWireLive ? " wire-live" : ""}`}
+                      className={`pin-dot ${e.isBoard || e.type.startsWith("breadboard") ? "socket" : "lead"}${stClass}${hot ? " hot" : ""}${isWireLive ? " wire-live" : ""}`}
                       x={world[0] - PIN_PAD_S / 2}
                       y={world[1] - PIN_PAD_S / 2}
                       width={PIN_PAD_S}
