@@ -882,7 +882,7 @@ const HcSr04: ArtFn = (d) => (
           [-0.9, 0.9],
           [0.9, 0.9],
         ].map(([dx, dy]) => (
-          <circle key={`${dx}`} cx={x + dx} cy={y + dy} r={0.35} fill="#3a3f46" />
+          <circle key={`${dx},${dy}`} cx={x + dx} cy={y + dy} r={0.35} fill="#3a3f46" />
         ))}
       </g>
     ))}
