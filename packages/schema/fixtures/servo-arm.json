@@ -1,0 +1,62 @@
+{
+  "meta": { "name": "Servo arm", "dslVersion": 2, "boardId": "board1" },
+  "boards": [{ "id": "board1", "type": "arduino-uno", "transform": { "x": 60, "y": 70 } }],
+  "components": [
+    {
+      "id": "servo1",
+      "type": "sg90-servo",
+      "props": { "angle_deg": 90 },
+      "transform": { "x": 400, "y": 140 }
+    }
+  ],
+  "nets": [
+    { "id": "net-5v", "pins": ["board1:5V", "servo1:VCC"] },
+    { "id": "net-gnd", "pins": ["board1:GND", "servo1:GND"] },
+    { "id": "net-d9", "pins": ["board1:D9", "servo1:PWM"] }
+  ],
+  "wires": [
+    { "id": "w1", "net": "net-5v", "points": [[280, 120], [400, 160]] },
+    { "id": "w2", "net": "net-gnd", "points": [[280, 200], [400, 190]] },
+    { "id": "w3", "net": "net-d9", "points": [[280, 160], [400, 175]] }
+  ],
+  "mechanics": {
+    "bodies": [
+      {
+        "id": "arm1",
+        "shape": "box",
+        "size_mm": { "w": 90, "h": 12 },
+        "material": { "color": "#8ab4ff" },
+        "transform": { "x": 490, "y": 164, "z": 0 }
+      }
+    ],
+    "joints": [
+      {
+        "id": "j1",
+        "type": "revolute",
+        "parent": "servo1:horn",
+        "child": "arm1",
+        "axis": "z",
+        "limits": { "min_deg": -90, "max_deg": 90 },
+        "driver": { "kind": "servo", "ref": "servo1" }
+      }
+    ]
+  },
+  "code": {
+    "main": "sketch.ino",
+    "files": {
+      "sketch.ino": "#include <Servo.h>\n\nServo arm;\n\nvoid setup() {\n  arm.attach(9);\n}\n\nvoid loop() {\n  for (int a = 0; a <= 180; a++) { arm.write(a); delay(15); }\n  for (int a = 180; a >= 0; a--) { arm.write(a); delay(15); }\n}\n"
+    }
+  },
+  "build": {
+    "fqbn": "arduino:avr:uno",
+    "core": "arduino:avr@1.8.6",
+    "libraries": [{ "name": "Servo", "version": "^1.1.0" }]
+  },
+  "sim": { "render_fps": 60 },
+  "ai": {
+    "prompt": "servo arm that waves",
+    "explanation": "An SG90 sweeps 0–180° with a cardboard-style arm welded to its horn.",
+    "bom": ["1× Arduino-compatible Uno", "1× SG90 servo", "1× arm link (cardboard/wood)"],
+    "wiringSteps": ["5V → servo VCC", "GND → servo GND", "D9 → servo signal"]
+  }
+}

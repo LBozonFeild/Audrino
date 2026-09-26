@@ -1,0 +1,17 @@
+{
+  "name": "audrino",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm --workspace audrino-web run dev",
+    "test": "npm test -w @audrino/schema && npm test -w @audrino/sim && npm test -w audrino-web",
+    "typecheck": "npm run typecheck -w @audrino/schema && npm run typecheck -w @audrino/sim && npm run typecheck -w audrino-web",
+    "build": "npm run typecheck && npm --workspace audrino-web run build",
+    "test:chain": "npm test -w @audrino/schema && npm test -w @audrino/sim && npm test -w audrino-web"
+  }
+}

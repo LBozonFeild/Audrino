@@ -1,0 +1,42 @@
+{
+  "meta": { "name": "Blink", "dslVersion": 2, "boardId": "board1" },
+  "boards": [{ "id": "board1", "type": "arduino-uno", "transform": { "x": 60, "y": 70 } }],
+  "components": [
+    {
+      "id": "r1",
+      "type": "resistor",
+      "props": { "resistance_ohms": 220 },
+      "transform": { "x": 330, "y": 120 }
+    },
+    {
+      "id": "led1",
+      "type": "led",
+      "props": { "color": "red" },
+      "transform": { "x": 470, "y": 120 }
+    }
+  ],
+  "nets": [
+    { "id": "net-d13", "pins": ["board1:D13", "r1:1"] },
+    { "id": "net-led", "pins": ["r1:2", "led1:A"] },
+    { "id": "net-gnd", "pins": ["board1:GND", "led1:K"] }
+  ],
+  "wires": [
+    { "id": "w1", "net": "net-d13", "points": [[280, 150], [330, 150]] },
+    { "id": "w2", "net": "net-led", "points": [[420, 150], [470, 150]] },
+    { "id": "w3", "net": "net-gnd", "points": [[170, 220], [170, 260], [515, 260], [515, 180]] }
+  ],
+  "code": {
+    "main": "sketch.ino",
+    "files": {
+      "sketch.ino": "void setup() {\n  pinMode(13, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(13, HIGH);\n  delay(1000);\n  digitalWrite(13, LOW);\n  delay(1000);\n}\n"
+    }
+  },
+  "build": { "fqbn": "arduino:avr:uno", "core": "arduino:avr@1.8.6", "libraries": [] },
+  "sim": { "render_fps": 60 },
+  "ai": {
+    "prompt": "blink an LED",
+    "explanation": "Pin D13 drives a red LED through a 220Ω current-limiting resistor.",
+    "bom": ["1× Arduino-compatible Uno", "1× red LED", "1× 220Ω resistor"],
+    "wiringSteps": ["D13 → 220Ω → LED anode", "LED cathode → GND"]
+  }
+}
