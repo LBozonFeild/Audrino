@@ -67,6 +67,16 @@ describe("Home", () => {
     expect(document.querySelector(".topbar")).toBeNull();
   });
 
+  it("renders the template gallery with live part previews", async () => {
+    render(<Root />);
+    await flushRoute();
+    expect(document.querySelectorAll(".tpl-card")).toHaveLength(3);
+    expect(document.querySelectorAll(".tpl-preview")).toHaveLength(3);
+    expect(screen.getByText("Blink")).toBeTruthy();
+    // previews render real part art (boards + components from the fixture)
+    expect(document.querySelectorAll(".tpl-preview g.part").length).toBeGreaterThan(0);
+  });
+
   it("New project opens an empty editor even when an autosave exists", async () => {
     seedAutosave();
     render(<Root />);

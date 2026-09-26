@@ -6,6 +6,8 @@ import type { Tool } from "../state/store";
 import { ArtDefs, PartGlyph, partSize, pinWorldPos } from "./PartGlyph";
 import { PIN_HIT_S, PIN_PAD_S, pinLabel } from "./pinLabel";
 import { entityScale } from "../dsl/netsFromConnections";
+import { loadFixture } from "../dsl/load";
+import { docBBox } from "../state/ops";
 import { memo } from "react";
 import { useSimStore } from "../sim/SimProvider";
 import { useViewStore, VIEW_W, VIEW_H, DEFAULT_K } from "./viewStore";
@@ -276,10 +278,19 @@ export function Canvas(props: {
   const zoomCenter = (factor: number) => {
     useViewStore.getState().zoomAt(view.x + VIEW_W / (2 * view.k), view.y + VIEW_H / (2 * view.k), factor);
   };
+  const openBlink = () => {
+    const feedback = useEditorStore.getState().loadProject(loadFixture("blink"));
+    if (feedback) {
+      props.notify(feedback);
+      return;
+    }
+    useViewStore.getState().fitContent(docBBox(useEditorStore.getState().doc));
+    props.notify("Loaded the Blink example — one undo (Ctrl+Z) reverts it");
+  };
   const empty = entities.length === 0 && (doc.mechanics?.bodies.length ?? 0) === 0;
 
   return (
-    <div className="canvas-wrap">
+    <div className="canvas-wrap" data-tool={tool}>
       <div className="tool-strip">
         {TOOLS.map((t) => (
           <button
@@ -346,23 +357,20 @@ export function Canvas(props: {
         onClick={onBackgroundClick}
       >
         <ArtDefs />
-        {/* Tinkercad-style workplane grid (world units — pans/zooms with the view) */}
-        <rect
-          className="workplane-grid"
-          x={-3000}
-          y={-3000}
-          width={6000}
-          height={6000}
-          fill="url(#matGridMajor)"
-          style={{ pointerEvents: "none" }}
-        />
-        <defs>
-          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-            <circle cx="1" cy="1" r="1" fill="var(--bench-bg-grid)" />
-          </pattern>
-        </defs>
-        <rect x={0} y={0} width={4096} height={3072} fill="var(--bench-canvas)" />
-        <rect x={0} y={0} width={4096} height={3072} fill="url(#grid)" />
+        {/* Tinkercad-style workplane: solid bench, then a fine + major grid over
+            the whole surface (grid LODs out when zoomed way past the content) */}
+        <rect x={0} y={0} width={4096} height={3072} fill="var(--bench-canvas)" style={{ pointerEvents: "none" }} />
+        {view.k >= 0.3 && (
+          <rect
+            className="workplane-grid"
+            x={-3000}
+            y={-3000}
+            width={6000}
+            height={6000}
+            fill="url(#matGridMajor)"
+            style={{ pointerEvents: "none" }}
+          />
+        )}
 
         {/* wires below parts — jumper style: casing + insulation + pin ferrules */}
         {doc.wires.filter((w) => wireVisible(w, vis)).map((w) => (
@@ -498,13 +506,23 @@ export function Canvas(props: {
             y2={cursor[1]}
           />
         )}
-
-        {empty && (
-          <text className="canvas-hint" x={360} y={270} textAnchor="middle">
-            Pick a part from the palette — or spawn a build in the AI ✨ tab.
-          </text>
-        )}
       </svg>
+
+      {/* empty workplane: guided next steps (HTML overlay stays out of the way of clicks) */}
+      {empty && (
+        <div className="canvas-empty">
+          <span className="ce-chip">◇ empty workplane</span>
+          <h3>Your bench is ready</h3>
+          <p>Drag a part from the palette, describe a build to the AI, or start from a working example.</p>
+          <div className="ce-actions">
+            <button className="primary" onClick={() => setTab("ai")}>
+              ✨ Build with AI
+            </button>
+            <button onClick={openBlink}>Open the Blink example</button>
+          </div>
+          <span className="ce-tip">scroll to move · ctrl+scroll zooms · R rotates</span>
+        </div>
+      )}
     </div>
   );
 }

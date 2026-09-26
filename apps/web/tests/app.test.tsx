@@ -119,6 +119,15 @@ describe("canvas affordances", () => {
     expect(useEditorStore.getState().ui.activeTab).toBe("inspect");
     expect(screen.getByText("Net connections")).toBeTruthy();
   });
+
+  it("empty workplane offers guided next steps (Blink one-click)", () => {
+    const { container } = render(<App />);
+    expect(container.querySelector(".canvas-empty")).not.toBeNull();
+    fireEvent.click(screen.getByText("Open the Blink example"));
+    expect(useEditorStore.getState().doc.boards).toHaveLength(1);
+    expect(useEditorStore.getState().doc.components.length).toBeGreaterThan(0);
+    expect(container.querySelector(".canvas-empty")).toBeNull();
+  });
 });
 
 describe("clipboard with boards", () => {

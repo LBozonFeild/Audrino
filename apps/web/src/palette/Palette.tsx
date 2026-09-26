@@ -59,17 +59,25 @@ export function Palette(props: {
   return (
     <nav className="panel palette">
       <div className="pal-search-wrap">
-        <input
-          value={query}
-          placeholder={`search ${PART_DEFINITIONS.length} parts…`}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setQuery("");
-            if (e.key === "Enter" && visible[0]) {
-              props.onPick(visible[0].category === "board" ? "board" : "component", visible[0].type);
-            }
-          }}
-        />
+        <div className="pal-search-field">
+          <span className="pal-search-ico" aria-hidden>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+              <circle cx="7" cy="7" r="4.6" stroke="currentColor" strokeWidth="1.6" />
+              <path d="M10.6 10.6 14 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+          </span>
+          <input
+            value={query}
+            placeholder={`search ${PART_DEFINITIONS.length} parts…`}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") setQuery("");
+              if (e.key === "Enter" && visible[0]) {
+                props.onPick(visible[0].category === "board" ? "board" : "component", visible[0].type);
+              }
+            }}
+          />
+        </div>
       </div>
       {CATEGORY_ORDER.map(({ id, label, hue }) => {
         const items = visible.filter((d) => d.category === id);
@@ -79,13 +87,16 @@ export function Palette(props: {
         return (
           <div key={id}>
             <button
-              className="pal-cat"
+              className={`pal-cat${open ? " open" : ""}`}
               onClick={() => setExpanded((x) => ({ ...x, [id]: !x[id] }))}
               title={`toggle ${label}`}
             >
               <span className="dot" style={{ background: hue }} />
               {label}
               <span className="count">{items.length}</span>
+              <span className="pal-caret" aria-hidden>
+                ▾
+              </span>
             </button>
             <div className="pal-items">
               {shown.map((d) => (

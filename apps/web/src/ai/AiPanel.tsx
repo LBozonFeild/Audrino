@@ -156,17 +156,19 @@ export function AiPanel(props: { notify: (msg: string) => void }) {
   return (
     <div className="tab-body">
       <style>{`
-        .ai-diff { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11px;
-          background: rgba(0,0,0,.25); border-radius: 6px; padding: 6px 8px; max-height: 260px;
+        .ai-diff { font-family: var(--bench-mono); font-size: 11px;
+          background: #14181f; border: 1px solid rgba(255,255,255,.09); border-radius: 8px; padding: 6px 8px;
+          max-height: 260px; color: #c9d2dd;
           overflow: auto; white-space: pre-wrap; word-break: break-word; }
         .ai-diff .dl-add { color: #3fb950; }
         .ai-diff .dl-del { color: #f85149; }
-        .ai-diff .dl-same { opacity: .75; }
-        .ai-card { border: 1px solid rgba(255,255,255,.12); border-radius: 8px; padding: 10px;
+        .ai-diff .dl-same { opacity: .7; }
+        .ai-card { border: 1px solid var(--bench-border); background: var(--bench-panel-2);
+          border-radius: 10px; padding: 10px;
           display: flex; flex-direction: column; gap: 8px; }
-        .ai-help { font-size: 11px; opacity: .65; line-height: 1.5; }
+        .ai-help { font-size: 11px; color: var(--bench-fg-dim); line-height: 1.5; }
         .ai-sec { display: flex; flex-direction: column; gap: 6px; padding-top: 10px;
-          border-top: 1px solid rgba(255,255,255,.08); }
+          border-top: 1px solid var(--bench-border); }
       `}</style>
 
       <SpawnSection notify={props.notify} />

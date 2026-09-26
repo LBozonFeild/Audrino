@@ -80,8 +80,8 @@ export function ScopePanel(props: { notify: (msg: string) => void }) {
     <div className="tab-body">
       <style>{`
         .scope-lane-label { font-size: 10px; opacity: .85; }
-        .scope-grid { stroke: rgba(255,255,255,.08); }
-        .scope-readout { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11px; }
+        .scope-grid { stroke: rgba(255,255,255,.09); }
+        .scope-readout { font-family: var(--bench-mono); font-size: 11px; }
       `}</style>
       <div className="row">
         <select style={{ flex: 1 }} value={pick} onChange={(e) => setPick(e.target.value)}>
@@ -113,7 +113,7 @@ export function ScopePanel(props: { notify: (msg: string) => void }) {
           <svg
             className="scope-svg"
             viewBox={`0 0 ${W} ${H}`}
-            style={{ width: "100%", background: "rgba(0,0,0,.25)", borderRadius: 6 }}
+            style={{ width: "100%", background: "var(--scope-bg)", borderRadius: 8 }}
             onMouseMove={onMove}
             onMouseLeave={() => setHoverT(null)}
           >

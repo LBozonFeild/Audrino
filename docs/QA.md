@@ -355,3 +355,35 @@ _Chain_ **169/169** (schema 75 + sim 16 + web 78) · _typecheck_ 0.
   `@audrino/sim` 8 failures are pre-existing sandbox gaps (no zig/avr-gcc/
   arduino-cli). New tests: home.test.tsx (route table, new/continue hand-off
   beats autosave, sign-in form, `#p=` deep-link → editor).
+
+## Visual overhaul + quality-of-life pass ("compete with the best") — 2026-09-26
+
+- Design-language refresh across the whole app, all theme-driven (color-mix off
+  the 17 theme vars, so all 48 themes keep working; no hardcoded chrome colors):
+  layered shadows, hover lifts, focus-visible rings, themed thin scrollbars,
+  `::selection`, reduced-motion guard, toast slide-in, Nunito self-hosted via
+  `@fontsource/nunito` (no Google Fonts dependency).
+- **Home**: full redesign — sticky blur header with brand mark, hero with
+  animated PCB-trace backdrop + gradient headline + CTA row, **template gallery
+  with live fixture previews** (Blink / Traffic light / Servo arm rendered from
+  real PartGlyph art, framed by docBBox), start/continue/auth cards, feature
+  strip, entrance animations, responsive tweaks.
+- **Palette**: two-column card tiles (glyph over type label, hover glow),
+  blurred sticky search with magnifier icon, category rows with count pills and
+  open/close carets.
+- **Editor chrome**: segmented btn-seg cluster (undo/redo/rotate/fit), chip
+  project name, "✓ saved" autosave heartbeat chip (autosave now dispatches
+  `audrino-saved`), pulsing "simulating…" badge, danger-styled Stop state,
+  segmented (iOS-style) right-panel tabs, glassier tool strip, focus rings.
+- **Canvas**: fine+major workplane grid replaces sparse dots (LODs out below
+  0.3× to avoid moiré), soft vignette, guided empty state card ("Build with AI"
+  / "Open the Blink example" one-click, tests pin both), tool-aware cursors
+  (crosshair for wire, grab on parts).
+- **Bug fixes found on the way**: `--font-mono` (undefined) → `--bench-mono`
+  (pin labels/part labels/zoom % were silently inheriting the body font);
+  AI diff card + scope screen were hardcoded for dark backgrounds (now
+  theme-safe: `.ai-card/.ai-sec` use border/panel vars, scope has `--scope-bg`);
+  run/stop + brand mark use the theme's `accent-ink` pair for contrast.
+- Chain: typecheck 0; web 95/95 (18 files — +3 tests: template gallery,
+  empty-state Blink, all home routing); `vite build` clean. sim suite still
+  toolchain-gated in this sandbox (pre-existing).
