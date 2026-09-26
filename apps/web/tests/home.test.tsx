@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 /**
- * Home page + hash routing goldens: the landing screen offers New / Continue /
- * sign-in, and hands an explicitly chosen doc to the editor without letting
- * the autosave restore clobber it.
+ * Home page + hash routing goldens: the landing screen offers New / Continue
+ * cards (no sign-in card — accounts live in the editor), and hands an
+ * explicitly chosen doc to the editor without letting the autosave restore
+ * clobber it.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -102,13 +103,18 @@ describe("Home", () => {
     expect(useEditorStore.getState().doc.components[0].type).toBe(seeded.components[0].type);
   });
 
-  it("shows the sign-in form when logged out", async () => {
+  it("keeps the logged-out home free of sign-in prompts", async () => {
     render(<Root />);
     await flushRoute();
-    expect(screen.getByPlaceholderText("email")).toBeTruthy();
-    expect(screen.getByPlaceholderText("password (10+ characters)")).toBeTruthy();
-    expect(screen.getByText("Sign up")).toBeTruthy();
-    expect(screen.getAllByText("Log in").length).toBeGreaterThanOrEqual(1);
+    // No sign-in card under New/Continue, and no topbar login link.
+    expect(screen.queryByPlaceholderText("email")).toBeNull();
+    expect(screen.queryByPlaceholderText("password (10+ characters)")).toBeNull();
+    expect(screen.queryByText("Sign up")).toBeNull();
+    expect(screen.queryByText("Log in")).toBeNull();
+    expect(screen.queryByText("Log in / Sign up")).toBeNull();
+    // The two action cards remain.
+    expect(screen.getByText("New project")).toBeTruthy();
+    expect(screen.getByText("Continue")).toBeTruthy();
   });
 
   it("share links (#p=…) route straight to the editor", async () => {

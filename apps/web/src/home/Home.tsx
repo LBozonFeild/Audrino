@@ -1,7 +1,7 @@
 /**
- * Home page — the product's front door: hero, template gallery, start/continue
- * cards, and sign-in. Routes: "" / "#/" lands here; the editor is "#/editor"
- * (see nav.ts).
+ * Home page — the product's front door: hero, template gallery, and
+ * start/continue cards (accounts live in the editor's account popover).
+ * Routes: "" / "#/" lands here; the editor is "#/editor" (see nav.ts).
  */
 import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
@@ -103,11 +103,6 @@ const FEATURES: { icon: ReactNode; title: string; body: string }[] = [
 export function Home() {
   const [me, setMe] = useState<Me | null>(null);
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
-  const [mode, setMode] = useState<"login" | "signup">("login");
-  const [email, setEmail] = useState("");
-  const [handle, setHandle] = useState("");
-  const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Re-read on every render so "Continue" disappears after New project clears it.
   const saved = loadAutosave();
@@ -130,23 +125,6 @@ export function Home() {
     void refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const submitAuth = async () => {
-    setBusy(true);
-    setError(null);
-    const path = mode === "login" ? "/api/auth/login" : "/api/auth/signup";
-    const body = mode === "login" ? { email, password } : { email, handle, password };
-    const r = await api(path, "POST", body);
-    setBusy(false);
-    if (r.status >= 300) {
-      setError(String(r.json.error ?? "request failed"));
-      return;
-    }
-    setEmail("");
-    setHandle("");
-    setPassword("");
-    await refresh();
-  };
 
   const logout = async () => {
     await api("/api/auth/logout", "POST");
@@ -196,11 +174,7 @@ export function Home() {
             <span className="badge">@{me.handle}</span>
             <button onClick={() => void logout()}>Log out</button>
           </>
-        ) : (
-          <a className="home-anchor" href="#home-auth">
-            Log in / Sign up
-          </a>
-        )}
+        ) : null}
       </header>
 
       <main className="home-main">
@@ -296,76 +270,32 @@ export function Home() {
             )}
           </section>
 
-          <section className="home-card" id="home-auth">
-            <h2>{me ? "Your projects" : "Sign in"}</h2>
-            {me ? (
-              <>
-                <p className="dim">Saved to your account — open one to keep editing.</p>
-                {projects.length > 0 ? (
-                  <div className="home-proj-list">
-                    {projects.map((p) => (
-                      <div className="home-proj-row" key={p.id}>
-                        <button className="home-proj-open" onClick={() => void openCloud(p.id)} title="Open project">
-                          {p.title}
-                          <span className="dim"> · {new Date(p.updatedAt).toLocaleDateString()}</span>
+          {me && (
+            <section className="home-card" id="home-auth">
+              <h2>Your projects</h2>
+              <p className="dim">Saved to your account — open one to keep editing.</p>
+              {projects.length > 0 ? (
+                <div className="home-proj-list">
+                  {projects.map((p) => (
+                    <div className="home-proj-row" key={p.id}>
+                      <button className="home-proj-open" onClick={() => void openCloud(p.id)} title="Open project">
+                        {p.title}
+                        <span className="dim"> · {new Date(p.updatedAt).toLocaleDateString()}</span>
+                      </button>
+                      {p.owner === "me" && (
+                        <button onClick={() => void deleteCloud(p)} title="Delete">
+                          ✕
                         </button>
-                        {p.owner === "me" && (
-                          <button onClick={() => void deleteCloud(p)} title="Delete">
-                            ✕
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="dim">No cloud projects yet — press 💾 Save in the editor to store one here.</p>
-                )}
-              </>
-            ) : (
-              <>
-                <div className="row">
-                  <button className={mode === "login" ? "tool-active" : ""} onClick={() => setMode("login")}>
-                    Log in
-                  </button>
-                  <button className={mode === "signup" ? "tool-active" : ""} onClick={() => setMode("signup")}>
-                    Sign up
-                  </button>
+                      )}
+                    </div>
+                  ))}
                 </div>
-                <input
-                  placeholder="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  autoComplete="email"
-                />
-                {mode === "signup" && (
-                  <input
-                    placeholder="handle (3–24 letters, digits, _)"
-                    value={handle}
-                    onChange={(e) => setHandle(e.target.value)}
-                    autoComplete="username"
-                  />
-                )}
-                <input
-                  type="password"
-                  placeholder="password (10+ characters)"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete={mode === "login" ? "current-password" : "new-password"}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") void submitAuth();
-                  }}
-                />
-                {error && <div className="badge warn">{error}</div>}
-                <button className="primary" onClick={() => void submitAuth()} disabled={busy}>
-                  {busy ? "…" : mode === "login" ? "Log in" : "Create account"}
-                </button>
-                <p className="dim">
-                  Sign in to keep projects across devices. Local work stays in this browser either way.
-                </p>
-              </>
-            )}
-            {me && error && <div className="badge warn">{error}</div>}
-          </section>
+              ) : (
+                <p className="dim">No cloud projects yet — press 💾 Save in the editor to store one here.</p>
+              )}
+              {error && <div className="badge warn">{error}</div>}
+            </section>
+          )}
         </section>
 
         <section className="feat-grid">

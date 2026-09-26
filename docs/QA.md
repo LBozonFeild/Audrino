@@ -387,3 +387,9 @@ _Chain_ **169/169** (schema 75 + sim 16 + web 78) · _typecheck_ 0.
 - Chain: typecheck 0; web 95/95 (18 files — +3 tests: template gallery,
   empty-state Blink, all home routing); `vite build` clean. sim suite still
   toolchain-gated in this sandbox (pre-existing).
+- **Follow-up (2026-09-26)**: removed the logged-out **sign-in card** from the
+  home grid (the form that wrapped under "New project") and the dead topbar
+  "Log in / Sign up" anchor. Accounts stay reachable via the editor's account
+  popover; signed-in users still get the "Your projects" card on home.
+  home.test locks the absence (no email/password prompts, both action cards
+  remain): typecheck 0, web 95/95 (18 files), `vite build` clean.
