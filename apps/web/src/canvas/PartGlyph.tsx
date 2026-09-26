@@ -3,6 +3,7 @@ import { useSimStore } from "../sim/SimProvider";
 import type { ReactElement } from "react";
 import type { PartDefinition, Transform } from "@audrino/schema";
 import { partDef } from "@audrino/schema";
+import { entityScale, pinWorldPos as sharedPinWorldPos } from "../dsl/netsFromConnections";
 import { EXTRA_ART } from "./partsArtExtra";
 import { partNameLabel } from "./pinLabel";
 import { BATCH2_ART } from "./partsArtBatch2";
@@ -39,24 +40,9 @@ export function pinWorldPos(
   entity: { type: string; transform: Transform },
   pinId: string,
 ): [number, number] | null {
-  const local = pinLocalPos(entity.type, pinId);
-  if (!local) return null;
-  // Must match the art's `rotate(rot, w/2, h/2)` — spin around the bbox center.
-  const { w, h } = partSize(entity.type);
-  const rot = (((entity.transform.rotation_deg ?? 0) % 360) + 360) % 360;
-  let lx = local.x;
-  let ly = local.y;
-  if (rot === 90) {
-    lx = (w + h) / 2 - local.y;
-    ly = local.x + (h - w) / 2;
-  } else if (rot === 180) {
-    lx = w - local.x;
-    ly = h - local.y;
-  } else if (rot === 270) {
-    lx = local.y + (w - h) / 2;
-    ly = (w + h) / 2 - local.x;
-  }
-  return [entity.transform.x + lx, entity.transform.y + ly];
+  // One canonical implementation (rotation + component scale) shared with
+  // relayoutWires/buildNetsAndWires — art and wire endpoints never diverge.
+  return sharedPinWorldPos({ id: "", type: entity.type, transform: entity.transform }, pinId);
 }
 
 // ---- palette ---------------------------------------------------------------
@@ -1240,6 +1226,8 @@ export const PartGlyph = memo(function PartGlyph(props: {
   selected?: boolean;
   board?: boolean;
   partRef?: string;
+  /** Render at catalog size with no component boost (palette previews). */
+  raw?: boolean;
 }) {
   const d = partDef(props.type);
   const { w, h } = partSize(props.type);
@@ -1249,6 +1237,10 @@ export const PartGlyph = memo(function PartGlyph(props: {
     return !!s.leds.find((l) => l.ref === props.partRef && l.lit);
   });
   const rot = props.transform.rotation_deg;
+  // Components render COMPONENT_SCALE bigger about their centre; boards (and
+  // raw palette previews) stay 1:1. pinWorldPos applies the same transform.
+  const s = props.raw ? 1 : entityScale(props.type);
+  const scaleT = s === 1 ? "" : ` translate(${w / 2} ${h / 2}) scale(${s}) translate(${-w / 2} ${-h / 2})`;
   return (
     <g
       className={`part${props.board ? " board" : ""}${props.selected ? " selected" : ""}`}
@@ -1258,33 +1250,35 @@ export const PartGlyph = memo(function PartGlyph(props: {
           : `translate(${props.transform.x} ${props.transform.y})`
       }
     >
-      <g filter="url(#matLift)">{art}</g>
-      {props.partRef && !props.board && (
-        <text className="part-label" x={w / 2} y={h + 2.8} textAnchor="middle">
-          {partNameLabel(props.partRef, props.values ?? {})}
-        </text>
-      )}
-      {lit && (
-        <g className="led-glow" style={{ pointerEvents: "none" }}>
-          <circle cx={w / 2} cy={h / 2} r={Math.max(w, h) * 0.72} fill="#ffb84d" opacity={0.2} />
-          <circle cx={w / 2} cy={h / 2} r={Math.max(w, h) * 0.3} fill="#ffd27a" opacity={0.7} />
-          <circle cx={w / 2} cy={h / 2} r={Math.max(w, h) * 0.14} fill="#fff6d8" opacity={0.95} />
-        </g>
-      )}
-      {props.selected && (
-        <rect
-          x={-1.3}
-          y={-1.3}
-          width={w + 2.6}
-          height={h + 2.6}
-          rx={1.6}
-          fill="none"
-          stroke="#f0a244"
-          strokeWidth={0.5}
-          strokeDasharray="2.4 1.2"
-          style={{ pointerEvents: "none" }}
-        />
-      )}
+      <g transform={scaleT || undefined}>
+        <g filter="url(#matLift)">{art}</g>
+        {props.partRef && !props.board && (
+          <text className="part-label" x={w / 2} y={h + 2.8} textAnchor="middle">
+            {partNameLabel(props.partRef, props.values ?? {})}
+          </text>
+        )}
+        {lit && (
+          <g className="led-glow" style={{ pointerEvents: "none" }}>
+            <circle cx={w / 2} cy={h / 2} r={Math.max(w, h) * 0.72} fill="#ffb84d" opacity={0.2} />
+            <circle cx={w / 2} cy={h / 2} r={Math.max(w, h) * 0.3} fill="#ffd27a" opacity={0.7} />
+            <circle cx={w / 2} cy={h / 2} r={Math.max(w, h) * 0.14} fill="#fff6d8" opacity={0.95} />
+          </g>
+        )}
+        {props.selected && (
+          <rect
+            x={-1.3}
+            y={-1.3}
+            width={w + 2.6}
+            height={h + 2.6}
+            rx={1.6}
+            fill="none"
+            stroke="#f0a244"
+            strokeWidth={0.5}
+            strokeDasharray="2.4 1.2"
+            style={{ pointerEvents: "none" }}
+          />
+        )}
+      </g>
     </g>
   );
 });

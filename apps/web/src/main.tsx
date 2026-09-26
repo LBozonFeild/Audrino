@@ -1,8 +1,8 @@
 import { createRoot } from "react-dom/client";
-import { App } from "./App";
+import { Root } from "./Root";
 import { applyTheme, currentThemeId } from "./theme";
 import "./styles.css";
 
 applyTheme(currentThemeId());
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(<Root />);

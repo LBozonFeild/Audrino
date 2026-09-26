@@ -8,11 +8,22 @@ export interface View {
   k: number;
 }
 
-export const DEFAULT_K = 5;
+export const DEFAULT_K = 4;
 export const VIEW_W = 720;
 export const VIEW_H = 540;
 const MIN_K = 0.15;
 const MAX_K = 8;
+
+/** Stage centre: the middle of the default frame (where the empty-state hint
+ *  sits). The workspace opens centred here — never pinned to the top-left
+ *  corner — so a fresh session always starts on the middle of the workplane. */
+const STAGE_CX = VIEW_W / 2;
+const STAGE_CY = VIEW_H / 2;
+const centredView = (k: number): View => ({
+  x: STAGE_CX - VIEW_W / (2 * k),
+  y: STAGE_CY - VIEW_H / (2 * k),
+  k,
+});
 
 interface ViewState {
   view: View;
@@ -25,7 +36,7 @@ interface ViewState {
 }
 
 export const useViewStore = create<ViewState>((set, get) => ({
-  view: { x: 0, y: 0, k: DEFAULT_K }, // default zoom: components read huge
+  view: centredView(DEFAULT_K), // open on the centre of the workplane at a comfortable zoom
   setView: (view) => set({ view: { ...view, k: Math.min(MAX_K, Math.max(MIN_K, view.k)) } }),
   zoomAt: (wx, wy, factor) => {
     const { x, y, k } = get().view;
@@ -48,5 +59,5 @@ export const useViewStore = create<ViewState>((set, get) => ({
     const cy = (bbox.minY + bbox.maxY) / 2;
     set({ view: { k, x: cx - VIEW_W / (2 * k), y: cy - VIEW_H / (2 * k) } });
   },
-  resetView: () => set({ view: { x: 0, y: 0, k: DEFAULT_K } }),
+  resetView: () => set({ view: centredView(DEFAULT_K) }),
 }));

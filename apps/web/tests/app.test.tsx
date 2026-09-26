@@ -11,11 +11,15 @@ import { useEditorStore } from "../src/state/store";
 import { createEmptyProject } from "../src/dsl/load";
 import { __setSimRunner, type SimRunner } from "../src/sim/simRunner";
 import { useSimStore } from "../src/sim/SimProvider";
+import { useViewStore, DEFAULT_K } from "../src/canvas/viewStore";
 
 beforeEach(() => {
   cleanup();
   __setSimRunner(null);
   useSimStore.setState({ status: "idle", lines: [], result: null, error: null });
+  // Parts here are placed at fixed world coords — pin the viewport so culling
+  // doesn't depend on the (centred) default view.
+  useViewStore.setState({ view: { x: 0, y: 0, k: DEFAULT_K } });
   useEditorStore.setState({
     doc: createEmptyProject(),
     selection: [],

@@ -5,6 +5,7 @@ import { useSimStore } from "../sim/SimProvider";
 import { ThemePicker } from "./ThemePicker";
 import { useViewStore } from "../canvas/viewStore";
 import { docBBox } from "../state/ops";
+import { goHome } from "../nav";
 
 export function Topbar(props: { notify: (msg: string) => void }) {
   const doc = useEditorStore((s) => s.doc);
@@ -31,6 +32,9 @@ export function Topbar(props: { notify: (msg: string) => void }) {
 
   return (
     <header className="topbar">
+      <button className="home-btn" title="Back to home — your projects" onClick={goHome}>
+        ⌂ Home
+      </button>
       <span className="brand">◎ Audrino</span>
       <span className="proj-name mono">{doc.meta.name}</span>
       <span className="badge">{board ? board.type : "no board"}</span>

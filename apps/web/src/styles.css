@@ -803,3 +803,154 @@ textarea:focus {
   font-size: 11px;
   color: var(--bench-fg-dim);
 }
+
+/* ---- home page ------------------------------------------------------------ */
+.topbar .home-btn {
+  font-size: 12.5px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+
+.home-shell {
+  height: 100%;
+  overflow-y: auto;
+  background:
+    radial-gradient(1200px 500px at 50% -200px, var(--bench-hover), transparent 70%),
+    var(--bench-bg);
+}
+
+.home-topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 22px;
+  background: var(--bench-panel);
+  border-bottom: 1px solid var(--bench-border);
+  box-shadow: var(--bench-shadow);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.home-topbar .brand {
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: 0.02em;
+  color: var(--bench-accent);
+}
+
+.home-topbar .spacer {
+  flex: 1;
+}
+
+.home-anchor {
+  color: var(--bench-accent);
+  font-weight: 700;
+  text-decoration: none;
+  padding: 5px 12px;
+  border: 1px solid var(--bench-border);
+  border-radius: 999px;
+}
+
+.home-anchor:hover {
+  background: var(--bench-hover);
+  border-color: var(--bench-accent);
+}
+
+.home-main {
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 0 20px 48px;
+}
+
+.home-hero {
+  text-align: center;
+  padding: 56px 12px 10px;
+}
+
+.home-hero h1 {
+  margin: 0 0 10px;
+  font-size: clamp(28px, 4.5vw, 42px);
+  letter-spacing: -0.01em;
+}
+
+.home-hero p {
+  margin: 0 auto;
+  max-width: 560px;
+  color: var(--bench-fg-dim);
+  font-size: 15.5px;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 16px;
+  margin-top: 30px;
+}
+
+.home-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+  background: var(--bench-panel);
+  border: 1px solid var(--bench-border);
+  border-radius: var(--bench-radius);
+  padding: 18px;
+  box-shadow: var(--bench-shadow);
+}
+
+.home-card h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.home-card p {
+  margin: 0;
+}
+
+.home-card input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.home-card .row {
+  width: 100%;
+}
+
+.home-card .row button {
+  flex: 1;
+}
+
+.home-proj-title {
+  font-weight: 700;
+  font-family: var(--bench-mono);
+  font-size: 14px;
+}
+
+.home-proj-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.home-proj-row {
+  display: flex;
+  gap: 6px;
+}
+
+.home-proj-open {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-foot {
+  text-align: center;
+  margin-top: 34px;
+  font-size: 12.5px;
+}

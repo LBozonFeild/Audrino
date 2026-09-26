@@ -325,3 +325,33 @@ _Chain_ **169/169** (schema 75 + sim 16 + web 78) · _typecheck_ 0.
 - Chain 178/178 (schema 75 + sim 16 + web 87); typecheck 0. New tests:
   editor-tools.test.ts (rotate wrap, wire re-land, pin-math consistency,
   fit clamp/center, docBBox rotation-swap).
+
+## Home page, centred opening view, bigger components, wheel-pan — 2026-09-26
+
+- Four-part UX round ("spawn on the centre of the palette / components bigger /
+  scroll button to move across the canvas / home page with new-continue-login"):
+- **Centred opening view**: the workspace no longer opens pinned to the world's
+  top-left corner at k=5 — initial view and `resetView` frame the stage centre
+  (360, 270) at `DEFAULT_K` 4 (the empty-state hint lands dead-centre). Every
+  `loadProject` path now fits its content afterwards (home hand-off, AI spawn,
+  lessons, wokwi import, cloud open, in-editor New) so nothing opens off-screen.
+- **Bigger components**: `COMPONENT_SCALE` 1.5 (netsFromConnections), applied
+  about the bbox centre — PartGlyph's art group and the one shared `pinWorldPos`
+  (PartGlyph now delegates instead of duplicating the math) scale together, so
+  pads, hit boxes and wire ends never diverge; boards stay 1:1 and palette
+  previews pass `raw`. place/move clamps, `docBBox`, culling and the placement
+  ghost all account for the overhang; saved docs re-land via relayoutWires.
+- **Wheel pans the canvas**: deltaX/deltaY convert to world units through the
+  svg viewBox (trackpad two-finger swipes pan too); ctrl/⌘+wheel keeps
+  zoom-at-cursor via a non-passive listener that swallows the browser page-zoom;
+  tool-strip hint updated ("scroll to move · ctrl+scroll zooms").
+- **Home page**: hash routing (`Root.tsx` + `nav.ts`) — `""`/`#/` → home,
+  `#/editor` and `#p=` share links → editor (share deep-links keep working, no
+  server config). Home offers New project, Continue (autosave card) and
+  sign-in/sign-up + cloud project list on the existing `/api/auth`/`/api/projects`
+  surface; ⌂ Home in the topbar; editor boot consumes an explicit home hand-off
+  before falling back to autosave/share restore.
+- Chain: schema 75 + web 93 green (18 files); typecheck 0; `vite build` clean.
+  `@audrino/sim` 8 failures are pre-existing sandbox gaps (no zig/avr-gcc/
+  arduino-cli). New tests: home.test.tsx (route table, new/continue hand-off
+  beats autosave, sign-in form, `#p=` deep-link → editor).

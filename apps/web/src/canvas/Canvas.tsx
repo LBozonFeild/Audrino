@@ -5,6 +5,7 @@ import { useEditorStore } from "../state/store";
 import type { Tool } from "../state/store";
 import { ArtDefs, PartGlyph, partSize, pinWorldPos } from "./PartGlyph";
 import { PIN_HIT_S, PIN_PAD_S, pinLabel } from "./pinLabel";
+import { entityScale } from "../dsl/netsFromConnections";
 import { memo } from "react";
 import { useSimStore } from "../sim/SimProvider";
 import { useViewStore, VIEW_W, VIEW_H, DEFAULT_K } from "./viewStore";
@@ -136,6 +137,31 @@ export function Canvas(props: {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Scroll wheel pans across the workplane (trackpad two-finger swipes work
+  // too); ctrl/⌘ + wheel keeps zoom-at-cursor. Native non-passive listener so
+  // we can swallow the browser's ctrl+wheel page zoom.
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const store = useViewStore.getState();
+      if (e.ctrlKey || e.metaKey) {
+        const p = toSvg({ clientX: e.clientX, clientY: e.clientY, currentTarget: svg });
+        store.zoomAt(p[0], p[1], Math.exp(-e.deltaY * 0.0018));
+        return;
+      }
+      const rect = svg.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
+      const mult = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? rect.height : 1;
+      const k = store.view.k;
+      // CSS px → world units (viewBox spans VIEW_W/k across the element).
+      store.panBy((e.deltaX * mult * VIEW_W) / (k * rect.width), (e.deltaY * mult * VIEW_H) / (k * rect.height));
+    };
+    svg.addEventListener("wheel", onWheel, { passive: false });
+    return () => svg.removeEventListener("wheel", onWheel);
+  }, []);
+
   const entities = [...doc.boards.map((b) => ({ ...b, isBoard: true })), ...doc.components.map((c) => ({ ...c, isBoard: false }))];
   const entityById = new Map(entities.map((e) => [e.id, e]));
 
@@ -168,11 +194,14 @@ export function Canvas(props: {
   };
   const partVisible = (e: { transform: { x: number; y: number }; type: string }) => {
     const s = partSize(e.type);
-    const m = Math.max(s.w, s.h); /* rotation-safe bound */
+    const m = Math.max(s.w, s.h) * entityScale(e.type); /* rotation-safe + component scale */
     return e.transform.x + m >= vis.x0 && e.transform.x - m <= vis.x1 && e.transform.y + m >= vis.y0 && e.transform.y - m <= vis.y1;
   };
 
   const ghostPos: [number, number] = [snap(cursor[0]), snap(cursor[1])];
+  const ghostSize = props.pendingPlace ? partSize(props.pendingPlace.type) : { w: 0, h: 0 };
+  const ghostScale = props.pendingPlace ? entityScale(props.pendingPlace.type) : 1;
+  const ghostOff = [(ghostSize.w * (ghostScale - 1)) / 2, (ghostSize.h * (ghostScale - 1)) / 2];
   const wireFromPos = wireFrom ? pinPos(wireFrom) : null;
 
   const onBackgroundClick = () => {
@@ -271,7 +300,7 @@ export function Canvas(props: {
             ? `click canvas to place ${props.pendingPlace.type} · ESC clears`
             : tool === "wire" && wireFrom
               ? "click a second pin · ESC cancels"
-              : "drag to move · wheel zooms · middle-drag pans · double-click inspects"}
+              : "scroll to move · ctrl+scroll zooms · drag to move · middle-drag pans · double-click inspects"}
         </span>
       </div>
 
@@ -303,10 +332,6 @@ export function Canvas(props: {
             if (msg) props.notify(msg);
           }
           setDrag(null);
-        }}
-        onWheel={(e) => {
-          const p = toSvg(e);
-          useViewStore.getState().zoomAt(p[0], p[1], Math.exp(-e.deltaY * 0.0018));
         }}
         onPointerDown={(e) => {
           if (e.button === 1) {
@@ -448,10 +473,10 @@ export function Canvas(props: {
           <g opacity={0.7} style={{ pointerEvents: "none" }}>
             <rect
               className="ghost-rect"
-              x={ghostPos[0] - 1}
-              y={ghostPos[1] - 1}
-              width={partSize(props.pendingPlace.type).w + 2}
-              height={partSize(props.pendingPlace.type).h + 2}
+              x={ghostPos[0] - ghostOff[0] - 1}
+              y={ghostPos[1] - ghostOff[1] - 1}
+              width={ghostSize.w * ghostScale + 2}
+              height={ghostSize.h * ghostScale + 2}
               rx={2.5}
             />
             <PartGlyph

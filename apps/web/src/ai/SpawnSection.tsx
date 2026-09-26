@@ -6,6 +6,8 @@
 import { useState } from "react";
 import type { Project } from "@audrino/schema";
 import { useEditorStore } from "../state/store";
+import { useViewStore } from "../canvas/viewStore";
+import { docBBox } from "../state/ops";
 import { aiChat } from "./aiClient";
 import { DEFAULT_MODELS, useAiStore } from "./aiStore";
 import { buildSpawnMessages, buildSpawnProject, parseSpawn, type SpawnSpec } from "../dsl/spawn";
@@ -80,6 +82,8 @@ export function SpawnSection(props: { notify: (msg: string) => void }) {
       setErr(feedback);
       return;
     }
+    // Frame the freshly spawned build so it lands in view, not off-screen.
+    useViewStore.getState().fitContent(docBBox(useEditorStore.getState().doc));
     props.notify(`"${card.doc.meta.name}" spawned — one undo (Ctrl+Z) reverts it all`);
     setCard(null);
   };

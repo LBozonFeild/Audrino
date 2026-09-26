@@ -35,6 +35,7 @@ function PalGlyph(props: { def: PartDefinition }) {
         transform={{ x: 0, y: 0 }}
         selected={false}
         board={def.category === "board"}
+        raw
         values={def.defaultProps}
       />
     </svg>
