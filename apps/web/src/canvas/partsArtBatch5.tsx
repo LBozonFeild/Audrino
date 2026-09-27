@@ -140,6 +140,9 @@ const zenerArt: ArtFn = (d) => {
 
 const LED_BODY: Record<string, string> = {
   uv: "#8b5cf6",
+  pink: "#f472b6",
+  cyan: "#22d3ee",
+  warm: "#ffd9a0",
   red: "#ff2a2a", green: "#28c840", yellow: "#ffd23f", blue: "#3a7bff",
   white: "#f4f6fb", amber: "#ff9f1a", orange: "#ff6a00", ir: "#3a1a4a", rgb: "#c06ae0",
 };
@@ -1266,8 +1269,10 @@ const loadCellArt: ArtFn = (d) => {
 
 const cellArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
-  const li = /18650/.test(d.type);
-  const wrap = li ? "#3f8f4a" : "#c9a227";
+  const CELL: Record<string, [string, string]> = { "18650": ["#3f8f4a", "18650"], aa: ["#c9a227", "AA 1.5V"], aaa: ["#c9a227", "AAA 1.5V"], c: ["#22262b", "C 1.5V"], d: ["#22262b", "D 1.5V"], cr123a: ["#2b6cb8", "CR123A 3V"] };
+  const kind = d.type.replace("cell-", "");
+  const li = kind === "18650";
+  const wrap = (CELL[kind] ?? ["#c9a227", kind])[0];
   return (
     <g>
       <rect x={2.4} y={0.6} width={w - 4.8} height={h - 1.2} rx={(h - 1.2) / 2} fill={wrap} stroke="#00000055" strokeWidth={0.3} />
@@ -1276,7 +1281,7 @@ const cellArt: ArtFn = (d) => {
       <rect x={0.4} y={h / 2 - 1} width={2.2} height={2} rx={0.6} fill={METAL_L} stroke={METAL_D} strokeWidth={0.15} />
       <rect x={3} y={1.2} width={w - 6} height={(h - 2.4) * 0.24} rx={0.6} fill="#fff" opacity={0.22} />
       <Mark x={w / 2} y={h / 2 + 0.8} size={Math.min(2, (w * 0.4) / 6)} fill="#fff">
-        {li ? "18650" : "AA 1.5V"}
+        {(CELL[kind] ?? ["", kind.toUpperCase()])[1]}
       </Mark>
       <Silk x={1.6} y={h / 2 - 1.6} size={1.6} fill="#5b6470">+</Silk>
     </g>
@@ -1465,6 +1470,440 @@ const piezoArt: ArtFn = (d) => {
   );
 };
 
+
+// ---- 1500-catalog expansion: bench passives & connectivity ---------------------
+const BAND = ["#17181c", "#7a4a12", "#c8342a", "#e8862c", "#e8c33a", "#3fae6a", "#2b6cb8", "#8b5cf6", "#9aa2ab", "#e8eef4"];
+const resBandArt: ArtFn = (d) => {
+  const ohms = Number(d.defaultProps.resistance_ohms ?? 1000);
+  const exp = Math.floor(Math.log10(ohms));
+  const two = Math.round(ohms / Math.pow(10, exp - 1));
+  const mult = exp - 1;
+  const { w, h } = d.size_mm;
+  return (
+    <g>
+      <CoreLead x1={0} y1={h / 2} x2={1.4} y2={h / 2} w={0.55} />
+      <CoreLead x1={w - 1.4} y1={h / 2} x2={w} y2={h / 2} w={0.55} />
+      <rect x={1.4} y={0.3} width={w - 2.8} height={h - 0.6} rx={(h - 0.6) / 2} fill="#d8b26e" stroke="#a9834a" strokeWidth={0.2} />
+      <rect x={1.8} y={0.5} width={w - 3.6} height={0.5} rx={0.25} fill="#fff" opacity={0.35} />
+      {[0.3, 0.42, 0.54].map((f, i) => (
+        <rect key={i} x={w * f} y={0.3} width={0.55} height={h - 0.6} fill={i === 0 ? BAND[Math.floor(two / 10)] : i === 1 ? BAND[two % 10] : mult < 0 ? "#d8c27a" : BAND[mult]} />
+      ))}
+      <rect x={w * 0.72} y={0.3} width={0.55} height={h - 0.6} fill={GOLD} />
+    </g>
+  );
+};
+
+const smdResArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  return <SmdPassive x={0} y={0} w={w} h={h} code={(d.type.split("-").pop() ?? "").toUpperCase()} />;
+};
+
+const smdCapArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  return <SmdPassive x={0} y={0} w={w} h={h} body="#c8a06a" term={METAL_D} />;
+};
+
+const elecRadArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const bh = h - 3;
+  const sleeve = h >= 16 ? "#1d4e89" : "#17181c";
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={bh - 0.4} x2={p.x} y2={p.y} w={0.5} />
+      ))}
+      <rect x={0.3} y={0.5} width={w - 0.6} height={bh} rx={0.9} fill={sleeve} stroke="#000" strokeWidth={0.25} />
+      <rect x={0.7} y={0.9} width={1.3} height={bh - 0.8} rx={0.5} fill="#e8eef4" opacity={0.85} />
+      <line x1={0.3} y1={2.2} x2={w - 0.3} y2={2.2} stroke="#000" strokeWidth={0.25} opacity={0.5} />
+      <rect x={1.2} y={0.8} width={w - 2.4} height={bh * 0.16} rx={0.5} fill="#fff" opacity={0.18} />
+      <Mark x={w / 2 + 0.6} y={bh * 0.55} size={Math.min(1.5, (w * 0.7) / text(d).length)} fill="#e8eef4">
+        {text(d)}
+      </Mark>
+    </g>
+  );
+};
+
+const filmBoxArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={h - 2.2} x2={p.x} y2={p.y} w={0.45} />
+      ))}
+      <rect x={0.5} y={0.5} width={w - 1} height={h - 2.6} rx={0.9} fill="#e8c33a" stroke="#b99a20" strokeWidth={0.25} />
+      <rect x={1} y={1} width={w - 2} height={1} rx={0.5} fill="#fff" opacity={0.35} />
+      <Mark x={w / 2} y={(h - 2.6) / 2 + 1} size={1.3} fill="#5b4322">
+        {text(d)}
+      </Mark>
+    </g>
+  );
+};
+
+const crystalHzArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={h - 1.4} x2={p.x} y2={p.y} w={0.45} />
+      ))}
+      <Crystal x={0.5} y={0.4} w={w - 1} h={h - 1.8} label={text(d)} />
+    </g>
+  );
+};
+
+const crystalCylArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={h - 2} x2={p.x} y2={p.y} w={0.35} />
+      ))}
+      <rect x={0.15} y={0.3} width={w - 0.3} height={h - 2.2} rx={(w - 0.3) / 2} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
+    </g>
+  );
+};
+
+const oscSmdArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <rect key={p.id} x={p.x - 0.5} y={p.y - 0.35} width={1} height={0.7} rx={0.2} fill={METAL_D} />
+      ))}
+      <rect x={0.5} y={0.3} width={w - 1} height={h - 0.6} rx={0.35} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
+      <Mark x={w / 2} y={h / 2 + 0.3} size={0.7} fill="#3a3f46">
+        {text(d)}
+      </Mark>
+    </g>
+  );
+};
+
+const radIndArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const bh = h - 2.4;
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={bh - 0.3} x2={p.x} y2={p.y} w={0.45} />
+      ))}
+      <rect x={0.5} y={0.4} width={w - 1} height={bh} rx={0.8} fill="#2f7d32" stroke="#1d5a20" strokeWidth={0.25} />
+      {Array.from({ length: 5 }, (_, i) => (
+        <line key={i} x1={0.7} y1={1.2 + i * (bh - 1.6) / 4} x2={w - 0.7} y2={1.2 + i * (bh - 1.6) / 4} stroke="#1d5a20" strokeWidth={0.35} opacity={0.8} />
+      ))}
+      <rect x={1} y={0.7} width={w - 2} height={0.8} rx={0.4} fill="#fff" opacity={0.2} />
+    </g>
+  );
+};
+
+const movArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const cx = w / 2;
+  const r = Math.min(w * 0.46, (h - 2.4) * 0.5);
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={h - 2.2} x2={p.x} y2={p.y} w={0.5} />
+      ))}
+      <circle cx={cx} cy={(h - 2.4) / 2 + 0.5} r={r} fill="#2b6cb8" stroke="#1d4e86" strokeWidth={0.3} />
+      <Mark x={cx} y={(h - 2.4) / 2 + 1} size={Math.min(1.2, (r * 1.4) / 6)} fill="#e8eef4">
+        {text(d)}
+      </Mark>
+    </g>
+  );
+};
+
+const ntcDiscArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={h * 0.42} x2={p.x} y2={p.y} w={0.4} />
+      ))}
+      <circle cx={w / 2} cy={h * 0.3} r={Math.min(w, h) * 0.26} fill="#17181c" stroke="#000" strokeWidth={0.2} />
+      <circle cx={w / 2 - 0.4} cy={h * 0.24} r={0.4} fill="#fff" opacity={0.25} />
+    </g>
+  );
+};
+
+const inrushArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const cx = w / 2;
+  const r = Math.min(w * 0.42, (h - 2.6) * 0.5);
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={h - 2.4} x2={p.x} y2={p.y} w={0.6} />
+      ))}
+      <circle cx={cx} cy={(h - 2.6) / 2 + 0.6} r={r} fill="#17181c" stroke="#000" strokeWidth={0.3} />
+      <Mark x={cx} y={(h - 2.6) / 2 + 1.1} size={Math.min(1.4, (r * 1.5) / 5)} fill="#9aa2ab">
+        {text(d)}
+      </Mark>
+    </g>
+  );
+};
+
+const glassFuseArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  return (
+    <g>
+      <CoreLead x1={0} y1={h / 2} x2={2.2} y2={h / 2} w={0.55} />
+      <CoreLead x1={w - 2.2} y1={h / 2} x2={w} y2={h / 2} w={0.55} />
+      <rect x={2} y={0.5} width={2.4} height={h - 1} rx={0.5} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
+      <rect x={w - 4.4} y={0.5} width={2.4} height={h - 1} rx={0.5} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
+      <rect x={4.2} y={0.8} width={w - 8.4} height={h - 1.6} rx={(h - 1.6) / 2} fill="#eef6fb" opacity={0.65} stroke="#b8c8d8" strokeWidth={0.2} />
+      <line x1={4.4} y1={h / 2} x2={w - 4.4} y2={h / 2} stroke="#c9a227" strokeWidth={0.35} />
+    </g>
+  );
+};
+
+const fuseHolderArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const panel = /panel/.test(d.type);
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={h - 2.4} x2={p.x} y2={p.y} w={0.55} />
+      ))}
+      <rect x={0.6} y={0.6} width={w - 1.2} height={h - 3} rx={0.8} fill="#17181c" stroke="#000" strokeWidth={0.3} />
+      {panel ? (
+        <g>
+          <circle cx={w / 2} cy={(h - 2.4) / 2 + 0.6} r={Math.min(w, h - 2.4) * 0.3} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
+          <rect x={w / 2 - 1.6} y={(h - 2.4) / 2 + 0.2} width={3.2} height={0.8} rx={0.4} fill="#3a3f46" />
+        </g>
+      ) : (
+        <rect x={w * 0.2} y={1.4} width={w * 0.6} height={h - 4.6} rx={0.6} fill="#23272e" />
+      )}
+    </g>
+  );
+};
+
+const relayBareArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={h - 2.4} x2={p.x} y2={p.y} w={0.5} />
+      ))}
+      <rect x={0.6} y={0.6} width={w - 1.2} height={h - 3} rx={0.8} fill="#2b6cb8" stroke="#1d4e86" strokeWidth={0.35} />
+      <rect x={1.4} y={1.4} width={w - 2.8} height={(h - 4.6) * 0.3} rx={0.5} fill="#fff" opacity={0.25} />
+      <Mark x={w / 2} y={h * 0.42} size={1.3} fill="#e8eef4">{`SRD-${text(d)}`}</Mark>
+      <Mark x={w / 2} y={h * 0.62} size={0.9} fill="#cfe0f2">SONGLE</Mark>
+    </g>
+  );
+};
+
+const potArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const cx = w / 2;
+  const cy = (h - 4) / 2 + 0.6;
+  const r = Math.min(w, h - 4) * 0.46;
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={cy + r * 0.8} x2={p.x} y2={p.y} w={0.55} />
+      ))}
+      <circle cx={cx} cy={cy} r={r} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.35} />
+      <circle cx={cx} cy={cy} r={r * 0.86} fill="none" stroke="#8f9aa6" strokeWidth={0.3} strokeDasharray="1 0.8" />
+      <circle cx={cx} cy={cy} r={r * 0.42} fill="#3a3f46" />
+      <circle cx={cx} cy={cy} r={r * 0.3} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
+      <rect x={cx - 0.5} y={cy - r * 0.3} width={1} height={r * 0.24} rx={0.3} fill="#3a3f46" />
+      <Mark x={cx} y={cy + r * 0.66} size={0.9} fill="#3a3f46">
+        {text(d)}
+      </Mark>
+    </g>
+  );
+};
+
+const idcArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  return (
+    <g>
+      <rect x={0.5} y={0.8} width={w - 1} height={h - 1.6} rx={0.5} fill="#22262b" stroke="#000" strokeWidth={0.3} />
+      <rect x={w / 2 - 1} y={0.8} width={2} height={1.2} rx={0.3} fill="#0d0f12" />
+      {d.pins.map((p) => (
+        <rect key={p.id} x={p.x - 0.5} y={p.y - 0.5} width={1} height={1} rx={0.2} fill={GOLD} stroke={GOLD_D} strokeWidth={0.1} />
+      ))}
+    </g>
+  );
+};
+
+const jumperArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const kind = d.type.split("-")[1] ?? "mm";
+  const coil = "#e8862c";
+  return (
+    <g>
+      {Array.from({ length: 6 }, (_, i) => (
+        <ellipse key={i} cx={w / 2 + (i - 2.5) * 2.6} cy={h * 0.45} rx={2.2} ry={h * 0.28} fill="none" stroke={coil} strokeWidth={0.9} />
+      ))}
+      <rect x={1} y={h - 5} width={3} height={4} rx={0.4} fill={kind === "ff" || kind === "mf" ? "#17181c" : METAL_D} stroke="#000" strokeWidth={0.2} />
+      <rect x={w - 4} y={h - 5} width={3} height={4} rx={0.4} fill={kind === "mm" || kind === "mf" ? "#17181c" : METAL_D} stroke="#000" strokeWidth={0.2} />
+      <CoreLead x1={2.5} y1={h - 1} x2={d.pins[0].x} y2={d.pins[0].y} w={0.5} />
+      <CoreLead x1={w - 2.5} y1={h - 1} x2={d.pins[1].x} y2={d.pins[1].y} w={0.5} />
+    </g>
+  );
+};
+
+const resNetArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={h - 2.2} x2={p.x} y2={p.y} w={0.45} />
+      ))}
+      <rect x={0.5} y={0.5} width={w - 1} height={h - 2.6} rx={0.5} fill="#2b5ea8" stroke="#224a82" strokeWidth={0.25} />
+      <Mark x={w / 2} y={(h - 2.6) / 2 + 1} size={1.1} fill="#e8eef4">{`A${d.pins.length - 1}02`}</Mark>
+    </g>
+  );
+};
+
+const tactArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  return <Tact x={0.8} y={0.8} w={w - 1.6} h={h - 1.6} />;
+};
+
+const bicolorArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const cx = w / 2;
+  const r = Math.min(w, h - 2.4) * 0.42;
+  const cy = (h - 2.4) / 2 + 0.6;
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={cy + r * 0.8} x2={p.x} y2={p.y} w={0.4} />
+      ))}
+      <path d={`M ${cx} ${cy - r} A ${r} ${r} 0 0 0 ${cx} ${cy + r} Z`} fill="#c8342a" />
+      <path d={`M ${cx} ${cy - r} A ${r} ${r} 0 0 1 ${cx} ${cy + r} Z`} fill="#3fae6a" />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#00000033" strokeWidth={0.2} />
+      <circle cx={cx - r * 0.34} cy={cy - r * 0.38} r={r * 0.18} fill="#fff" opacity={0.5} />
+    </g>
+  );
+};
+
+const SEG_COLORS: Record<string, string> = { green: "#3fae6a", blue: "#3a7bff", white: "#e8eef4", amber: "#e8862c", red: "#e8342a" };
+const sevenSegArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const color = SEG_COLORS[d.type.split("-")[2] ?? "red"] ?? "#e8342a";
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={p.y === 0 ? 1.6 : h - 1.6} x2={p.x} y2={p.y} w={0.4} />
+      ))}
+      <rect x={0.5} y={1.4} width={w - 1} height={h - 2.8} rx={0.6} fill="#17181c" stroke="#000" strokeWidth={0.3} />
+      <rect x={1.6} y={2.6} width={w - 3.2} height={h - 5.2} rx={0.4} fill="#0d0f12" />
+      <Mark x={w / 2} y={h / 2 + 2.4} size={h * 0.42} fill={color}>8.</Mark>
+    </g>
+  );
+};
+
+const headerFamilyArt: ArtFn = (d) => <MaleHeader pts={d.pins} />;
+const femaleFamilyArt: ArtFn = (d) => <FemaleHeader pts={d.pins} />;
+
+const ldrArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const cx = w / 2;
+  const r = Math.min(w, h - 2.4) * 0.42;
+  const cy = (h - 2.4) / 2 + 0.5;
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={cy + r * 0.8} x2={p.x} y2={p.y} w={0.4} />
+      ))}
+      <circle cx={cx} cy={cy} r={r} fill="#d8863c" stroke="#a9642a" strokeWidth={0.25} />
+      <path d={`M ${cx - r * 0.5} ${cy - r * 0.4} L ${cx + r * 0.5} ${cy - r * 0.4} L ${cx - r * 0.5} ${cy} L ${cx + r * 0.5} ${cy} L ${cx - r * 0.5} ${cy + r * 0.4} L ${cx + r * 0.5} ${cy + r * 0.4}`} fill="none" stroke={GOLD} strokeWidth={0.45} />
+    </g>
+  );
+};
+
+const tempProbeArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  return (
+    <g>
+      <path d={`M ${w * 0.55} ${h / 2} Q ${w * 0.75} ${h / 2 - 2} ${w * 0.9} ${h / 2}`} fill="none" stroke="#c8342a" strokeWidth={0.9} strokeLinecap="round" />
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x - 1} y1={h / 2} x2={p.x} y2={p.y} w={0.4} />
+      ))}
+      <rect x={1} y={h / 2 - 2} width={w * 0.42} height={4} rx={2} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.25} />
+      <rect x={w * 0.43} y={h / 2 - 1.2} width={w * 0.14} height={2.4} rx={1} fill="#22262b" />
+    </g>
+  );
+};
+
+const bananaPlugArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const color = /red/.test(d.type) ? "#c8342a" : "#17181c";
+  return (
+    <g>
+      <CoreLead x1={0} y1={h / 2} x2={2} y2={h / 2} w={0.5} />
+      <rect x={2} y={0.6} width={w * 0.5} height={h - 1.2} rx={0.7} fill={color} stroke="#00000055" strokeWidth={0.25} />
+      <rect x={2 + w * 0.5} y={h / 2 - 1.1} width={w * 0.28} height={2.2} rx={0.5} fill={GOLD} stroke={GOLD_D} strokeWidth={0.15} />
+      <circle cx={w - 1.4} cy={h / 2} r={1.3} fill={GOLD} stroke={GOLD_D} strokeWidth={0.2} />
+      <circle cx={w - 1.4} cy={h / 2} r={0.5} fill="#39311f" />
+    </g>
+  );
+};
+
+const alligatorArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  return (
+    <g>
+      <CoreLead x1={0} y1={h / 2} x2={3} y2={h / 2} w={0.55} />
+      <rect x={3} y={0.7} width={w * 0.42} height={h - 1.4} rx={1} fill="#c8342a" stroke="#00000055" strokeWidth={0.25} />
+      <path d={`M ${3 + w * 0.42} ${h / 2 - 1.6} L ${w - 4} ${h / 2 - 1.6} L ${w - 6} ${h / 2 - 0.6} L ${w - 4} ${h / 2 - 0.6} L ${w - 6} ${h / 2 + 0.4} L ${w - 3} ${h / 2 + 0.4} L ${w - 5} ${h / 2 + 1.4} L ${3 + w * 0.42} ${h / 2 + 1.6} Z`} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
+    </g>
+  );
+};
+
+const testHookArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  return (
+    <g>
+      <CoreLead x1={0} y1={h / 2} x2={2.4} y2={h / 2} w={0.45} />
+      <rect x={2.4} y={0.8} width={w * 0.45} height={h - 1.6} rx={0.8} fill="#17181c" stroke="#000" strokeWidth={0.2} />
+      <path d={`M ${2.4 + w * 0.45} ${h / 2} Q ${w - 3} ${h / 2 - 2.4} ${w - 1.6} ${h / 2 - 0.6} Q ${w - 1} ${h / 2 + 0.4} ${w - 2.4} ${h / 2 + 0.6}`} fill="none" stroke={METAL} strokeWidth={0.7} strokeLinecap="round" />
+    </g>
+  );
+};
+
+const din5Art: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const cx = w / 2;
+  const cy = h * 0.42;
+  const r = Math.min(w, h) * 0.36;
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={cy + r * 0.9} x2={p.x} y2={p.y} w={0.45} />
+      ))}
+      <circle cx={cx} cy={cy} r={r} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.3} />
+      <circle cx={cx} cy={cy} r={r * 0.78} fill="#17181c" />
+      {[[-0.5, -0.2], [0, -0.45], [0.5, -0.2], [-0.35, 0.3], [0.35, 0.3]].map(([fx, fy], i) => (
+        <circle key={i} cx={cx + fx * r} cy={cy + fy * r} r={0.7} fill={GOLD} stroke={GOLD_D} strokeWidth={0.1} />
+      ))}
+      <rect x={cx - 0.5} y={cy + r * 0.55} width={1} height={r * 0.3} rx={0.3} fill="#3a3f46" />
+    </g>
+  );
+};
+
+const speakonArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const cx = w / 2;
+  const cy = (h - 3) / 2 + 0.6;
+  const r = Math.min(w, h - 3) * 0.44;
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={cy + r * 0.8} x2={p.x} y2={p.y} w={0.6} />
+      ))}
+      <rect x={cx - r - 1.4} y={cy - 1.4} width={1.6} height={2.8} rx={0.4} fill="#22262b" />
+      <rect x={cx + r - 0.2} y={cy - 1.4} width={1.6} height={2.8} rx={0.4} fill="#22262b" />
+      <circle cx={cx} cy={cy} r={r} fill="#22262b" stroke="#000" strokeWidth={0.35} />
+      <circle cx={cx} cy={cy} r={r * 0.6} fill="#0d0f12" />
+      <rect x={cx - r * 0.5} y={cy - 0.7} width={r} height={1.4} rx={0.5} fill={METAL_D} />
+    </g>
+  );
+};
+
 // ---- pattern resolver ------------------------------------------------------------
 const DIP_IC = /^(24c|m25|25aa|27c|6\d{3}|4n\d|pc817|tlp|moc|uln|mc14|mc3|ir21|tc44|lm[0-9]|tlc|se5|opa|ne5|lt1|ad6|ina1|ad8|ca3|ua7|tl0|tl4|icl|sg3|uc3|pt2|xr2|dac|lf3|max\d|tda\d|da[cs]\d)[\w-]*$/;
 
@@ -1488,13 +1927,46 @@ const byPrefixArt = (type: string): ArtFn | null => {
   if (/^vibration-switch/.test(t)) return vibArt;
   if (/^thermostat-/.test(t)) return thermoArt;
   if (/^load-cell/.test(t)) return loadCellArt;
-  if (/^cell-18650|^cell-aa/.test(t)) return cellArt;
+  if (/^cell-(18650|aa|aaa|c|d|cr123a)/.test(t)) return cellArt;
   if (/^cell-cr2032/.test(t)) return coinArt;
   if (/^wcharge-coil/.test(t)) return coilArt;
   if (/^plug-35mm/.test(t)) return plug35Art;
   if (/^usb-c-plug/.test(t)) return usbcPlugArt;
   if (/^dip-socket/.test(t)) return dipSocketArt;
   if (/^mains-plug/.test(t)) return mainsPlugArt;
+  if (/^resistor-/.test(t)) return resBandArt;
+  if (/^smd-res/.test(t)) return smdResArt;
+  if (/^smd-cap/.test(t)) return smdCapArt;
+  if (/^cap-rad/.test(t)) return elecRadArt;
+  if (/^cap-film/.test(t)) return filmBoxArt;
+  if (/^crystal-cyl/.test(t)) return crystalCylArt;
+  if (/^crystal-32k/.test(t)) return crystalCylArt;
+  if (/^crystal-/.test(t)) return crystalHzArt;
+  if (/^osc-/.test(t)) return oscSmdArt;
+  if (/^inductor-/.test(t)) return radIndArt;
+  if (/^mov-/.test(t)) return movArt;
+  if (/^thermistor-/.test(t)) return ntcDiscArt;
+  if (/^inrush-/.test(t)) return inrushArt;
+  if (/^fuse-glass/.test(t)) return glassFuseArt;
+  if (/^fuse-holder/.test(t)) return fuseHolderArt;
+  if (/^relay-bare/.test(t)) return relayBareArt;
+  if (/^pot-/.test(t)) return potArt;
+  if (/^idc-/.test(t)) return idcArt;
+  if (/^jumper-/.test(t)) return jumperArt;
+  if (/^res-net-/.test(t)) return resNetArt;
+  if (/^tact-/.test(t)) return tactArt;
+  if (/^led-bicolor/.test(t)) return bicolorArt;
+  if (/^seven-seg-/.test(t)) return sevenSegArt;
+  if (/^header-/.test(t)) return headerFamilyArt;
+  if (/^female-/.test(t)) return femaleFamilyArt;
+  if (/^ldr-/.test(t)) return ldrArt;
+  if (/^temp-probe/.test(t)) return tempProbeArt;
+  if (/^banana-plug/.test(t)) return bananaPlugArt;
+  if (/^alligator/.test(t)) return alligatorArt;
+  if (/^test-hook/.test(t)) return testHookArt;
+  if (/^micro-usb/.test(t)) return plugArt("usb");
+  if (/^din5/.test(t)) return din5Art;
+  if (/^speakon/.test(t)) return speakonArt;
   if (/^antenna-whip/.test(t)) return whipArt;
   if (/^(78l|78m|l78|l79|ams1117|ld1117|lm2596s|lm317|lm338|lm2576)/.test(t)) return to220Art;
   if (/^74([a-z]*\d{2,3}|\d{2,3})$/.test(t) || /^(?:cd|hef|tc|hcf|bu|mc1?)4[05]\d\d$/.test(t) || (DIP_IC.test(t) && !t.endsWith("-module"))) return dipArt;
@@ -1506,13 +1978,13 @@ const byPrefixArt = (type: string): ArtFn | null => {
     const m = /^led-(?:\d+mm|blink)-(\w+)/.exec(t);
     return ledArt(m ? m[1] : t.includes("rgb") ? "rgb" : "red");
   }
-  if (/^screw-terminal-/.test(t)) return screwArt;
+  if (/^screw-term/.test(t)) return screwArt;
   if (/^jst-ec/.test(t)) return plugArt("bullet");
   if (/^(dupont-|jst-(ph|xh)|ffc-)/.test(t)) return stripArt;
   if (/^(banana|rca-)/.test(t)) return plugArt("banana");
   if (/^dc-plug-/.test(t)) return plugArt("barrel");
   if (/^usb-/.test(t)) return plugArt("usb");
-  if (/^(xt3|xt6)/.test(t)) return plugArt("xt");
+  if (/^(xt3|xt6|xt9)/.test(t)) return plugArt("xt");
   if (/^(de9|db25)/.test(t)) return jackArt("dsub");
   if (/^rj(1|4)/.test(t)) return jackArt("rj");
   if (/^xlr-/.test(t)) return jackArt("xlr");
@@ -1539,7 +2011,7 @@ const byPrefixArt = (type: string): ArtFn | null => {
   if (/^(nrf|rfm|sx12|e32|rf433|jdy|at-09|sim8|sim9|a6-|a7$|neo-|atgm|l80|bn-|esp32-|esp-0|hc-0|hc-1|hm-1|wemos|nodemcu|antenna-|rc5|pn5|rdm|myoware|geiger|pms5|mh-z|mx15|tb6|drv8|a498|tmc|l298|vnh2|pca9|dfplayer|pam|max98|tea57|cp21|ch34|ft23|mt36|level-shifter|servo-tester|mcp25|rs485|ne555-module|d1-mini)/.test(t)) {
     return moduleArt(/antenna/.test(t) ? "#3a3f46" : PCB_NAVY);
   }
-  if (/^(tt-|n20|n10|n30|37gb|520|540|775|worm|water-pump|linear|solenoid|electromagnet|heating)/.test(t)) return motorArt;
+  if (/^(tt-|n20|n10|n30|310|550|37gb|520|540|775|worm|water-pump|linear|solenoid|electromagnet|heating)/.test(t)) return motorArt;
   if (/^(servo-|mg9|ds32)/.test(t)) return servoArt;
   if (/^fan-/.test(t)) return fanArt;
   if (/^(nema|bldc)/.test(t)) return nemaArt;
