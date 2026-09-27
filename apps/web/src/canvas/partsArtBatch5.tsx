@@ -959,10 +959,11 @@ const discCapArt: ArtFn = (d) => {
   const label = text(d);
   return (
     <g>
-      <CoreLead x1={w * 0.32} y1={h * 0.62} x2={w * 0.32} y2={h} w={0.45} />
-      <CoreLead x1={w * 0.68} y1={h * 0.62} x2={w * 0.68} y2={h} w={0.45} />
+      <path d={`M ${w * 0.32} ${h * 0.62} L ${w * 0.32} ${h * 0.78} L ${w * 0.32} ${h}`} fill="none" stroke={LEAD} strokeWidth={0.45} strokeLinecap="round" />
+      <path d={`M ${w * 0.68} ${h * 0.62} L ${w * 0.68} ${h * 0.78} L ${w * 0.68} ${h}`} fill="none" stroke={LEAD} strokeWidth={0.45} strokeLinecap="round" />
       <path d={`M ${w / 2} 0.4 Q ${w - 0.4} 0.6 ${w - 0.6} ${h * 0.36} Q ${w - 0.4} ${h * 0.62} ${w / 2} ${h * 0.66} Q 0.4 ${h * 0.62} 0.6 ${h * 0.36} Q 0.4 0.6 ${w / 2} 0.4 Z`} fill="#d8b26e" stroke="#a9834a" strokeWidth={0.25} />
-      <path d={`M ${w * 0.2} 0.9 Q ${w * 0.5} 0.55 ${w * 0.8} 0.9`} fill="none" stroke="#fff" strokeWidth={0.4} opacity={0.35} />
+      <path d={`M ${w / 2} 0.9 Q ${w - 1.2} 1.1 ${w - 1.3} ${h * 0.36} Q ${w - 1.2} ${h * 0.56} ${w / 2} ${h * 0.6} Q 1.2 ${h * 0.56} 1.3 ${h * 0.36} Q 1.2 1.1 ${w / 2} 0.9 Z`} fill="none" stroke="#c49a58" strokeWidth={0.3} opacity={0.8} />
+      <path d={`M ${w * 0.2} 0.9 Q ${w * 0.5} 0.55 ${w * 0.8} 0.9`} fill="none" stroke="#fff" strokeWidth={0.4} opacity={0.4} />
       <Mark x={w / 2} y={h * 0.44} size={Math.min(1.5, (w * 0.7) / label.length)} fill="#5b4322">
         {label}
       </Mark>
@@ -1030,11 +1031,16 @@ const wwArt: ArtFn = (d) => {
   const label = text(d);
   return (
     <g>
-      <CoreLead x1={0} y1={h / 2} x2={2} y2={h / 2} w={0.7} />
-      <CoreLead x1={w - 2} y1={h / 2} x2={w} y2={h / 2} w={0.7} />
-      <rect x={2} y={0.8} width={w - 4} height={h - 1.6} rx={0.8} fill="#e8e6dc" stroke="#b9b5a2" strokeWidth={0.3} />
-      <rect x={2.6} y={1.4} width={w - 5.2} height={1.2} rx={0.6} fill="#fff" opacity={0.5} />
-      <Mark x={w / 2} y={h / 2 + 0.7} size={1.6} fill="#3a3f46">{`${label} 10Ω`}</Mark>
+      <path d={`M 0 ${h / 2} L 1.2 ${h / 2} L 2 ${h / 2 - 0.5}`} fill="none" stroke={LEAD} strokeWidth={0.7} strokeLinecap="round" />
+      <path d={`M ${w} ${h / 2} L ${w - 1.2} ${h / 2} L ${w - 2} ${h / 2 - 0.5}`} fill="none" stroke={LEAD} strokeWidth={0.7} strokeLinecap="round" />
+      <rect x={2} y={0.8} width={2.2} height={h - 1.6} rx={0.5} fill={METAL_D} />
+      <rect x={w - 4.2} y={0.8} width={2.2} height={h - 1.6} rx={0.5} fill={METAL_D} />
+      <rect x={4} y={0.8} width={w - 8} height={h - 1.6} rx={0.8} fill="#e8e6dc" stroke="#b9b5a2" strokeWidth={0.3} />
+      <rect x={4.6} y={1.4} width={w - 9.2} height={1.2} rx={0.6} fill="#fff" opacity={0.55} />
+      {[0.3, 0.5, 0.7].map((f) => (
+        <line key={f} x1={4 + (w - 8) * f} y1={1.2} x2={4 + (w - 8) * f} y2={h - 1.2} stroke="#b9b5a2" strokeWidth={0.25} opacity={0.6} />
+      ))}
+      <Mark x={w / 2} y={h / 2 + 0.9} size={1.6} fill="#3a3f46">{`${label} 10Ω`}</Mark>
     </g>
   );
 };
@@ -1043,10 +1049,13 @@ const thermalFuseArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   return (
     <g>
-      <CoreLead x1={0} y1={h / 2} x2={2.4} y2={h / 2} w={0.5} />
-      <CoreLead x1={w - 2.4} y1={h / 2} x2={w} y2={h / 2} w={0.5} />
+      <path d={`M 0 ${h / 2} L 1.6 ${h / 2} L 2.4 ${h / 2 - 0.3}`} fill="none" stroke={LEAD} strokeWidth={0.5} strokeLinecap="round" />
+      <path d={`M ${w} ${h / 2} L ${w - 1.6} ${h / 2} L ${w - 2.4} ${h / 2 - 0.3}`} fill="none" stroke={LEAD} strokeWidth={0.5} strokeLinecap="round" />
       <rect x={2.4} y={0.6} width={w - 4.8} height={h - 1.2} rx={(h - 1.2) / 2} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
-      <Mark x={w / 2} y={h / 2 + 0.4} size={0.9} fill="#3a3f46">TF 120°C</Mark>
+      <line x1={3.4} y1={0.8} x2={3.4} y2={h - 0.8} stroke="#5c6570" strokeWidth={0.2} />
+      <line x1={w - 3.4} y1={0.8} x2={w - 3.4} y2={h - 0.8} stroke="#5c6570" strokeWidth={0.2} />
+      <line x1={3.8} y1={1} x2={w - 3.8} y2={1} stroke="#fff" strokeWidth={0.3} opacity={0.55} />
+      <Mark x={w / 2} y={h / 2 + 0.6} size={0.9} fill="#3a3f46">TF 120°C</Mark>
     </g>
   );
 };
@@ -1278,12 +1287,17 @@ const cellArt: ArtFn = (d) => {
       <rect x={2.4} y={0.6} width={w - 4.8} height={h - 1.2} rx={(h - 1.2) / 2} fill={wrap} stroke="#00000055" strokeWidth={0.3} />
       <rect x={2.4} y={0.6} width={(w - 4.8) * 0.16} height={h - 1.2} rx={0.6} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
       <rect x={w - 2.4 - (w - 4.8) * 0.12} y={0.6} width={(w - 4.8) * 0.12} height={h - 1.2} rx={0.6} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
+      <line x1={2.4 + (w - 4.8) * 0.2} y1={0.8} x2={2.4 + (w - 4.8) * 0.2} y2={h - 0.8} stroke="#00000044" strokeWidth={0.3} />
+      <line x1={w - 2.4 - (w - 4.8) * 0.16} y1={0.8} x2={w - 2.4 - (w - 4.8) * 0.16} y2={h - 0.8} stroke="#00000044" strokeWidth={0.3} />
       <rect x={0.4} y={h / 2 - 1} width={2.2} height={2} rx={0.6} fill={METAL_L} stroke={METAL_D} strokeWidth={0.15} />
+      <circle cx={4.6} cy={h / 2} r={h * 0.22} fill="none" stroke="#fff" strokeWidth={0.35} opacity={0.7} />
       <rect x={3} y={1.2} width={w - 6} height={(h - 2.4) * 0.24} rx={0.6} fill="#fff" opacity={0.22} />
+      <rect x={w * 0.62} y={1.4} width={w * 0.16} height={h - 2.8} rx={0.5} fill="#fff" opacity={0.16} />
       <Mark x={w / 2} y={h / 2 + 0.8} size={Math.min(2, (w * 0.4) / 6)} fill="#fff">
         {(CELL[kind] ?? ["", kind.toUpperCase()])[1]}
       </Mark>
       <Silk x={1.6} y={h / 2 - 1.6} size={1.6} fill="#5b6470">+</Silk>
+      {!li && <Mark x={w * 0.72} y={h / 2 + 0.6} size={Math.min(1.2, w / 14)} fill="#ffffffcc">LR6</Mark>}
     </g>
   );
 };
@@ -1481,14 +1495,21 @@ const resBandArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   return (
     <g>
-      <CoreLead x1={0} y1={h / 2} x2={1.4} y2={h / 2} w={0.55} />
-      <CoreLead x1={w - 1.4} y1={h / 2} x2={w} y2={h / 2} w={0.55} />
+      <path d={`M 0 ${h / 2} L 1 ${h / 2} L 1.4 ${h / 2 - 0.4}`} fill="none" stroke={LEAD} strokeWidth={0.55} strokeLinecap="round" />
+      <path d={`M ${w} ${h / 2} L ${w - 1} ${h / 2} L ${w - 1.4} ${h / 2 - 0.4}`} fill="none" stroke={LEAD} strokeWidth={0.55} strokeLinecap="round" />
+      <ellipse cx={1.7} cy={h / 2} rx={0.55} ry={(h - 0.6) / 2} fill="#c49a58" />
+      <ellipse cx={w - 1.7} cy={h / 2} rx={0.55} ry={(h - 0.6) / 2} fill="#c49a58" />
       <rect x={1.4} y={0.3} width={w - 2.8} height={h - 0.6} rx={(h - 0.6) / 2} fill="#d8b26e" stroke="#a9834a" strokeWidth={0.2} />
-      <rect x={1.8} y={0.5} width={w - 3.6} height={0.5} rx={0.25} fill="#fff" opacity={0.35} />
+      <rect x={1.8} y={0.5} width={w - 3.6} height={0.5} rx={0.25} fill="#fff" opacity={0.4} />
+      <line x1={2} y1={h - 0.55} x2={w - 2} y2={h - 0.55} stroke="#8a6a34" strokeWidth={0.25} opacity={0.5} />
       {[0.3, 0.42, 0.54].map((f, i) => (
-        <rect key={i} x={w * f} y={0.3} width={0.55} height={h - 0.6} fill={i === 0 ? BAND[Math.floor(two / 10)] : i === 1 ? BAND[two % 10] : mult < 0 ? "#d8c27a" : BAND[mult]} />
+        <g key={i}>
+          <rect x={w * f} y={0.3} width={0.55} height={h - 0.6} fill={i === 0 ? BAND[Math.floor(two / 10)] : i === 1 ? BAND[two % 10] : mult < 0 ? "#d8c27a" : BAND[mult]} />
+          <rect x={w * f} y={0.45} width={0.55} height={0.35} fill="#fff" opacity={0.3} />
+        </g>
       ))}
       <rect x={w * 0.72} y={0.3} width={0.55} height={h - 0.6} fill={GOLD} />
+      <rect x={w * 0.72} y={0.45} width={0.55} height={0.35} fill="#fff" opacity={0.4} />
     </g>
   );
 };
@@ -1510,15 +1531,22 @@ const elecRadArt: ArtFn = (d) => {
   return (
     <g>
       {d.pins.map((p) => (
-        <CoreLead key={p.id} x1={p.x} y1={bh - 0.4} x2={p.x} y2={p.y} w={0.5} />
+        <path key={p.id} d={`M ${p.x} ${bh - 0.4} L ${p.x} ${bh + 0.8} L ${p.x} ${p.y}`} fill="none" stroke={LEAD} strokeWidth={0.5} strokeLinecap="round" />
       ))}
       <rect x={0.3} y={0.5} width={w - 0.6} height={bh} rx={0.9} fill={sleeve} stroke="#000" strokeWidth={0.25} />
-      <rect x={0.7} y={0.9} width={1.3} height={bh - 0.8} rx={0.5} fill="#e8eef4" opacity={0.85} />
-      <line x1={0.3} y1={2.2} x2={w - 0.3} y2={2.2} stroke="#000" strokeWidth={0.25} opacity={0.5} />
-      <rect x={1.2} y={0.8} width={w - 2.4} height={bh * 0.16} rx={0.5} fill="#fff" opacity={0.18} />
-      <Mark x={w / 2 + 0.6} y={bh * 0.55} size={Math.min(1.5, (w * 0.7) / text(d).length)} fill="#e8eef4">
+      <line x1={0.3} y1={2} x2={w - 0.3} y2={2} stroke="#000" strokeWidth={0.3} opacity={0.55} />
+      <line x1={0.3} y1={2.7} x2={w - 0.3} y2={2.7} stroke="#000" strokeWidth={0.2} opacity={0.35} />
+      <rect x={0.7} y={0.9} width={1.3} height={bh - 0.8} rx={0.5} fill="#e8eef4" opacity={0.88} />
+      {[0.28, 0.5, 0.72].map((f) => (
+        <line key={f} x1={0.95} y1={bh * f} x2={1.75} y2={bh * f} stroke={sleeve} strokeWidth={0.35} />
+      ))}
+      <rect x={2.4} y={0.8} width={w - 3.4} height={bh * 0.14} rx={0.5} fill="#fff" opacity={0.2} />
+      <line x1={w - 1.2} y1={1.4} x2={w - 1.2} y2={bh - 0.6} stroke="#fff" strokeWidth={0.3} opacity={0.12} />
+      <rect x={0.3} y={bh - 1.1} width={w - 0.6} height={1.1} rx={0.5} fill="#000" opacity={0.35} />
+      <Mark x={w / 2 + 0.7} y={bh * 0.52} size={Math.min(1.5, (w * 0.7) / text(d).length)} fill="#e8eef4">
         {text(d)}
       </Mark>
+      <Mark x={w / 2 + 0.7} y={bh * 0.74} size={Math.min(1, (w * 0.6) / 5)} fill="#9aa2ab">25V</Mark>
     </g>
   );
 };
@@ -1528,10 +1556,15 @@ const filmBoxArt: ArtFn = (d) => {
   return (
     <g>
       {d.pins.map((p) => (
-        <CoreLead key={p.id} x1={p.x} y1={h - 2.2} x2={p.x} y2={p.y} w={0.45} />
+        <path key={p.id} d={`M ${p.x} ${h - 2.2} L ${p.x} ${h - 1.2} L ${p.x} ${p.y}`} fill="none" stroke={LEAD} strokeWidth={0.45} strokeLinecap="round" />
       ))}
+      <ellipse cx={1.2} cy={(h - 2.2) / 2 + 0.5} rx={0.7} ry={(h - 2.6) / 2} fill="#c9a227" />
+      <ellipse cx={w - 1.2} cy={(h - 2.2) / 2 + 0.5} rx={0.7} ry={(h - 2.6) / 2} fill="#c9a227" />
       <rect x={0.5} y={0.5} width={w - 1} height={h - 2.6} rx={0.9} fill="#e8c33a" stroke="#b99a20" strokeWidth={0.25} />
-      <rect x={1} y={1} width={w - 2} height={1} rx={0.5} fill="#fff" opacity={0.35} />
+      <line x1={w * 0.28} y1={0.7} x2={w * 0.28} y2={h - 2.3} stroke="#b99a20" strokeWidth={0.25} opacity={0.7} />
+      <line x1={w * 0.72} y1={0.7} x2={w * 0.72} y2={h - 2.3} stroke="#b99a20" strokeWidth={0.25} opacity={0.7} />
+      <rect x={1} y={1} width={w - 2} height={1} rx={0.5} fill="#fff" opacity={0.4} />
+      <circle cx={w * 0.2} cy={h * 0.62} r={0.35} fill="#fff" opacity={0.35} />
       <Mark x={w / 2} y={(h - 2.6) / 2 + 1} size={1.3} fill="#5b4322">
         {text(d)}
       </Mark>
@@ -1568,10 +1601,16 @@ const oscSmdArt: ArtFn = (d) => {
   return (
     <g>
       {d.pins.map((p) => (
-        <rect key={p.id} x={p.x - 0.5} y={p.y - 0.35} width={1} height={0.7} rx={0.2} fill={METAL_D} />
+        <g key={p.id}>
+          <rect x={p.x - 0.5} y={p.y - 0.35} width={1} height={0.7} rx={0.2} fill={METAL_D} />
+          <rect x={p.x - 0.5} y={p.y - 0.35} width={1} height={0.25} rx={0.12} fill="#fff" opacity={0.4} />
+        </g>
       ))}
       <rect x={0.5} y={0.3} width={w - 1} height={h - 0.6} rx={0.35} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
-      <Mark x={w / 2} y={h / 2 + 0.3} size={0.7} fill="#3a3f46">
+      <rect x={0.8} y={0.55} width={w - 1.6} height={h - 1.1} rx={0.25} fill="none" stroke="#8f9aa6" strokeWidth={0.15} />
+      <circle cx={1.3} cy={1} r={0.28} fill="#3a3f46" />
+      <line x1={0.9} y1={0.7} x2={w - 0.9} y2={0.7} stroke="#fff" strokeWidth={0.2} opacity={0.5} />
+      <Mark x={w / 2} y={h / 2 + 0.5} size={0.7} fill="#3a3f46">
         {text(d)}
       </Mark>
     </g>
@@ -1584,13 +1623,16 @@ const radIndArt: ArtFn = (d) => {
   return (
     <g>
       {d.pins.map((p) => (
-        <CoreLead key={p.id} x1={p.x} y1={bh - 0.3} x2={p.x} y2={p.y} w={0.45} />
+        <path key={p.id} d={`M ${p.x} ${bh - 0.3} L ${p.x} ${bh + 0.7} L ${p.x} ${p.y}`} fill="none" stroke={LEAD} strokeWidth={0.45} strokeLinecap="round" />
       ))}
       <rect x={0.5} y={0.4} width={w - 1} height={bh} rx={0.8} fill="#2f7d32" stroke="#1d5a20" strokeWidth={0.25} />
-      {Array.from({ length: 5 }, (_, i) => (
-        <line key={i} x1={0.7} y1={1.2 + i * (bh - 1.6) / 4} x2={w - 0.7} y2={1.2 + i * (bh - 1.6) / 4} stroke="#1d5a20" strokeWidth={0.35} opacity={0.8} />
+      {Array.from({ length: 6 }, (_, i) => (
+        <path key={i} d={`M 0.7 ${1 + (i * (bh - 1.4)) / 5} Q ${w / 2} ${1.5 + (i * (bh - 1.4)) / 5} ${w - 0.7} ${1 + (i * (bh - 1.4)) / 5}`} fill="none" stroke="#1d5a20" strokeWidth={0.4} opacity={0.85} />
       ))}
-      <rect x={1} y={0.7} width={w - 2} height={0.8} rx={0.4} fill="#fff" opacity={0.2} />
+      <circle cx={w / 2} cy={1.3} r={0.9} fill="#1d5a20" />
+      <circle cx={w / 2} cy={1.3} r={0.4} fill="#39311f" />
+      <rect x={1} y={0.6} width={w - 2} height={0.7} rx={0.35} fill="#fff" opacity={0.25} />
+      <line x1={w - 1.1} y1={1.2} x2={w - 1.1} y2={bh - 0.6} stroke="#fff" strokeWidth={0.3} opacity={0.15} />
     </g>
   );
 };
@@ -1598,14 +1640,17 @@ const radIndArt: ArtFn = (d) => {
 const movArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const cx = w / 2;
+  const cy = (h - 2.4) / 2 + 0.5;
   const r = Math.min(w * 0.46, (h - 2.4) * 0.5);
   return (
     <g>
       {d.pins.map((p) => (
-        <CoreLead key={p.id} x1={p.x} y1={h - 2.2} x2={p.x} y2={p.y} w={0.5} />
+        <path key={p.id} d={`M ${p.x} ${cy + r * 0.85} L ${p.x} ${cy + r + 0.6} L ${p.x} ${p.y}`} fill="none" stroke={LEAD} strokeWidth={0.5} strokeLinecap="round" />
       ))}
-      <circle cx={cx} cy={(h - 2.4) / 2 + 0.5} r={r} fill="#2b6cb8" stroke="#1d4e86" strokeWidth={0.3} />
-      <Mark x={cx} y={(h - 2.4) / 2 + 1} size={Math.min(1.2, (r * 1.4) / 6)} fill="#e8eef4">
+      <circle cx={cx} cy={cy} r={r} fill="#2b6cb8" stroke="#1d4e86" strokeWidth={0.3} />
+      <circle cx={cx} cy={cy} r={r * 0.84} fill="none" stroke="#1d4e86" strokeWidth={0.35} opacity={0.8} />
+      <circle cx={cx - r * 0.32} cy={cy - r * 0.36} r={r * 0.18} fill="#fff" opacity={0.3} />
+      <Mark x={cx} y={cy + 0.9} size={Math.min(1.2, (r * 1.4) / 6)} fill="#e8eef4">
         {text(d)}
       </Mark>
     </g>
@@ -1614,13 +1659,20 @@ const movArt: ArtFn = (d) => {
 
 const ntcDiscArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
+  const cx = w / 2;
+  const cy = h * 0.3;
+  const r = Math.min(w, h) * 0.26;
   return (
     <g>
       {d.pins.map((p) => (
-        <CoreLead key={p.id} x1={p.x} y1={h * 0.42} x2={p.x} y2={p.y} w={0.4} />
+        <path key={p.id} d={`M ${p.x} ${cy + r * 0.8} L ${p.x} ${cy + r + 0.8} L ${p.x} ${p.y}`} fill="none" stroke={LEAD} strokeWidth={0.4} strokeLinecap="round" />
       ))}
-      <circle cx={w / 2} cy={h * 0.3} r={Math.min(w, h) * 0.26} fill="#17181c" stroke="#000" strokeWidth={0.2} />
-      <circle cx={w / 2 - 0.4} cy={h * 0.24} r={0.4} fill="#fff" opacity={0.25} />
+      <circle cx={cx} cy={cy} r={r + 0.25} fill="#22262b" />
+      <circle cx={cx} cy={cy} r={r} fill="#17181c" stroke="#000" strokeWidth={0.2} />
+      <circle cx={cx - r * 0.34} cy={cy - r * 0.36} r={r * 0.24} fill="#fff" opacity={0.3} />
+      <Mark x={cx} y={cy + r + 2.2} size={0.8} fill="#5b6470">
+        {text(d)}
+      </Mark>
     </g>
   );
 };
@@ -1628,14 +1680,20 @@ const ntcDiscArt: ArtFn = (d) => {
 const inrushArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const cx = w / 2;
+  const cy = (h - 2.6) / 2 + 0.6;
   const r = Math.min(w * 0.42, (h - 2.6) * 0.5);
   return (
     <g>
       {d.pins.map((p) => (
-        <CoreLead key={p.id} x1={p.x} y1={h - 2.4} x2={p.x} y2={p.y} w={0.6} />
+        <g key={p.id}>
+          <rect x={p.x - 1} y={cy + r - 0.3} width={2} height={1} rx={0.3} fill={METAL_D} />
+          <CoreLead x1={p.x} y1={cy + r * 0.85} x2={p.x} y2={p.y} w={0.6} />
+        </g>
       ))}
-      <circle cx={cx} cy={(h - 2.6) / 2 + 0.6} r={r} fill="#17181c" stroke="#000" strokeWidth={0.3} />
-      <Mark x={cx} y={(h - 2.6) / 2 + 1.1} size={Math.min(1.4, (r * 1.5) / 5)} fill="#9aa2ab">
+      <circle cx={cx} cy={cy} r={r} fill="#17181c" stroke="#000" strokeWidth={0.3} />
+      <circle cx={cx} cy={cy} r={r * 0.86} fill="none" stroke="#22262b" strokeWidth={0.5} />
+      <path d={`M ${cx - r * 0.5} ${cy - r * 0.55} A ${r * 0.75} ${r * 0.75} 0 0 1 ${cx + r * 0.4} ${cy - r * 0.6}`} fill="none" stroke="#fff" strokeWidth={0.4} opacity={0.22} />
+      <Mark x={cx} y={cy + 0.9} size={Math.min(1.4, (r * 1.5) / 5)} fill="#9aa2ab">
         {text(d)}
       </Mark>
     </g>
@@ -1650,8 +1708,14 @@ const glassFuseArt: ArtFn = (d) => {
       <CoreLead x1={w - 2.2} y1={h / 2} x2={w} y2={h / 2} w={0.55} />
       <rect x={2} y={0.5} width={2.4} height={h - 1} rx={0.5} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
       <rect x={w - 4.4} y={0.5} width={2.4} height={h - 1} rx={0.5} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
-      <rect x={4.2} y={0.8} width={w - 8.4} height={h - 1.6} rx={(h - 1.6) / 2} fill="#eef6fb" opacity={0.65} stroke="#b8c8d8" strokeWidth={0.2} />
-      <line x1={4.4} y1={h / 2} x2={w - 4.4} y2={h / 2} stroke="#c9a227" strokeWidth={0.35} />
+      <line x1={2.6} y1={0.6} x2={2.6} y2={h - 0.6} stroke="#5c6570" strokeWidth={0.2} />
+      <line x1={3.8} y1={0.6} x2={3.8} y2={h - 0.6} stroke="#5c6570" strokeWidth={0.2} />
+      <line x1={w - 3.8} y1={0.6} x2={w - 3.8} y2={h - 0.6} stroke="#5c6570" strokeWidth={0.2} />
+      <line x1={w - 2.6} y1={0.6} x2={w - 2.6} y2={h - 0.6} stroke="#5c6570" strokeWidth={0.2} />
+      <rect x={4.2} y={0.8} width={w - 8.4} height={h - 1.6} rx={(h - 1.6) / 2} fill="#eef6fb" opacity={0.6} stroke="#b8c8d8" strokeWidth={0.2} />
+      <line x1={4.8} y1={1.2} x2={w - 4.8} y2={1.2} stroke="#fff" strokeWidth={0.35} opacity={0.7} />
+      <path d={`M 4.4 ${h / 2} Q ${w / 2} ${h / 2 + 0.5} ${w - 4.4} ${h / 2}`} fill="none" stroke="#c9a227" strokeWidth={0.35} />
+      <circle cx={w / 2} cy={h / 2 + 0.25} r={0.4} fill="#c9a227" />
     </g>
   );
 };
@@ -1659,19 +1723,33 @@ const glassFuseArt: ArtFn = (d) => {
 const fuseHolderArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const panel = /panel/.test(d.type);
+  const cy = (h - 2.4) / 2 + 0.6;
   return (
     <g>
       {d.pins.map((p) => (
         <CoreLead key={p.id} x1={p.x} y1={h - 2.4} x2={p.x} y2={p.y} w={0.55} />
       ))}
       <rect x={0.6} y={0.6} width={w - 1.2} height={h - 3} rx={0.8} fill="#17181c" stroke="#000" strokeWidth={0.3} />
+      <line x1={1} y1={1.1} x2={w - 1} y2={1.1} stroke="#fff" strokeWidth={0.25} opacity={0.12} />
       {panel ? (
         <g>
-          <circle cx={w / 2} cy={(h - 2.4) / 2 + 0.6} r={Math.min(w, h - 2.4) * 0.3} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
-          <rect x={w / 2 - 1.6} y={(h - 2.4) / 2 + 0.2} width={3.2} height={0.8} rx={0.4} fill="#3a3f46" />
+          <circle cx={w / 2} cy={cy} r={Math.min(w, h - 2.4) * 0.38} fill="#3a3f46" />
+          {Array.from({ length: 10 }, (_, i) => {
+            const a = (i / 10) * Math.PI * 2;
+            const rr = Math.min(w, h - 2.4) * 0.38;
+            return <line key={i} x1={w / 2 + Math.cos(a) * rr * 0.82} y1={cy + Math.sin(a) * rr * 0.82} x2={w / 2 + Math.cos(a) * rr} y2={cy + Math.sin(a) * rr} stroke="#22262b" strokeWidth={0.35} />;
+          })}
+          <circle cx={w / 2} cy={cy} r={Math.min(w, h - 2.4) * 0.26} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
+          <rect x={w / 2 - 1.6} y={cy - 0.4} width={3.2} height={0.8} rx={0.4} fill="#3a3f46" />
+          <circle cx={w / 2 - 1} cy={cy - 1} r={0.4} fill="#fff" opacity={0.4} />
         </g>
       ) : (
-        <rect x={w * 0.2} y={1.4} width={w * 0.6} height={h - 4.6} rx={0.6} fill="#23272e" />
+        <g>
+          <rect x={w * 0.2} y={1.4} width={w * 0.6} height={h - 4.6} rx={0.6} fill="#23272e" />
+          <path d={`M ${w * 0.2} ${2} Q ${w / 2} ${0.8} ${w * 0.8} ${2}`} fill="none" stroke={METAL_D} strokeWidth={0.5} />
+          <path d={`M ${w * 0.2} ${h - 3.6} Q ${w / 2} ${h - 2.6} ${w * 0.8} ${h - 3.6}`} fill="none" stroke={METAL_D} strokeWidth={0.5} />
+          <line x1={w * 0.28} y1={2.2} x2={w * 0.28} y2={h - 4} stroke="#fff" strokeWidth={0.25} opacity={0.2} />
+        </g>
       )}
     </g>
   );
@@ -1682,12 +1760,24 @@ const relayBareArt: ArtFn = (d) => {
   return (
     <g>
       {d.pins.map((p) => (
-        <CoreLead key={p.id} x1={p.x} y1={h - 2.4} x2={p.x} y2={p.y} w={0.5} />
+        <g key={p.id}>
+          <rect x={p.x - 0.8} y={h - 2.8} width={1.6} height={1.2} rx={0.2} fill={METAL_D} />
+          <CoreLead x1={p.x} y1={h - 2.4} x2={p.x} y2={p.y} w={0.5} />
+        </g>
       ))}
       <rect x={0.6} y={0.6} width={w - 1.2} height={h - 3} rx={0.8} fill="#2b6cb8" stroke="#1d4e86" strokeWidth={0.35} />
-      <rect x={1.4} y={1.4} width={w - 2.8} height={(h - 4.6) * 0.3} rx={0.5} fill="#fff" opacity={0.25} />
-      <Mark x={w / 2} y={h * 0.42} size={1.3} fill="#e8eef4">{`SRD-${text(d)}`}</Mark>
+      <line x1={0.6} y1={2.2} x2={w - 0.6} y2={2.2} stroke="#1d4e86" strokeWidth={0.3} />
+      <line x1={w - 1.6} y1={1.2} x2={w - 1.6} y2={h - 3} stroke="#fff" strokeWidth={0.3} opacity={0.15} />
+      <rect x={1.6} y={3} width={w - 3.2} height={h * 0.34} rx={0.5} fill="#e8eef4" />
+      <Mark x={w / 2} y={3 + h * 0.13} size={1.3} fill="#1d4e86">{`SRD-${text(d)}`}</Mark>
+      <Mark x={w / 2} y={3 + h * 0.27} size={0.9} fill="#5b6470">10A 250VAC</Mark>
       <Mark x={w / 2} y={h * 0.62} size={0.9} fill="#cfe0f2">SONGLE</Mark>
+      {d.pins.slice(0, 2).map((p) => (
+        <rect key={p.id} x={p.x - 0.7} y={h - 4.4} width={1.4} height={1} rx={0.2} fill="none" stroke="#cfe0f2" strokeWidth={0.25} />
+      ))}
+      {d.pins.slice(2).map((p) => (
+        <circle key={p.id} cx={p.x} cy={h - 3.9} r={0.6} fill="none" stroke="#cfe0f2" strokeWidth={0.25} />
+      ))}
     </g>
   );
 };
@@ -1700,14 +1790,26 @@ const potArt: ArtFn = (d) => {
   return (
     <g>
       {d.pins.map((p) => (
-        <CoreLead key={p.id} x1={p.x} y1={cy + r * 0.8} x2={p.x} y2={p.y} w={0.55} />
+        <g key={p.id}>
+          <rect x={p.x - 1} y={cy + r - 0.4} width={2} height={h - 3 - cy - r + 1} rx={0.3} fill={METAL_D} stroke="#6f7a86" strokeWidth={0.12} />
+          <CoreLead x1={p.x} y1={cy + r * 0.8} x2={p.x} y2={p.y} w={0.55} />
+        </g>
       ))}
       <circle cx={cx} cy={cy} r={r} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.35} />
-      <circle cx={cx} cy={cy} r={r * 0.86} fill="none" stroke="#8f9aa6" strokeWidth={0.3} strokeDasharray="1 0.8" />
-      <circle cx={cx} cy={cy} r={r * 0.42} fill="#3a3f46" />
-      <circle cx={cx} cy={cy} r={r * 0.3} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
-      <rect x={cx - 0.5} y={cy - r * 0.3} width={1} height={r * 0.24} rx={0.3} fill="#3a3f46" />
-      <Mark x={cx} y={cy + r * 0.66} size={0.9} fill="#3a3f46">
+      {Array.from({ length: 16 }, (_, i) => {
+        const a = (i / 16) * Math.PI * 2;
+        return <line key={i} x1={cx + Math.cos(a) * r * 0.9} y1={cy + Math.sin(a) * r * 0.9} x2={cx + Math.cos(a) * r} y2={cy + Math.sin(a) * r} stroke="#6f7a86" strokeWidth={0.25} />;
+      })}
+      <circle cx={cx} cy={cy} r={r * 0.72} fill="none" stroke="#8f9aa6" strokeWidth={0.4} />
+      <circle cx={cx} cy={cy} r={r * 0.55} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.25} />
+      {Array.from({ length: 6 }, (_, i) => {
+        const a = (i / 6) * Math.PI * 2 + 0.3;
+        return <circle key={i} cx={cx + Math.cos(a) * r * 0.62} cy={cy + Math.sin(a) * r * 0.62} r={0.3} fill="#6f7a86" />;
+      })}
+      <circle cx={cx} cy={cy} r={r * 0.3} fill="#3a3f46" />
+      <rect x={cx - 0.5} y={cy - r * 0.3} width={1} height={r * 0.26} rx={0.3} fill={METAL_L} />
+      <circle cx={cx - r * 0.34} cy={cy - r * 0.4} r={r * 0.14} fill="#fff" opacity={0.35} />
+      <Mark x={cx} y={cy + r * 0.86} size={0.9} fill="#3a3f46">
         {text(d)}
       </Mark>
     </g>
@@ -1718,10 +1820,18 @@ const idcArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   return (
     <g>
+      <rect x={-0.6} y={h / 2 - 1.6} width={1.4} height={3.2} rx={0.4} fill="#22262b" stroke="#000" strokeWidth={0.2} />
+      <rect x={w - 0.8} y={h / 2 - 1.6} width={1.4} height={3.2} rx={0.4} fill="#22262b" stroke="#000" strokeWidth={0.2} />
       <rect x={0.5} y={0.8} width={w - 1} height={h - 1.6} rx={0.5} fill="#22262b" stroke="#000" strokeWidth={0.3} />
+      <line x1={0.8} y1={h / 2} x2={w - 0.8} y2={h / 2} stroke="#0d0f12" strokeWidth={0.5} />
+      <line x1={0.8} y1={1.2} x2={w - 0.8} y2={1.2} stroke="#fff" strokeWidth={0.25} opacity={0.15} />
       <rect x={w / 2 - 1} y={0.8} width={2} height={1.2} rx={0.3} fill="#0d0f12" />
+      <path d={`M 1.6 1.4 L 2.6 1.4 L 2.1 2.3 Z`} fill="#e8eef4" opacity={0.8} />
       {d.pins.map((p) => (
-        <rect key={p.id} x={p.x - 0.5} y={p.y - 0.5} width={1} height={1} rx={0.2} fill={GOLD} stroke={GOLD_D} strokeWidth={0.1} />
+        <g key={p.id}>
+          <rect x={p.x - 0.5} y={p.y - 0.5} width={1} height={1} rx={0.2} fill={GOLD} stroke={GOLD_D} strokeWidth={0.1} />
+          <rect x={p.x - 0.2} y={p.y - 0.2} width={0.4} height={0.4} fill="#39311f" />
+        </g>
       ))}
     </g>
   );
@@ -1730,14 +1840,23 @@ const idcArt: ArtFn = (d) => {
 const jumperArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const kind = d.type.split("-")[1] ?? "mm";
-  const coil = "#e8862c";
+  const coils = ["#e8862c", "#c8342a", "#3fae6a", "#2b6cb8", "#e8c33a", "#8b5cf6"];
   return (
     <g>
       {Array.from({ length: 6 }, (_, i) => (
-        <ellipse key={i} cx={w / 2 + (i - 2.5) * 2.6} cy={h * 0.45} rx={2.2} ry={h * 0.28} fill="none" stroke={coil} strokeWidth={0.9} />
+        <ellipse key={i} cx={w / 2 + (i - 2.5) * 2.6} cy={h * 0.42} rx={2.2} ry={h * 0.26} fill="none" stroke={coils[i]} strokeWidth={0.9} />
       ))}
+      {Array.from({ length: 6 }, (_, i) => (
+        <path key={i} d={`M ${w / 2 + (i - 2.5) * 2.6 - 1.4} ${h * 0.42 - h * 0.2} A 1.6 ${h * 0.2} 0 0 1 ${w / 2 + (i - 2.5) * 2.6 + 0.4} ${h * 0.42 - h * 0.24}`} fill="none" stroke="#fff" strokeWidth={0.25} opacity={0.4} />
+      ))}
+      <path d={`M ${w / 2 - 7} ${h * 0.42} Q ${w / 2 - 9} ${h - 3} 2.5 ${h - 3}`} fill="none" stroke="#c8342a" strokeWidth={0.8} strokeLinecap="round" />
+      <path d={`M ${w / 2 + 7} ${h * 0.42} Q ${w / 2 + 9} ${h - 3} ${w - 2.5} ${h - 3}`} fill="none" stroke="#17181c" strokeWidth={0.8} strokeLinecap="round" />
       <rect x={1} y={h - 5} width={3} height={4} rx={0.4} fill={kind === "ff" || kind === "mf" ? "#17181c" : METAL_D} stroke="#000" strokeWidth={0.2} />
       <rect x={w - 4} y={h - 5} width={3} height={4} rx={0.4} fill={kind === "mm" || kind === "mf" ? "#17181c" : METAL_D} stroke="#000" strokeWidth={0.2} />
+      <rect x={1.8} y={h - 4.4} width={1.4} height={0.8} rx={0.3} fill="#0d0f12" />
+      <rect x={w - 3.2} y={h - 4.4} width={1.4} height={0.8} rx={0.3} fill="#0d0f12" />
+      <rect x={0.7} y={h - 4.6} width={0.6} height={1.4} rx={0.3} fill="#3a3f46" />
+      <rect x={w - 1.3} y={h - 4.6} width={0.6} height={1.4} rx={0.3} fill="#3a3f46" />
       <CoreLead x1={2.5} y1={h - 1} x2={d.pins[0].x} y2={d.pins[0].y} w={0.5} />
       <CoreLead x1={w - 2.5} y1={h - 1} x2={d.pins[1].x} y2={d.pins[1].y} w={0.5} />
     </g>
@@ -1752,7 +1871,10 @@ const resNetArt: ArtFn = (d) => {
         <CoreLead key={p.id} x1={p.x} y1={h - 2.2} x2={p.x} y2={p.y} w={0.45} />
       ))}
       <rect x={0.5} y={0.5} width={w - 1} height={h - 2.6} rx={0.5} fill="#2b5ea8" stroke="#224a82" strokeWidth={0.25} />
-      <Mark x={w / 2} y={(h - 2.6) / 2 + 1} size={1.1} fill="#e8eef4">{`A${d.pins.length - 1}02`}</Mark>
+      <rect x={0.9} y={0.9} width={w - 1.8} height={0.7} rx={0.35} fill="#fff" opacity={0.22} />
+      <circle cx={1.6} cy={1.6} r={0.4} fill="#e8eef4" />
+      <line x1={0.9} y1={h - 2.5} x2={w - 0.9} y2={h - 2.5} stroke="#224a82" strokeWidth={0.3} />
+      <Mark x={w / 2} y={(h - 2.6) / 2 + 1.2} size={1.1} fill="#e8eef4">{`A${d.pins.length - 1}02`}</Mark>
     </g>
   );
 };
@@ -1772,9 +1894,12 @@ const bicolorArt: ArtFn = (d) => {
       {d.pins.map((p) => (
         <CoreLead key={p.id} x1={p.x} y1={cy + r * 0.8} x2={p.x} y2={p.y} w={0.4} />
       ))}
+      <rect x={cx - r - 0.5} y={cy + r - 0.5} width={2 * r + 1} height={1} rx={0.4} fill="#e8eef4" opacity={0.7} />
       <path d={`M ${cx} ${cy - r} A ${r} ${r} 0 0 0 ${cx} ${cy + r} Z`} fill="#c8342a" />
       <path d={`M ${cx} ${cy - r} A ${r} ${r} 0 0 1 ${cx} ${cy + r} Z`} fill="#3fae6a" />
       <circle cx={cx} cy={cy} r={r} fill="none" stroke="#00000033" strokeWidth={0.2} />
+      <rect x={cx - r * 0.5} y={cy - 0.4} width={r * 0.4} height={0.8} rx={0.2} fill="#7a1f1f" />
+      <rect x={cx + r * 0.12} y={cy - 0.4} width={r * 0.4} height={0.8} rx={0.2} fill="#1d5a20" />
       <circle cx={cx - r * 0.34} cy={cy - r * 0.38} r={r * 0.18} fill="#fff" opacity={0.5} />
     </g>
   );
@@ -1784,14 +1909,42 @@ const SEG_COLORS: Record<string, string> = { green: "#3fae6a", blue: "#3a7bff", 
 const sevenSegArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const color = SEG_COLORS[d.type.split("-")[2] ?? "red"] ?? "#e8342a";
+  const x0 = 3.4;
+  const x1 = w - 3.4;
+  const y0 = 3.6;
+  const ym = h / 2;
+  const y1 = h - 3.6;
+  const bar = (x: number, y: number, len: number, vert: boolean, key: string) =>
+    vert ? <rect key={key} x={x - 0.45} y={y} width={0.9} height={len} rx={0.45} fill={color} /> : <rect key={key} x={x} y={y - 0.45} width={len} height={0.9} rx={0.45} fill={color} />;
   return (
     <g>
       {d.pins.map((p) => (
-        <CoreLead key={p.id} x1={p.x} y1={p.y === 0 ? 1.6 : h - 1.6} x2={p.x} y2={p.y} w={0.4} />
+        <g key={p.id}>
+          <rect x={p.x - 0.35} y={p.y === 0 ? 1.2 : h - 1.8} width={0.7} height={0.8} fill={METAL_D} />
+          <CoreLead x1={p.x} y1={p.y === 0 ? 1.6 : h - 1.6} x2={p.x} y2={p.y} w={0.4} />
+        </g>
       ))}
       <rect x={0.5} y={1.4} width={w - 1} height={h - 2.8} rx={0.6} fill="#17181c" stroke="#000" strokeWidth={0.3} />
+      <circle cx={1.6} cy={2.5} r={0.4} fill="#3a3f46" />
       <rect x={1.6} y={2.6} width={w - 3.2} height={h - 5.2} rx={0.4} fill="#0d0f12" />
-      <Mark x={w / 2} y={h / 2 + 2.4} size={h * 0.42} fill={color}>8.</Mark>
+      <rect x={1.9} y={2.9} width={w - 3.8} height={h - 5.8} rx={0.3} fill="none" stroke="#22262b" strokeWidth={0.25} />
+      <g opacity={0.28}>
+        {bar(x0 + 0.7, y0, x1 - x0 - 1.4, false, "ga")}
+        {bar(x0 + 0.7, ym, x1 - x0 - 1.4, false, "gg")}
+        {bar(x0 + 0.7, y1, x1 - x0 - 1.4, false, "gd")}
+        {bar(x0, y0 + 0.7, ym - y0 - 1.4, true, "gf")}
+        {bar(x1, y0 + 0.7, ym - y0 - 1.4, true, "gb")}
+        {bar(x0, ym + 0.7, y1 - ym - 1.4, true, "ge")}
+        {bar(x1, ym + 0.7, y1 - ym - 1.4, true, "gc")}
+      </g>
+      {bar(x0 + 0.7, y0, x1 - x0 - 1.4, false, "a")}
+      {bar(x0 + 0.7, ym, x1 - x0 - 1.4, false, "g")}
+      {bar(x0 + 0.7, y1, x1 - x0 - 1.4, false, "d")}
+      {bar(x0, y0 + 0.7, ym - y0 - 1.4, true, "f")}
+      {bar(x1, y0 + 0.7, ym - y0 - 1.4, true, "b")}
+      {bar(x0, ym + 0.7, y1 - ym - 1.4, true, "e")}
+      {bar(x1, ym + 0.7, y1 - ym - 1.4, true, "c")}
+      <circle cx={x1 + 1.5} cy={y1} r={0.55} fill={color} />
     </g>
   );
 };
@@ -1807,10 +1960,15 @@ const ldrArt: ArtFn = (d) => {
   return (
     <g>
       {d.pins.map((p) => (
-        <CoreLead key={p.id} x1={p.x} y1={cy + r * 0.8} x2={p.x} y2={p.y} w={0.4} />
+        <path key={p.id} d={`M ${p.x} ${cy + r * 0.8} L ${p.x} ${cy + r + 0.5} L ${p.x} ${p.y}`} fill="none" stroke={LEAD} strokeWidth={0.4} strokeLinecap="round" />
       ))}
+      <circle cx={cx} cy={cy} r={r + 0.35} fill="#b96a2c" />
       <circle cx={cx} cy={cy} r={r} fill="#d8863c" stroke="#a9642a" strokeWidth={0.25} />
+      <circle cx={cx} cy={cy} r={r * 0.82} fill="none" stroke="#c07030" strokeWidth={0.3} />
       <path d={`M ${cx - r * 0.5} ${cy - r * 0.4} L ${cx + r * 0.5} ${cy - r * 0.4} L ${cx - r * 0.5} ${cy} L ${cx + r * 0.5} ${cy} L ${cx - r * 0.5} ${cy + r * 0.4} L ${cx + r * 0.5} ${cy + r * 0.4}`} fill="none" stroke={GOLD} strokeWidth={0.45} />
+      <circle cx={cx - r * 0.5} cy={cy - r * 0.4} r={0.35} fill={GOLD_D} />
+      <circle cx={cx + r * 0.5} cy={cy + r * 0.4} r={0.35} fill={GOLD_D} />
+      <circle cx={cx - r * 0.34} cy={cy - r * 0.5} r={r * 0.16} fill="#fff" opacity={0.4} />
     </g>
   );
 };
@@ -1819,12 +1977,18 @@ const tempProbeArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   return (
     <g>
-      <path d={`M ${w * 0.55} ${h / 2} Q ${w * 0.75} ${h / 2 - 2} ${w * 0.9} ${h / 2}`} fill="none" stroke="#c8342a" strokeWidth={0.9} strokeLinecap="round" />
+      <path d={`M ${w * 0.55} ${h / 2} Q ${w * 0.72} ${h / 2 - 2.4} ${w * 0.9} ${h / 2}`} fill="none" stroke="#c8342a" strokeWidth={0.9} strokeLinecap="round" />
+      <path d={`M ${w * 0.57} ${h / 2 - 0.3} Q ${w * 0.72} ${h / 2 - 2.5} ${w * 0.88} ${h / 2 - 0.3}`} fill="none" stroke="#fff" strokeWidth={0.25} opacity={0.4} />
       {d.pins.map((p) => (
         <CoreLead key={p.id} x1={p.x - 1} y1={h / 2} x2={p.x} y2={p.y} w={0.4} />
       ))}
+      <rect x={w * 0.86} y={h / 2 - 1.4} width={2.2} height={2.8} rx={0.5} fill="#22262b" />
       <rect x={1} y={h / 2 - 2} width={w * 0.42} height={4} rx={2} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.25} />
+      <line x1={2} y1={h / 2 - 1.4} x2={w * 0.42} y2={h / 2 - 1.4} stroke="#fff" strokeWidth={0.3} opacity={0.5} />
+      <ellipse cx={1.6} cy={h / 2} rx={0.6} ry={1.9} fill={METAL_L} stroke="#5c6570" strokeWidth={0.15} />
       <rect x={w * 0.43} y={h / 2 - 1.2} width={w * 0.14} height={2.4} rx={1} fill="#22262b" />
+      <line x1={w * 0.45} y1={h / 2 - 0.8} x2={w * 0.45} y2={h / 2 + 0.8} stroke="#000" strokeWidth={0.2} />
+      <line x1={w * 0.49} y1={h / 2 - 0.8} x2={w * 0.49} y2={h / 2 + 0.8} stroke="#000" strokeWidth={0.2} />
     </g>
   );
 };
@@ -1835,21 +1999,40 @@ const bananaPlugArt: ArtFn = (d) => {
   return (
     <g>
       <CoreLead x1={0} y1={h / 2} x2={2} y2={h / 2} w={0.5} />
+      <rect x={1.6} y={h / 2 - 1.4} width={1} height={2.8} rx={0.4} fill={METAL_D} />
       <rect x={2} y={0.6} width={w * 0.5} height={h - 1.2} rx={0.7} fill={color} stroke="#00000055" strokeWidth={0.25} />
+      {[0.3, 0.5, 0.7].map((f) => (
+        <line key={f} x1={2 + w * 0.5 * f} y1={0.8} x2={2 + w * 0.5 * f} y2={h - 0.8} stroke="#000" strokeWidth={0.2} opacity={0.35} />
+      ))}
+      <rect x={2.4} y={0.9} width={w * 0.42} height={0.7} rx={0.35} fill="#fff" opacity={0.25} />
       <rect x={2 + w * 0.5} y={h / 2 - 1.1} width={w * 0.28} height={2.2} rx={0.5} fill={GOLD} stroke={GOLD_D} strokeWidth={0.15} />
+      <line x1={2 + w * 0.5 + 0.5} y1={h / 2 - 1} x2={2 + w * 0.5 + 0.5} y2={h / 2 + 1} stroke={GOLD_D} strokeWidth={0.2} />
       <circle cx={w - 1.4} cy={h / 2} r={1.3} fill={GOLD} stroke={GOLD_D} strokeWidth={0.2} />
       <circle cx={w - 1.4} cy={h / 2} r={0.5} fill="#39311f" />
+      <line x1={w - 2.2} y1={h / 2} x2={w - 0.6} y2={h / 2} stroke="#39311f" strokeWidth={0.25} />
     </g>
   );
 };
 
 const alligatorArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
+  const jx = 3 + w * 0.42;
   return (
     <g>
       <CoreLead x1={0} y1={h / 2} x2={3} y2={h / 2} w={0.55} />
+      <rect x={2.6} y={h / 2 - 1.6} width={1.2} height={3.2} rx={0.5} fill={METAL_D} />
       <rect x={3} y={0.7} width={w * 0.42} height={h - 1.4} rx={1} fill="#c8342a" stroke="#00000055" strokeWidth={0.25} />
-      <path d={`M ${3 + w * 0.42} ${h / 2 - 1.6} L ${w - 4} ${h / 2 - 1.6} L ${w - 6} ${h / 2 - 0.6} L ${w - 4} ${h / 2 - 0.6} L ${w - 6} ${h / 2 + 0.4} L ${w - 3} ${h / 2 + 0.4} L ${w - 5} ${h / 2 + 1.4} L ${3 + w * 0.42} ${h / 2 + 1.6} Z`} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
+      <line x1={3 + w * 0.14} y1={0.9} x2={3 + w * 0.14} y2={h - 0.9} stroke="#000" strokeWidth={0.25} opacity={0.4} />
+      <line x1={3 + w * 0.28} y1={0.9} x2={3 + w * 0.28} y2={h - 0.9} stroke="#000" strokeWidth={0.25} opacity={0.4} />
+      <rect x={3.4} y={1} width={w * 0.34} height={0.7} rx={0.35} fill="#fff" opacity={0.3} />
+      <path d={`M ${jx} ${h / 2 - 1.6} L ${w - 4} ${h / 2 - 1.6} L ${w - 6} ${h / 2 - 0.6} L ${w - 4} ${h / 2 - 0.6} L ${w - 6} ${h / 2 + 0.4} L ${w - 3} ${h / 2 + 0.4} L ${w - 5} ${h / 2 + 1.4} L ${jx} ${h / 2 + 1.6} Z`} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
+      {[0.3, 0.55, 0.8].map((f) => (
+        <g key={f}>
+          <path d={`M ${jx + (w - 4 - jx) * f} ${h / 2 - 1.6} l 0.8 0.7 l -1.4 0 Z`} fill="#5c6570" />
+          <path d={`M ${jx + (w - 5 - jx) * f} ${h / 2 + 1.6} l 0.8 -0.7 l -1.4 0 Z`} fill="#5c6570" />
+        </g>
+      ))}
+      <circle cx={jx + 1} cy={h / 2} r={0.55} fill="#6f7a86" stroke="#454c55" strokeWidth={0.15} />
     </g>
   );
 };
@@ -1859,8 +2042,12 @@ const testHookArt: ArtFn = (d) => {
   return (
     <g>
       <CoreLead x1={0} y1={h / 2} x2={2.4} y2={h / 2} w={0.45} />
+      <rect x={2} y={h / 2 - 1.2} width={1} height={2.4} rx={0.4} fill={METAL_D} />
       <rect x={2.4} y={0.8} width={w * 0.45} height={h - 1.6} rx={0.8} fill="#17181c" stroke="#000" strokeWidth={0.2} />
+      <line x1={2.4 + w * 0.15} y1={1} x2={2.4 + w * 0.15} y2={h - 1} stroke="#fff" strokeWidth={0.2} opacity={0.15} />
+      <line x1={2.4 + w * 0.3} y1={1} x2={2.4 + w * 0.3} y2={h - 1} stroke="#fff" strokeWidth={0.2} opacity={0.15} />
       <path d={`M ${2.4 + w * 0.45} ${h / 2} Q ${w - 3} ${h / 2 - 2.4} ${w - 1.6} ${h / 2 - 0.6} Q ${w - 1} ${h / 2 + 0.4} ${w - 2.4} ${h / 2 + 0.6}`} fill="none" stroke={METAL} strokeWidth={0.7} strokeLinecap="round" />
+      <path d={`M ${2.4 + w * 0.45} ${h / 2 + 0.4} Q ${w - 3.6} ${h / 2 - 1.4} ${w - 2.6} ${h / 2 - 0.4}`} fill="none" stroke={METAL_D} strokeWidth={0.4} strokeLinecap="round" />
     </g>
   );
 };
@@ -1875,12 +2062,22 @@ const din5Art: ArtFn = (d) => {
       {d.pins.map((p) => (
         <CoreLead key={p.id} x1={p.x} y1={cy + r * 0.9} x2={p.x} y2={p.y} w={0.45} />
       ))}
+      <circle cx={cx} cy={cy} r={r + 0.4} fill="#6f7a86" />
+      {Array.from({ length: 20 }, (_, i) => {
+        const a = (i / 20) * Math.PI * 2;
+        return <line key={i} x1={cx + Math.cos(a) * (r + 0.05)} y1={cy + Math.sin(a) * (r + 0.05)} x2={cx + Math.cos(a) * (r + 0.4)} y2={cy + Math.sin(a) * (r + 0.4)} stroke="#454c55" strokeWidth={0.2} />;
+      })}
       <circle cx={cx} cy={cy} r={r} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.3} />
       <circle cx={cx} cy={cy} r={r * 0.78} fill="#17181c" />
+      <circle cx={cx} cy={cy} r={r * 0.78} fill="none" stroke="#000" strokeWidth={0.3} />
       {[[-0.5, -0.2], [0, -0.45], [0.5, -0.2], [-0.35, 0.3], [0.35, 0.3]].map(([fx, fy], i) => (
-        <circle key={i} cx={cx + fx * r} cy={cy + fy * r} r={0.7} fill={GOLD} stroke={GOLD_D} strokeWidth={0.1} />
+        <g key={i}>
+          <circle cx={cx + fx * r} cy={cy + fy * r} r={0.7} fill={GOLD} stroke={GOLD_D} strokeWidth={0.1} />
+          <circle cx={cx + fx * r} cy={cy + fy * r} r={0.25} fill="#39311f" />
+        </g>
       ))}
       <rect x={cx - 0.5} y={cy + r * 0.55} width={1} height={r * 0.3} rx={0.3} fill="#3a3f46" />
+      <path d={`M ${cx - r - 0.4} ${cy} l 0.8 -0.8 l 0 1.6 Z`} fill="#454c55" />
     </g>
   );
 };
@@ -1893,13 +2090,23 @@ const speakonArt: ArtFn = (d) => {
   return (
     <g>
       {d.pins.map((p) => (
-        <CoreLead key={p.id} x1={p.x} y1={cy + r * 0.8} x2={p.x} y2={p.y} w={0.6} />
+        <g key={p.id}>
+          <rect x={p.x - 1} y={cy + r - 0.4} width={2} height={h - 3 - cy - r + 1} rx={0.3} fill={METAL_D} />
+          <CoreLead x1={p.x} y1={cy + r * 0.8} x2={p.x} y2={p.y} w={0.6} />
+        </g>
       ))}
       <rect x={cx - r - 1.4} y={cy - 1.4} width={1.6} height={2.8} rx={0.4} fill="#22262b" />
       <rect x={cx + r - 0.2} y={cy - 1.4} width={1.6} height={2.8} rx={0.4} fill="#22262b" />
       <circle cx={cx} cy={cy} r={r} fill="#22262b" stroke="#000" strokeWidth={0.35} />
+      {Array.from({ length: 4 }, (_, i) => {
+        const a = (i / 4) * Math.PI * 2 + 0.8;
+        return <circle key={i} cx={cx + Math.cos(a) * r * 0.82} cy={cy + Math.sin(a) * r * 0.82} r={0.5} fill="#0d0f12" />;
+      })}
       <circle cx={cx} cy={cy} r={r * 0.6} fill="#0d0f12" />
+      <circle cx={cx} cy={cy} r={r * 0.6} fill="none" stroke="#3a3f46" strokeWidth={0.3} />
       <rect x={cx - r * 0.5} y={cy - 0.7} width={r} height={1.4} rx={0.5} fill={METAL_D} />
+      <rect x={cx - 1.2} y={cy - r - 0.9} width={2.4} height={1.2} rx={0.4} fill="#3a3f46" />
+      <circle cx={cx - r * 0.34} cy={cy - r * 0.4} r={r * 0.14} fill="#fff" opacity={0.18} />
     </g>
   );
 };
