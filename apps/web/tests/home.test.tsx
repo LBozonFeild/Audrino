@@ -68,14 +68,12 @@ describe("Home", () => {
     expect(document.querySelector(".topbar")).toBeNull();
   });
 
-  it("renders the template gallery with live part previews", async () => {
+  it("offers no template gallery", async () => {
     render(<Root />);
     await flushRoute();
-    expect(document.querySelectorAll(".tpl-card")).toHaveLength(3);
-    expect(document.querySelectorAll(".tpl-preview")).toHaveLength(3);
-    expect(screen.getByText("Blink")).toBeTruthy();
-    // previews render real part art (boards + components from the fixture)
-    expect(document.querySelectorAll(".tpl-preview g.part").length).toBeGreaterThan(0);
+    expect(document.querySelectorAll(".tpl-card")).toHaveLength(0);
+    expect(screen.queryByText("Start from a template")).toBeNull();
+    expect(screen.queryByText("Explore templates")).toBeNull();
   });
 
   it("New project opens an empty editor even when an autosave exists", async () => {

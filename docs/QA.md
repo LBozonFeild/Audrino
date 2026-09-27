@@ -393,3 +393,7 @@ _Chain_ **169/169** (schema 75 + sim 16 + web 78) · _typecheck_ 0.
   popover; signed-in users still get the "Your projects" card on home.
   home.test locks the absence (no email/password prompts, both action cards
   remain): typecheck 0, web 95/95 (18 files), `vite build` clean.
+- **Follow-up 2 (2026-09-26)**: removed the home **template gallery**
+  ("Start from a template" section + hero "Explore templates" link and
+  `#tpl` anchor; fixtures still reachable from the editor). home.test now
+  locks its absence. typecheck 0, web 95/95 (18 files), `vite build` clean.

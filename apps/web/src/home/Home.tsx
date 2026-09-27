@@ -1,59 +1,18 @@
 /**
- * Home page — the product's front door: hero, template gallery, and
- * start/continue cards (accounts live in the editor's account popover).
+ * Home page — the product's front door: hero and start/continue cards
+ * (accounts live in the editor's account popover).
  * Routes: "" / "#/" lands here; the editor is "#/editor" (see nav.ts).
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { PART_DEFINITIONS, type Project } from "@audrino/schema";
 import { api, type Me, type ProjectSummary } from "../account/api";
-import { ArtDefs, PartGlyph } from "../canvas/PartGlyph";
 import { clearAutosave, docLooksTrivial, loadAutosave } from "../dsl/autosave";
-import { createEmptyProject, loadFixture, type FixtureId } from "../dsl/load";
+import { createEmptyProject } from "../dsl/load";
 import { openInEditor } from "../nav";
-import { docBBox } from "../state/ops";
 
 function partCount(doc: Project): number {
   return doc.boards.length + doc.components.length;
-}
-
-const TEMPLATES: { id: FixtureId; title: string; desc: string }[] = [
-  { id: "blink", title: "Blink", desc: "The hello-world: one LED on D13." },
-  { id: "traffic-light", title: "Traffic light", desc: "Three LEDs sequenced by firmware." },
-  { id: "servo-arm", title: "Servo arm", desc: "A potentiometer sweeps a servo." },
-];
-
-/** Live mini-render of a fixture (real part art, framed to its bounding box). */
-function FixturePreview(props: { doc: Project }) {
-  const vb = useMemo(() => {
-    const bbox = docBBox(props.doc);
-    if (!bbox) return "0 0 100 60";
-    const pad = 10;
-    return `${bbox.minX - pad} ${bbox.minY - pad} ${bbox.maxX - bbox.minX + pad * 2} ${
-      bbox.maxY - bbox.minY + pad * 2
-    }`;
-  }, [props.doc]);
-  return (
-    <svg className="tpl-preview" viewBox={vb} preserveAspectRatio="xMidYMid meet" aria-hidden>
-      {props.doc.wires.map((w) => (
-        <polyline
-          key={w.id}
-          points={w.points.map(([x, y]) => `${x},${y}`).join(" ")}
-          fill="none"
-          stroke="var(--bench-wire)"
-          strokeWidth={1.6}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      ))}
-      {props.doc.boards.map((b) => (
-        <PartGlyph key={b.id} type={b.type} transform={b.transform} board />
-      ))}
-      {props.doc.components.map((c) => (
-        <PartGlyph key={c.id} type={c.type} transform={c.transform} values={c.props} />
-      ))}
-    </svg>
-  );
 }
 
 const FEATURES: { icon: ReactNode; title: string; body: string }[] = [
@@ -107,7 +66,6 @@ export function Home() {
   // Re-read on every render so "Continue" disappears after New project clears it.
   const saved = loadAutosave();
   const canContinue = saved !== null && !docLooksTrivial(saved);
-  const templates = useMemo(() => TEMPLATES.map((t) => ({ ...t, doc: loadFixture(t.id) })), []);
 
   const refresh = async () => {
     const r = await api("/api/me", "GET");
@@ -155,11 +113,6 @@ export function Home() {
 
   return (
     <div className="home-shell">
-      {/* one shared defs block: part-art gradients/filters for the previews */}
-      <svg className="defs-only" aria-hidden focusable="false">
-        <ArtDefs />
-      </svg>
-
       <header className="home-topbar">
         <span className="brand">
           <span className="brand-mark" aria-hidden>
@@ -213,36 +166,12 @@ export function Home() {
             <button className="primary" onClick={newProject}>
               Start building →
             </button>
-            <a className="btn-ghost" href="#tpl">
-              Explore templates
-            </a>
           </div>
           <div className="hero-chips">
             <span>{PART_DEFINITIONS.length} parts</span>
             <span>live simulation</span>
             <span>AI circuit builder</span>
             <span>48 themes</span>
-          </div>
-        </section>
-
-        <section className="tpl-section" id="tpl">
-          <div className="sec-head">
-            <h2>Start from a template</h2>
-            <span className="dim">working circuits you can open and remix right away</span>
-          </div>
-          <div className="tpl-grid">
-            {templates.map((t) => (
-              <button key={t.id} className="tpl-card" onClick={() => openInEditor(t.doc)}>
-                <span className="tpl-preview-wrap">
-                  <FixturePreview doc={t.doc} />
-                </span>
-                <span className="tpl-meta">
-                  <strong>{t.title}</strong>
-                  <span className="dim">{t.desc}</span>
-                  <span className="tpl-cta">Open in editor →</span>
-                </span>
-              </button>
-            ))}
           </div>
         </section>
 
