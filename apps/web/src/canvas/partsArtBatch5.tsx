@@ -1,12 +1,18 @@
 import type { ReactElement } from "react";
 import type { PartDefinition, PartPin } from "@audrino/schema";
 import {
+  Crystal,
   Dip,
   ElectrolyticTop,
   FemaleHeader,
   Led5,
   Mark,
+  MountHole,
+  Qfn,
   ScrewTerminal,
+  SmdPassive,
+  MaleHeader,
+  Tact,
   To220,
   To92,
   Lead as CoreLead,
@@ -22,6 +28,7 @@ const METAL = "#b8c2cc";
 const METAL_D = "#8f9aa6";
 const METAL_L = "#d8dee5";
 const GOLD = "#c9a227";
+const GOLD_D = "#8a7420";
 const CHIP = "#0d0f12";
 const SILK = "#eef4f9";
 const PCB_NAVY = "#1d4e89";
@@ -153,15 +160,51 @@ const ledArt = (color: string): ArtFn => (d) => {
 const relayArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const label = text(d);
+  const ssr = /^ssr-/.test(d.type);
+  const n = ssr ? 0 : Number(/(\d)ch/.exec(d.type)?.[1] ?? 1);
+  if (ssr) {
+    return (
+      <g>
+        <rect x={0.5} y={0.5} width={w - 1} height={h - 1} rx={0.6} fill="#e8e6dc" stroke="#b9b5a2" strokeWidth={0.3} />
+        <rect x={0.5} y={h * 0.32} width={w - 1} height={h * 0.36} fill="#c8342a" />
+        <Mark x={w / 2} y={h * 0.55} size={Math.min(1.6, (w * 0.7) / label.length)} fill="#fff">
+          {label}
+        </Mark>
+        <ScrewTerminal x={1.2} y={1} w={w * 0.28} h={3.4} pins={[{ x: 1.2 + w * 0.14, y: 2 }]} color="#e8e6dc" dark="#b9b5a2" />
+        <ScrewTerminal x={w - 1.2 - w * 0.28} y={1} w={w * 0.28} h={3.4} pins={[{ x: w - 1.2 - w * 0.14, y: 2 }]} color="#e8e6dc" dark="#b9b5a2" />
+        {d.pins.map((p) => (
+          <Hole key={p.id} x={p.x} y={p.y > h / 2 ? p.y - 0.8 : p.y + 0.8} r={0.45} />
+        ))}
+      </g>
+    );
+  }
+  const relays = Math.max(1, Math.min(4, n));
+  const rw = (w - 2) / relays;
   return (
     <g>
-      <rect x={0.5} y={0.5} width={w - 1} height={h - 1} rx={0.8} fill="#2b4a8a" stroke="#1c3260" strokeWidth={0.3} />
-      <rect x={2.5} y={2.5} width={w - 5} height={h * 0.4} rx={0.5} fill="#1f3868" />
-      <Silk x={w / 2} y={h / 2 + 2.5} size={Math.min(1.8, 16 / label.length)}>{label}</Silk>
-      {d.pins.map((p) => {
-        const bottom = p.y > h / 2;
-        return <Hole key={p.id} x={p.x} y={bottom ? p.y - 0.8 : p.y + 0.8} r={0.4} />;
-      })}
+      <rect x={0.5} y={0.5} width={w - 1} height={h - 3.4} rx={0.7} fill={PCB_NAVY} stroke="#163a66" strokeWidth={0.3} />
+      {Array.from({ length: relays }, (_, i) => (
+        <g key={i}>
+          <rect x={1.2 + i * rw} y={1.4} width={rw - 1} height={h * 0.42} rx={0.5} fill="#2b5ea8" stroke="#224a82" strokeWidth={0.25} />
+          <rect x={1.2 + i * rw + 0.5} y={1.9} width={rw - 2} height={h * 0.14} rx={0.3} fill="#e8eef4" opacity={0.85} />
+          <Mark x={1.2 + i * rw + rw / 2 - 0.5} y={1.9 + h * 0.115} size={Math.min(0.9, (rw * 0.7) / 8)} fill="#1d4e89">
+            SONGLE
+          </Mark>
+          <Mark x={1.2 + i * rw + rw / 2 - 0.5} y={1.4 + h * 0.34} size={Math.min(0.85, (rw * 0.6) / 8)} fill="#dfe6ee">
+            SRD-05V
+          </Mark>
+        </g>
+      ))}
+      {relays > 1 && (
+        <ScrewTerminal x={1.2} y={h * 0.52} w={w - 2.4} h={h * 0.3} pins={Array.from({ length: relays * 2 }, (_, i) => ({ x: 1.2 + ((w - 2.4) * (i + 0.5)) / (relays * 2), y: h * 0.67, id: `t${i}` }))} color="#1d5c9a" />
+      )}
+      <Silk x={w / 2} y={h - 3.9} size={Math.min(1.3, 16 / label.length)}>{label}</Silk>
+      {d.pins.map((p) => (
+        <g key={p.id}>
+          <Hole x={p.x} y={p.y - 0.9} r={0.45} />
+          <CoreLead x1={p.x} y1={p.y - 0.4} x2={p.x} y2={p.y} w={0.5} />
+        </g>
+      ))}
     </g>
   );
 };
@@ -181,13 +224,36 @@ const screwArt: ArtFn = (d) => {
 const holderArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const label = text(d);
+  const coin = /coin|v9/.test(d.type);
+  const cells = /18650/.test(d.type) ? Math.max(1, Math.round((w - 2) / 21)) : /aa|aaa/.test(d.type) ? Math.max(1, Math.min(4, Math.round((w - 2) / 15))) : 0;
   return (
     <g>
-      <rect x={0.5} y={0.5} width={w - 1} height={h - 3.5} rx={1.2} fill="#2b2f36" stroke="#000" strokeWidth={0.3} />
-      <rect x={2} y={2} width={w - 4} height={h - 7} rx={1} fill="#454c58" />
-      <Silk x={w / 2} y={h / 2} size={Math.min(2.4, 30 / label.length)} fill={METAL_L}>{label}</Silk>
+      <rect x={0.5} y={0.5} width={w - 1} height={h - 3.4} rx={0.8} fill="#22262b" stroke="#000" strokeWidth={0.3} />
+      {coin ? (
+        <g>
+          <circle cx={w / 2} cy={(h - 3) / 2 + 0.5} r={Math.min(w, h - 3) * 0.42} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.3} />
+          <circle cx={w / 2} cy={(h - 3) / 2 + 0.5} r={Math.min(w, h - 3) * 0.3} fill="none" stroke="#8f9aa6" strokeWidth={0.25} />
+          <Mark x={w / 2} y={(h - 3) / 2 + 1} size={1.4} fill="#4c5560">+</Mark>
+        </g>
+      ) : (
+        Array.from({ length: cells }, (_, i) => {
+          const cw = (w - 3) / cells;
+          const cx = 1.5 + i * cw + cw / 2;
+          return (
+            <g key={i}>
+              <rect x={1.5 + i * cw + 0.6} y={1.6} width={cw - 1.2} height={h - 6.4} rx={(cw - 1.2) / 2} fill={/18650/.test(d.type) ? "#3f8f4a" : "#c9a227"} stroke="#00000055" strokeWidth={0.2} />
+              <rect x={1.5 + i * cw + 0.6} y={1.6} width={cw - 1.2} height={(h - 6.4) * 0.16} rx={0.4} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.12} />
+              <rect x={cx - 0.5} y={1.2} width={1} height={0.6} rx={0.3} fill={METAL_L} />
+              <rect x={1.5 + i * cw + 0.9} y={2.4} width={(cw - 1.2) * 0.22} height={h - 8} fill="#fff" opacity={0.18} />
+            </g>
+          );
+        })
+      )}
+      <Mark x={w / 2} y={h - 4.2} size={Math.min(1.1, 22 / label.length)} fill="#8f9aa6">
+        {label}
+      </Mark>
       {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x} y1={h - 3} x2={p.x} y2={p.y} w={0.7} />
+        <CoreLead key={p.id} x1={p.x} y1={h - 3} x2={p.x} y2={p.y} w={0.6} />
       ))}
     </g>
   );
@@ -196,24 +262,29 @@ const holderArt: ArtFn = (d) => {
 const moduleArt = (fill = PCB_NAVY): ArtFn => (d) => {
   const { w, h } = d.size_mm;
   const label = text(d);
+  const bh = h - 3.2;
+  const pinsBottom = d.pins.filter((p) => p.y > h - 2);
+  const pinsSide = d.pins.filter((p) => p.y <= h - 2);
+  const iw = Math.min(8, w * 0.42);
+  const ih = Math.min(6, bh * 0.5);
   return (
     <g>
-      <rect x={0.5} y={0.5} width={w - 1} height={h - 3.5} rx={0.5} fill={fill} stroke="#00000033" strokeWidth={0.3} />
-      <rect x={w / 2 - Math.min(6, w * 0.25)} y={h / 2 - 4} width={Math.min(12, w * 0.5)} height={4.5} rx={0.4} fill={CHIP} />
-      <Silk x={w / 2} y={h - 5.5} size={Math.min(1.8, 20 / label.length)}>{label}</Silk>
-      {d.pins.map((p) => {
-        const bottom = p.y > h - 2;
-        const top = p.y < 2;
-        return bottom || top ? (
-          <g key={p.id}>
-            <Hole x={p.x} y={bottom ? p.y - 1 : p.y + 1} />
-          </g>
-        ) : (
-          <g key={p.id}>
-            <Hole x={p.x > w / 2 ? p.x + 0.6 : p.x - 0.6} y={p.y} />
-          </g>
-        );
-      })}
+      <rect x={0.5} y={0.5} width={w - 1} height={bh} rx={0.8} fill={fill} stroke="#00000044" strokeWidth={0.3} />
+      <rect x={0.9} y={0.9} width={w - 1.8} height={bh - 0.8} rx={0.6} fill="none" stroke="#fff" strokeOpacity={0.13} strokeWidth={0.28} />
+      {w > 15 && <MountHole x={2.3} y={2.3} r={0.85} />}
+      {w > 15 && <MountHole x={w - 2.3} y={2.3} r={0.85} />}
+      <Qfn x={w / 2 - iw / 2} y={bh / 2 - ih / 2 - 0.6} w={iw} h={ih} label={label.slice(0, 9).toUpperCase()} pads={6} />
+      <SmdPassive x={1.5} y={bh - 2.6} w={1.7} h={0.95} body="#3a3220" />
+      <SmdPassive x={w - 3.2} y={1.5} w={1.7} h={0.95} />
+      <Crystal x={w - 6.4} y={bh - 3} w={3.2} h={1.7} oval={false} />
+      <Silk x={w / 2} y={bh - 0.8} size={Math.min(1.4, 18 / label.length)}>{label}</Silk>
+      {pinsSide.map((p) => (
+        <Hole key={p.id} x={p.x > w / 2 ? p.x + 0.5 : p.x - 0.5} y={p.y} r={0.45} />
+      ))}
+      {pinsBottom.length > 0 && <MaleHeader pts={pinsBottom.map((p) => ({ x: p.x, y: p.y - 1.15 }))} />}
+      {pinsBottom.map((p) => (
+        <CoreLead key={`l${p.id}`} x1={p.x} y1={p.y - 0.3} x2={p.x} y2={p.y} w={0.5} />
+      ))}
     </g>
   );
 };
@@ -221,13 +292,60 @@ const moduleArt = (fill = PCB_NAVY): ArtFn => (d) => {
 const screenArt = (screen: string): ArtFn => (d) => {
   const { w, h } = d.size_mm;
   const label = text(d);
+  const bh = h - 3.4;
+  const t = d.type;
+  const eink = /eink/.test(t);
+  const charLcd = /lcd-|nokia/.test(t);
+  const oled = /oled|sh110/.test(t);
+  const pcb = eink ? "#8c2f2f" : oled ? "#1d4e89" : charLcd ? "#1d4e89" : "#14161a";
   return (
     <g>
-      <rect x={0.5} y={0.5} width={w - 1} height={h - 3.5} rx={0.8} fill="#1a1d22" stroke="#000" strokeWidth={0.3} />
-      <rect x={w * 0.1} y={h * 0.1} width={w * 0.8} height={h * 0.55} rx={0.5} fill={screen} />
-      <Silk x={w / 2} y={h - 5.5} size={Math.min(1.8, 18 / label.length)}>{label}</Silk>
+      <rect x={0.5} y={0.5} width={w - 1} height={bh} rx={0.8} fill={pcb} stroke="#00000055" strokeWidth={0.3} />
+      <rect x={0.9} y={0.9} width={w - 1.8} height={bh - 0.8} rx={0.6} fill="none" stroke="#fff" strokeOpacity={0.12} strokeWidth={0.26} />
+      {w > 18 && <MountHole x={2.2} y={2.2} r={0.9} />}
+      {w > 18 && <MountHole x={w - 2.2} y={2.2} r={0.9} />}
+      {charLcd && (
+        <g>
+          <rect x={2.4} y={2} width={w - 4.8} height={bh - 4.4} rx={0.5} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.28} />
+          <rect x={3.4} y={3} width={w - 6.8} height={bh - 6.4} rx={0.35} fill="#23272e" />
+          <rect x={4.2} y={3.8} width={w - 8.4} height={bh - 8} fill={screen} />
+          <rect x={4.2} y={3.8} width={w - 8.4} height={(bh - 8) * 0.22} fill="#fff" opacity={0.14} />
+          {Array.from({ length: Math.min(20, Math.floor((w - 10) / 2.6)) }, (_, i) => (
+            <g key={i}>
+              <rect x={5 + i * 2.6} y={4.6} width={1.9} height={(bh - 10) * 0.4} fill="#2c3e50" opacity={0.5} />
+              <rect x={5 + i * 2.6} y={4.6 + (bh - 10) * 0.52} width={1.9} height={(bh - 10) * 0.4} fill="#2c3e50" opacity={0.5} />
+            </g>
+          ))}
+        </g>
+      )}
+      {oled && (
+        <g>
+          <rect x={w * 0.12} y={1.8} width={w * 0.76} height={bh - 3.6} rx={0.4} fill="#0b1520" stroke="#24384c" strokeWidth={0.28} />
+          <rect x={w * 0.16} y={2.6} width={w * 0.68} height={bh - 5.2} fill={screen} opacity={0.9} />
+          <rect x={w * 0.16} y={2.6} width={w * 0.68} height={(bh - 5.2) * 0.25} fill="#fff" opacity={0.08} />
+        </g>
+      )}
+      {eink && (
+        <g>
+          <rect x={2.2} y={1.8} width={w - 4.4} height={bh - 5} rx={0.4} fill="#cfd4d8" stroke="#9aa0a6" strokeWidth={0.25} />
+          <rect x={3} y={2.6} width={w - 6} height={bh - 6.6} fill={screen} />
+          <rect x={w / 2 - 4} y={bh - 3.4} width={8} height={2.6} rx={0.3} fill="#22262b" />
+        </g>
+      )}
+      {!charLcd && !oled && !eink && (
+        <g>
+          <rect x={2} y={1.8} width={w - 4} height={bh - 3.8} rx={0.45} fill="#0d0f12" stroke="#000" strokeWidth={0.25} />
+          <rect x={3} y={2.8} width={w - 6} height={bh - 5.8} fill={screen} />
+          <rect x={3} y={2.8} width={w - 6} height={(bh - 5.8) * 0.2} fill="#fff" opacity={0.1} />
+          <rect x={w - 8} y={bh - 4.6} width={5.4} height={3} rx={0.3} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.16} />
+        </g>
+      )}
+      <Silk x={w / 2} y={bh - 0.7} size={Math.min(1.3, 18 / label.length)}>{label}</Silk>
       {d.pins.map((p) => (
-        <Hole key={p.id} x={p.x} y={p.y - 0.8} />
+        <g key={p.id}>
+          <Hole x={p.x} y={p.y - 1} r={0.45} />
+          <CoreLead x1={p.x} y1={p.y - 0.5} x2={p.x} y2={p.y} w={0.45} />
+        </g>
       ))}
     </g>
   );
@@ -236,14 +354,26 @@ const screenArt = (screen: string): ArtFn => (d) => {
 const nixieArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const label = text(d);
+  const cx = w / 2;
+  const tubeH = h * 0.72;
   return (
     <g>
-      <rect x={w * 0.15} y={1} width={w * 0.7} height={h * 0.78} rx={w * 0.3} fill="#dfeef7" stroke="#b8c8d8" strokeWidth={0.3} opacity={0.85} />
-      <Silk x={w / 2} y={h * 0.45} size={w * 0.5} fill="#ff8866">8</Silk>
-      <Silk x={w / 2} y={h * 0.88} size={1}>{label}</Silk>
-      {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x} y1={h * 0.86} x2={p.x} y2={p.y} w={0.4} />
+      {/* glass envelope + getter flash + stacked mesh anode */}
+      <rect x={cx - w * 0.32} y={0.6} width={w * 0.64} height={tubeH} rx={w * 0.32} fill="#dfeef7" stroke="#b8c8d8" strokeWidth={0.3} opacity={0.9} />
+      <rect x={cx - w * 0.24} y={1.4} width={w * 0.48} height={tubeH - 1.6} rx={w * 0.24} fill="none" stroke="#fff" strokeWidth={0.3} opacity={0.5} />
+      {Array.from({ length: 5 }, (_, i) => (
+        <ellipse key={i} cx={cx} cy={2.4 + i * (tubeH - 3) / 5} rx={w * 0.2} ry={0.5} fill="none" stroke="#9fb4c4" strokeWidth={0.22} opacity={0.7} />
       ))}
+      <Silk x={cx} y={tubeH * 0.62} size={w * 0.42} fill="#ff8866">8</Silk>
+      <Silk x={cx} y={tubeH * 0.62} size={w * 0.42} fill="#ffb4a0">8</Silk>
+      {/* bakelite base + pin circle */}
+      <rect x={cx - w * 0.34} y={tubeH + 0.4} width={w * 0.68} height={h - tubeH - 3.6} rx={0.5} fill="#22262b" stroke="#000" strokeWidth={0.2} />
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={h - 3.2} x2={p.x} y2={p.y} w={0.4} />
+      ))}
+      <Mark x={cx} y={h - 3.6} size={0.8} fill="#5b6470">
+        {label}
+      </Mark>
     </g>
   );
 };
@@ -251,31 +381,137 @@ const nixieArt: ArtFn = (d) => {
 const switchArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const label = text(d);
-  const top = d.pins.filter((p) => p.y < h / 2);
+  const t = d.type;
+  const legs = (ys: number) =>
+    d.pins.map((p) => <CoreLead key={p.id} x1={p.x} y1={ys} x2={p.x} y2={p.y} w={0.45} />);
+  if (/^dip-/.test(t)) {
+    const n = d.pins.length / 2;
+    const pitch = (w - 3) / Math.max(1, n);
+    return (
+      <g>
+        <rect x={0.6} y={h * 0.24} width={w - 1.2} height={h * 0.44} rx={0.5} fill="#3b4a8c" stroke="#26305c" strokeWidth={0.28} />
+        <rect x={0.9} y={h * 0.27} width={w - 1.8} height={0.5} rx={0.25} fill="#fff" opacity={0.18} />
+        {Array.from({ length: n }, (_, i) => {
+          const sx = 1.6 + i * pitch + pitch / 2;
+          const on = i % 2 === 0;
+          return (
+            <g key={i}>
+              <rect x={sx - pitch * 0.32} y={h * 0.29} width={pitch * 0.64} height={h * 0.34} rx={0.25} fill="#0e1226" />
+              <rect x={sx - pitch * 0.24} y={on ? h * 0.31 : h * 0.45} width={pitch * 0.48} height={h * 0.18} rx={0.2} fill="#e8eef4" />
+              <Mark x={sx} y={h * 0.2} size={0.75} fill="#5b6470">{String(i + 1)}</Mark>
+            </g>
+          );
+        })}
+        <Mark x={w / 2} y={h * 0.86} size={0.8} fill="#5b6470">{label}</Mark>
+        {legs(h * 0.68)}
+      </g>
+    );
+  }
+  if (/^toggle-/.test(t)) {
+    return (
+      <g>
+        <circle cx={w / 2} cy={h * 0.42} r={Math.min(w, h) * 0.24} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.25} />
+        <circle cx={w / 2} cy={h * 0.42} r={Math.min(w, h) * 0.17} fill="none" stroke="#8f9aa6" strokeWidth={0.3} />
+        <g transform={`rotate(-24 ${w / 2} ${h * 0.42})`}>
+          <rect x={w / 2 - 0.8} y={h * 0.42 - Math.min(w, h) * 0.62} width={1.6} height={Math.min(w, h) * 0.62} rx={0.8} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.16} />
+          <circle cx={w / 2} cy={h * 0.42 - Math.min(w, h) * 0.6} r={1.1} fill={METAL_L} stroke={METAL_D} strokeWidth={0.15} />
+        </g>
+        <Mark x={w / 2} y={h * 0.82} size={0.8} fill="#5b6470">{label}</Mark>
+        {legs(h * 0.66)}
+      </g>
+    );
+  }
+  if (/^slide-/.test(t)) {
+    return (
+      <g>
+        <rect x={0.6} y={h * 0.28} width={w - 1.2} height={h * 0.4} rx={0.45} fill="#22262b" stroke="#000" strokeWidth={0.25} />
+        <rect x={w * 0.42} y={h * 0.18} width={w * 0.16} height={h * 0.26} rx={0.25} fill="#e8e6dc" stroke="#b9b5a2" strokeWidth={0.15} />
+        {Array.from({ length: 3 }, (_, i) => (
+          <rect key={i} x={1.4 + i * ((w - 2.8) / 2)} y={h * 0.34} width={0.5} height={h * 0.28} fill="#0d0f12" />
+        ))}
+        <Mark x={w / 2} y={h * 0.86} size={0.8} fill="#5b6470">{label}</Mark>
+        {legs(h * 0.68)}
+      </g>
+    );
+  }
+  if (/^push-/.test(t)) {
+    return (
+      <g>
+        <Tact x={w / 2 - 3} y={h / 2 - 3} w={6} h={6} plunger="#0d0f12" frame="#22262b" />
+        {legs(h / 2 + 3)}
+      </g>
+    );
+  }
+  if (/^microswitch/.test(t)) {
+    return (
+      <g>
+        <rect x={w * 0.12} y={h * 0.3} width={w * 0.76} height={h * 0.42} rx={0.5} fill="#22262b" stroke="#000" strokeWidth={0.25} />
+        <circle cx={w * 0.24} cy={h * 0.51} r={0.7} fill={METAL_D} />
+        <rect x={w * 0.3} y={h * 0.16} width={w * 0.5} height={0.7} rx={0.35} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.12} />
+        <Mark x={w / 2} y={h * 0.56} size={Math.min(0.9, (w * 0.5) / label.length)} fill="#c8cdd3">{label}</Mark>
+        {legs(h * 0.72)}
+      </g>
+    );
+  }
+  if (/keylock|key-switch/.test(t)) {
+    return (
+      <g>
+        <rect x={w * 0.14} y={h * 0.2} width={w * 0.72} height={h * 0.52} rx={0.6} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.25} />
+        <circle cx={w / 2} cy={h * 0.46} r={Math.min(w, h) * 0.18} fill="#22262b" />
+        <rect x={w / 2 - 0.35} y={h * 0.46 - 1.2} width={0.7} height={2.4} rx={0.3} fill="#0d0f12" />
+        {legs(h * 0.72)}
+      </g>
+    );
+  }
+  if (/tilt/.test(t)) {
+    return (
+      <g>
+        <rect x={w / 2 - 1.6} y={1} width={3.2} height={h * 0.6} rx={1.6} fill="#171a1f" stroke="#000" strokeWidth={0.2} />
+        <circle cx={w / 2} cy={h * 0.52} r={0.8} fill={METAL_D} />
+        {legs(h * 0.7)}
+      </g>
+    );
+  }
+  if (/ec11|rotary-/.test(t)) {
+    return (
+      <g>
+        <rect x={w * 0.16} y={h * 0.34} width={w * 0.68} height={h * 0.44} rx={0.5} fill="#2a2e35" stroke="#000" strokeWidth={0.25} />
+        <circle cx={w / 2} cy={h * 0.34} r={Math.min(w, h) * 0.2} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
+        <rect x={w / 2 - 0.5} y={h * 0.34 - Math.min(w, h) * 0.2} width={1} height={Math.min(w, h) * 0.2} fill={METAL_D} />
+        {legs(h * 0.78)}
+      </g>
+    );
+  }
+  // fallback: sealed tact / arcade style
   return (
     <g>
-      <rect x={0.5} y={1.5} width={w - 1} height={h - 5} rx={0.8} fill="#1d222a" stroke="#000" strokeWidth={0.3} />
-      {top.map((p) => (
-        <rect key={p.id} x={p.x - 0.8} y={2.2} width={1.6} height={2.6} rx={0.3} fill="#e8593c" />
-      ))}
-      <Silk x={w / 2} y={h - 5} size={Math.min(1.4, 11 / label.length)}>{label}</Silk>
-      {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x} y1={p.y < h / 2 ? 4.6 : h - 3.2} x2={p.x} y2={p.y} w={0.5} />
-      ))}
+      <rect x={0.6} y={h * 0.26} width={w - 1.2} height={h * 0.44} rx={0.6} fill="#1d222a" stroke="#000" strokeWidth={0.3} />
+      <circle cx={w / 2} cy={h * 0.48} r={Math.min(w, h) * 0.18} fill="#e8593c" />
+      <Mark x={w / 2} y={h * 0.86} size={Math.min(1, 12 / label.length)} fill="#8f9aa6">{label}</Mark>
+      {legs(h * 0.7)}
     </g>
   );
 };
 
-const mxArt = (color: string): ArtFn => (d) => (
-  <g>
-    <rect x={0.5} y={0.5} width={d.size_mm.w - 1} height={d.size_mm.h - 1} rx={1} fill="#2b2f36" stroke="#000" strokeWidth={0.35} />
-    <rect x={d.size_mm.w / 2 - 3.4} y={1.2} width={6.8} height={6.8} rx={0.8} fill={color} stroke="#00000033" strokeWidth={0.25} />
-    <rect x={d.size_mm.w / 2 - 2.2} y={2.4} width={4.4} height={4.4} rx={0.5} fill="#ffffff22" />
-    {d.pins.map((p) => (
-      <Lead key={p.id} x1={p.x} y1={p.y < d.size_mm.h / 2 ? 2 : d.size_mm.h - 2} x2={p.x} y2={p.y} w={0.5} />
-    ))}
-  </g>
-);
+const mxArt = (color: string): ArtFn => (d) => {
+  const { w, h } = d.size_mm;
+  return (
+    <g>
+      {/* switch housing + contacts */}
+      <rect x={w / 2 - 7} y={h / 2 - 6.5} width={14} height={13} rx={0.8} fill="#22262b" stroke="#000" strokeWidth={0.3} />
+      {[-5.5, 5.5].map((dx) => (
+        <rect key={dx} x={w / 2 + dx - 0.6} y={h / 2 + 6.5} width={1.2} height={1.6} fill={METAL_D} />
+      ))}
+      {/* keycap: sculpted top + cylindrical dish */}
+      <rect x={w / 2 - 9} y={h / 2 - 9} width={18} height={18} rx={1.4} fill={color} stroke="#00000055" strokeWidth={0.3} />
+      <rect x={w / 2 - 6.4} y={h / 2 - 6.4} width={12.8} height={12.8} rx={1} fill="#ffffff" opacity={0.14} />
+      <rect x={w / 2 - 6.4} y={h / 2 - 6.4} width={12.8} height={3} rx={1} fill="#ffffff" opacity={0.12} />
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={p.y < h / 2 ? h / 2 + 6.5 : p.y - 1.6} x2={p.x} y2={p.y} w={0.5} />
+      ))}
+    </g>
+  );
+};
 
 // ---- connectors ---------------------------------------------------------------
 const stripArt: ArtFn = (d) => {
@@ -314,38 +550,51 @@ const plugArt = (kind: "barrel" | "usb" | "xt" | "banana" | "bullet"): ArtFn => 
     <g>
       {kind === "barrel" && (
         <g>
-          <rect x={1} y={h * 0.2} width={w - 2} height={h * 0.45} rx={1.2} fill={METAL} stroke={METAL_D} strokeWidth={0.3} />
-          <rect x={0.5} y={h * 0.3} width={3} height={h * 0.25} rx={0.8} fill={METAL_L} stroke={METAL_D} strokeWidth={0.2} />
+          <rect x={1} y={h * 0.22} width={w - 2} height={h * 0.5} rx={1.4} fill="#22262b" stroke="#000" strokeWidth={0.28} />
+          <rect x={1} y={h * 0.26} width={w - 2} height={0.7} rx={0.35} fill="#fff" opacity={0.1} />
+          <rect x={0.4} y={h * 0.32} width={3.4} height={h * 0.3} rx={1.2} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.18} />
+          <circle cx={1.6} cy={h * 0.47} r={0.7} fill="#050506" />
+          <rect x={w - 3.4} y={h * 0.34} width={2.4} height={h * 0.26} rx={0.4} fill={METAL_D} />
         </g>
       )}
       {kind === "usb" && (
         <g>
-          <rect x={1} y={h * 0.12} width={w - 2} height={h * 0.5} rx={0.8} fill={METAL} stroke={METAL_D} strokeWidth={0.3} />
-          <rect x={2.5} y={h * 0.24} width={w - 5} height={h * 0.26} rx={0.4} fill="#e8eef4" />
+          <rect x={1} y={h * 0.14} width={w - 2} height={h * 0.52} rx={0.9} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.25} />
+          <rect x={2.2} y={h * 0.26} width={w - 4.4} height={h * 0.28} rx={0.4} fill="#23272e" />
+          <rect x={3} y={h * 0.32} width={w - 6} height={h * 0.14} rx={0.3} fill="#e8eef4" />
+          {[0, 1, 2, 3].map((i) => (
+            <rect key={i} x={3.6 + i * ((w - 8) / 3)} y={h * 0.33} width={0.5} height={h * 0.12} fill={GOLD} />
+          ))}
         </g>
       )}
       {kind === "xt" && (
         <g>
-          <rect x={1} y={h * 0.15} width={w - 2} height={h * 0.55} rx={1} fill="#f2b733" stroke="#8a7420" strokeWidth={0.35} />
-          {d.pins.map((p) => (
-            <circle key={p.id} cx={p.x} cy={h * 0.42} r={Math.min(1.3, w * 0.1)} fill="#3a3f46" />
+          <rect x={1} y={h * 0.16} width={w - 2} height={h * 0.56} rx={1.2} fill="#f2b733" stroke="#8a7420" strokeWidth={0.35} />
+          <rect x={1.4} y={h * 0.2} width={w - 2.8} height={0.6} rx={0.3} fill="#fff" opacity={0.3} />
+          {d.pins.map((p, i) => (
+            <g key={p.id}>
+              <circle cx={p.x} cy={h * 0.44} r={Math.min(1.6, w * 0.11)} fill={i === 0 ? "#c9a227" : "#8f9aa6"} stroke="#5c6570" strokeWidth={0.2} />
+              <circle cx={p.x} cy={h * 0.44} r={Math.min(0.7, w * 0.05)} fill="#3a3f46" />
+            </g>
           ))}
         </g>
       )}
       {kind === "banana" && (
         <g>
-          <circle cx={w / 2} cy={h * 0.4} r={Math.min(w, h) * 0.34} fill="#2b2f36" stroke="#000" strokeWidth={0.3} />
-          <circle cx={w / 2} cy={h * 0.4} r={Math.min(w, h) * 0.16} fill={METAL} />
+          <rect x={w / 2 - 3} y={h * 0.2} width={6} height={h * 0.5} rx={0.8} fill={/g$|black/.test(d.type) ? "#22262b" : "#c8342a"} stroke="#00000055" strokeWidth={0.25} />
+          <circle cx={w / 2} cy={h * 0.32} r={Math.min(w, h) * 0.16} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
+          <circle cx={w / 2} cy={h * 0.32} r={Math.min(w, h) * 0.07} fill="#3a3f46" />
         </g>
       )}
       {kind === "bullet" && (
         <g>
-          <rect x={w * 0.2} y={h * 0.15} width={w * 0.6} height={h * 0.55} rx={w * 0.3} fill="#f2b733" stroke="#8a7420" strokeWidth={0.3} />
+          <rect x={w * 0.24} y={h * 0.16} width={w * 0.52} height={h * 0.56} rx={w * 0.26} fill="#f2b733" stroke="#8a7420" strokeWidth={0.3} />
+          <rect x={w * 0.3} y={h * 0.2} width={w * 0.14} height={h * 0.48} rx={w * 0.07} fill="#fff" opacity={0.25} />
         </g>
       )}
-      <Silk x={w / 2} y={h * 0.92} size={0.8}>{label}</Silk>
+      <Mark x={w / 2} y={h * 0.92} size={0.8} fill="#5b6470">{label}</Mark>
       {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x} y1={h * 0.68} x2={p.x} y2={p.y} w={0.55} />
+        <CoreLead key={p.id} x1={p.x} y1={h * 0.7} x2={p.x} y2={p.y} w={0.55} />
       ))}
     </g>
   );
@@ -358,33 +607,38 @@ const jackArt = (kind: "dsub" | "rj" | "xlr"): ArtFn => (d) => {
     <g>
       {kind === "dsub" && (
         <g>
-          <rect x={1} y={h * 0.15} width={w - 2} height={h * 0.55} rx={1} fill="#8a6a9c" stroke="#5c4470" strokeWidth={0.3} />
-          <rect x={w * 0.12} y={h * 0.25} width={w * 0.76} height={h * 0.35} rx={0.8} fill="#3a2a4a" />
-          {d.pins.map((p) => (
-            <circle key={p.id} cx={p.x} cy={p.y < h / 2 ? h * 0.34 : h * 0.52} r={0.5} fill={GOLD} />
+          <path d={`M 2 ${h * 0.16} L ${w - 2} ${h * 0.16} L ${w - 3.4} ${h * 0.68} L 3.4 ${h * 0.68} Z`} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.28} />
+          <path d={`M 3.6 ${h * 0.24} L ${w - 3.6} ${h * 0.24} L ${w - 4.6} ${h * 0.6} L 4.6 ${h * 0.6} Z`} fill="#23272e" />
+          {d.pins.map((p, i) => (
+            <circle key={p.id} cx={p.x} cy={p.y < h / 2 ? h * 0.34 : h * 0.5} r={0.5} fill={GOLD} stroke={GOLD_D} strokeWidth={0.1} />
           ))}
+          <circle cx={1.6} cy={h * 0.42} r={0.9} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
+          <circle cx={w - 1.6} cy={h * 0.42} r={0.9} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.15} />
         </g>
       )}
       {kind === "rj" && (
         <g>
-          <rect x={1} y={h * 0.12} width={w - 2} height={h * 0.55} rx={0.8} fill="#cfd8e3" stroke={METAL_D} strokeWidth={0.3} />
-          <rect x={w * 0.18} y={h * 0.28} width={w * 0.64} height={h * 0.28} rx={0.4} fill="#2b2f36" />
+          <rect x={1} y={h * 0.12} width={w - 2} height={h * 0.58} rx={0.7} fill="#cfd8e3" stroke={METAL_D} strokeWidth={0.28} />
+          <rect x={w * 0.2} y={h * 0.26} width={w * 0.6} height={h * 0.3} rx={0.35} fill="#23272e" />
           {d.pins.map((p) => (
-            <rect key={p.id} x={p.x - 0.35} y={h * 0.52} width={0.7} height={1.4} fill={GOLD} />
+            <rect key={p.id} x={p.x - 0.3} y={h * 0.28} width={0.6} height={h * 0.2} fill={GOLD} />
           ))}
+          <rect x={w / 2 - 1.6} y={h * 0.56} width={3.2} height={h * 0.14} rx={0.3} fill="#9aa4ae" />
         </g>
       )}
       {kind === "xlr" && (
         <g>
-          <circle cx={w / 2} cy={h * 0.38} r={Math.min(w, h) * 0.34} fill={METAL} stroke={METAL_D} strokeWidth={0.35} />
+          <circle cx={w / 2} cy={h * 0.4} r={Math.min(w, h) * 0.36} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.35} />
+          <circle cx={w / 2} cy={h * 0.4} r={Math.min(w, h) * 0.28} fill="#23272e" />
           {d.pins.map((p, i) => (
-            <circle key={p.id} cx={w / 2 + (i - 1) * 2.2} cy={h * 0.38 + (i === 1 ? -1.4 : 1)} r={0.8} fill="#3a3f46" />
+            <circle key={p.id} cx={w / 2 + (i - 1) * 2.2} cy={h * 0.4 + (i === 1 ? -1.4 : 1)} r={0.75} fill={GOLD} stroke={GOLD_D} strokeWidth={0.12} />
           ))}
+          <rect x={w / 2 - 0.8} y={h * 0.4 + Math.min(w, h) * 0.3} width={1.6} height={1.4} rx={0.3} fill={METAL_D} />
         </g>
       )}
-      <Silk x={w / 2} y={h * 0.92} size={0.85}>{label}</Silk>
+      <Mark x={w / 2} y={h * 0.92} size={0.85} fill="#5b6470">{label}</Mark>
       {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x} y1={h * 0.72} x2={p.x} y2={p.y} w={0.5} />
+        <CoreLead key={`l${p.id}`} x1={p.x} y1={h * 0.74} x2={p.x} y2={p.y} w={0.5} />
       ))}
     </g>
   );
@@ -396,11 +650,12 @@ const tsopArt: ArtFn = (d) => {
   const label = text(d);
   return (
     <g>
-      <rect x={w * 0.18} y={h * 0.12} width={w * 0.64} height={h * 0.6} rx={1.2} fill="#14161a" stroke="#000" strokeWidth={0.25} />
-      <circle cx={w / 2} cy={h * 0.35} r={Math.min(w, h) * 0.16} fill="#3a2a4a" />
-      <Silk x={w / 2} y={h * 0.86} size={0.7}>{label}</Silk>
+      <path d={`M ${w * 0.2} ${h * 0.7} L ${w * 0.2} ${h * 0.3} Q ${w * 0.2} ${h * 0.14} ${w * 0.36} ${h * 0.14} L ${w * 0.64} ${h * 0.14} Q ${w * 0.8} ${h * 0.14} ${w * 0.8} ${h * 0.3} L ${w * 0.8} ${h * 0.7} Z`} fill="#14161a" stroke="#000" strokeWidth={0.25} />
+      <rect x={w * 0.32} y={h * 0.22} width={w * 0.36} height={h * 0.3} rx={0.5} fill="#3a2a4a" />
+      <circle cx={w * 0.42} cy={h * 0.3} r={0.5} fill="#6d5a8a" opacity={0.7} />
+      <Mark x={w / 2} y={h * 0.66} size={0.7} fill="#8b939c">{label}</Mark>
       {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x} y1={h * 0.72} x2={p.x} y2={p.y} w={0.45} />
+        <CoreLead key={p.id} x1={p.x} y1={h * 0.7} x2={p.x} y2={p.y} w={0.45} />
       ))}
     </g>
   );
@@ -410,45 +665,49 @@ const brkArt = (extra: "none" | "lens" | "twin" | "mic" | "term" = "none", fill 
   const { w, h } = d.size_mm;
   const label = text(d);
   const bw = w - 1;
-  const bh = h - 4;
+  const bh = h - 3.4;
+  const pinsBottom = d.pins.filter((p) => p.y > h - 2);
+  const pinsSide = d.pins.filter((p) => p.y <= h - 2);
   return (
     <g>
-      <rect x={0.5} y={0.5} width={bw} height={bh} rx={0.5} fill={fill} stroke="#00000033" strokeWidth={0.3} />
+      <rect x={0.5} y={0.5} width={bw} height={bh} rx={0.7} fill={fill} stroke="#00000044" strokeWidth={0.3} />
+      <rect x={0.85} y={0.85} width={bw - 0.7} height={bh - 0.7} rx={0.5} fill="none" stroke="#fff" strokeOpacity={0.13} strokeWidth={0.25} />
+      {bw > 11 && <MountHole x={2} y={2} r={0.8} />}
+      {bw > 11 && <MountHole x={bw - 1.5} y={2} r={0.8} />}
       {extra === "lens" && (
         <g>
-          <rect x={2} y={2} width={4} height={4.5} rx={0.6} fill="#0d0f12" />
-          <circle cx={4} cy={3.8} r={0.8} fill="#6d5a8a" opacity={0.6} />
+          <rect x={2.2} y={2.2} width={4.2} height={4.6} rx={0.6} fill="#0d0f12" />
+          <circle cx={4.3} cy={4} r={0.9} fill="#6d5a8a" opacity={0.65} />
+          <circle cx={4} cy={3.6} r={0.35} fill="#fff" opacity={0.4} />
         </g>
       )}
       {extra === "twin" && (
         <g>
-          <circle cx={3.5} cy={bh / 2} r={1.8} fill="#14161a" />
-          <circle cx={8} cy={bh / 2} r={1.3} fill="#221a2e" />
+          <circle cx={4} cy={bh / 2 - 0.6} r={1.9} fill="#14161a" stroke="#000" strokeWidth={0.15} />
+          <circle cx={3.4} cy={bh / 2 - 1.2} r={0.5} fill="#3a2a4a" opacity={0.8} />
+          <circle cx={8.6} cy={bh / 2 - 0.6} r={1.4} fill="#221a2e" />
         </g>
       )}
       {extra === "mic" && (
-        <circle cx={3.6} cy={bh / 2} r={1.8} fill={METAL} stroke={METAL_D} strokeWidth={0.2} />
-      )}
-      {extra === "term" && (
         <g>
-          <rect x={2} y={2} width={5} height={4} rx={0.6} fill="#1d5c9a" stroke="#0f3a66" strokeWidth={0.2} />
-          <circle cx={4.5} cy={4} r={1.2} fill={METAL} stroke={METAL_D} strokeWidth={0.2} />
+          <circle cx={4} cy={bh / 2 - 0.6} r={1.9} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
+          <circle cx={4} cy={bh / 2 - 0.6} r={0.5} fill="#3a3f46" />
         </g>
       )}
-      <rect x={extra === "none" ? w / 2 - 3.2 : 9} y={bh / 2 - 2.2} width={6.5} height={4.4} rx={0.4} fill={CHIP} stroke="#000" strokeWidth={0.15} />
-      <Silk x={w / 2} y={bh - 1.2} size={Math.min(1.5, 18 / label.length)}>{label}</Silk>
-      {d.pins.map((p) => {
-        const bottom = p.y > h - 2;
-        return bottom ? (
-          <g key={p.id}>
-            <Hole x={p.x} y={p.y - 1} />
-          </g>
-        ) : (
-          <g key={p.id}>
-            <Hole x={p.x > w / 2 ? p.x + 1 : p.x - 1} y={p.y} />
-          </g>
-        );
-      })}
+      {extra === "term" && (
+        <ScrewTerminal x={2} y={1.6} w={5.4} h={3.6} pins={[{ x: 4.7, y: 3, id: "t" }]} />
+      )}
+      <Qfn x={extra === "none" ? bw / 2 - 3.1 : 8.4} y={bh / 2 - 2.2} w={6.2} h={4.4} label={label.slice(0, 8).toUpperCase()} pads={6} />
+      <SmdPassive x={bw - 3.4} y={bh - 2.4} w={1.7} h={0.95} body="#3a3220" />
+      <SmdPassive x={bw - 3.4} y={1.4} w={1.7} h={0.95} />
+      <Silk x={bw / 2} y={bh - 0.7} size={Math.min(1.3, 16 / label.length)}>{label}</Silk>
+      {pinsSide.map((p) => (
+        <Hole key={p.id} x={p.x > w / 2 ? p.x + 0.5 : p.x - 0.5} y={p.y} r={0.45} />
+      ))}
+      {pinsBottom.length > 0 && <MaleHeader pts={pinsBottom.map((p) => ({ x: p.x, y: p.y - 1.1 }))} />}
+      {pinsBottom.map((p) => (
+        <CoreLead key={`l${p.id}`} x1={p.x} y1={p.y - 0.3} x2={p.x} y2={p.y} w={0.45} />
+      ))}
     </g>
   );
 };
@@ -456,15 +715,24 @@ const brkArt = (extra: "none" | "lens" | "twin" | "mic" | "term" = "none", fill 
 const usArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const label = text(d);
+  const bh = h - 3.4;
   return (
     <g>
-      <rect x={0.5} y={0.5} width={w - 1} height={h - 4} rx={0.5} fill={PCB_BLUE} stroke="#075a92" strokeWidth={0.3} />
-      <circle cx={w * 0.3} cy={h * 0.35} r={Math.min(w, h) * 0.2} fill={METAL} stroke={METAL_D} strokeWidth={0.3} />
-      <circle cx={w * 0.7} cy={h * 0.35} r={Math.min(w, h) * 0.2} fill={METAL} stroke={METAL_D} strokeWidth={0.3} />
-      <Silk x={w / 2} y={h - 5.5} size={Math.min(1.5, 16 / label.length)}>{label}</Silk>
+      <rect x={0.5} y={0.5} width={w - 1} height={bh} rx={0.8} fill={PCB_BLUE} stroke="#075a92" strokeWidth={0.3} />
+      {[w * 0.3, w * 0.7].map((cx) => (
+        <g key={cx}>
+          <circle cx={cx} cy={bh * 0.42} r={Math.min(w, h) * 0.21} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.3} />
+          <circle cx={cx} cy={bh * 0.42} r={Math.min(w, h) * 0.16} fill={METAL_L} stroke={METAL_D} strokeWidth={0.2} />
+          <circle cx={cx} cy={bh * 0.42} r={Math.min(w, h) * 0.09} fill="#5c6570" />
+          <circle cx={cx - 1} cy={bh * 0.42 - 1.2} r={0.7} fill="#fff" opacity={0.35} />
+        </g>
+      ))}
+      <Crystal x={w / 2 - 1.7} y={bh * 0.72} w={3.4} h={1.8} oval={false} />
+      <Silk x={w / 2} y={bh - 0.7} size={Math.min(1.3, 14 / label.length)}>{label}</Silk>
       {d.pins.map((p) => (
         <g key={p.id}>
-          <Hole x={p.x} y={p.y - 1} />
+          <Hole x={p.x} y={p.y - 1} r={0.45} />
+          <CoreLead x1={p.x} y1={p.y - 0.5} x2={p.x} y2={p.y} w={0.45} />
         </g>
       ))}
     </g>
@@ -474,14 +742,18 @@ const usArt: ArtFn = (d) => {
 const brickArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const label = text(d);
+  const bh = h - 3.4;
   return (
     <g>
-      <rect x={1} y={1} width={w - 2} height={h - 5} rx={1} fill="#e8eef4" stroke={METAL_D} strokeWidth={0.35} />
-      <rect x={2.5} y={2.5} width={w - 5} height={h - 8} rx={0.6} fill="#f8fafc" />
-      <Silk x={w / 2} y={h / 2} size={Math.min(2, 22 / label.length)} fill="#3a3f46">{label}</Silk>
+      <rect x={1} y={1} width={w - 2} height={bh} rx={1} fill="#e8e6dc" stroke="#b9b5a2" strokeWidth={0.35} />
+      <rect x={2.2} y={2.2} width={w - 4.4} height={bh * 0.42} rx={0.5} fill="#22262b" />
+      <Mark x={w / 2} y={2.2 + bh * 0.27} size={Math.min(1.4, (w * 0.6) / label.length)} fill="#e8eef4">
+        {label}
+      </Mark>
+      <Mark x={w / 2} y={bh * 0.72} size={Math.min(1, (w * 0.5) / 8)} fill="#5b6470">AC-DC</Mark>
       {d.pins.map((p) => (
         <g key={p.id}>
-          <Hole x={p.x} y={p.y < h / 2 ? p.y + 0.8 : p.y - 0.8} />
+          <Hole x={p.x} y={p.y < h / 2 ? p.y + 0.8 : p.y - 0.8} r={0.5} />
         </g>
       ))}
     </g>
@@ -491,22 +763,33 @@ const brickArt: ArtFn = (d) => {
 const buckModuleArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const label = text(d);
+  const bh = h - 3.4;
   return (
     <g>
-      <rect x={0.5} y={0.5} width={w - 1} height={h - 4} rx={0.5} fill={PCB_BLUE} stroke="#075a92" strokeWidth={0.3} />
-      <rect x={3} y={h / 2 - 3.5} width={5.5} height={5} rx={0.6} fill="#2b2f36" />
-      <rect x={10} y={h / 2 - 3} width={3.5} height={3.5} rx={0.5} fill="#3a3f46" />
-      <line x1={11.75} y1={h / 2 - 3} x2={11.75} y2={h / 2 - 4.4} stroke={METAL_D} strokeWidth={0.5} />
-      <rect x={15} y={h / 2 - 2.5} width={4} height={3} rx={0.3} fill={CHIP} />
-      <Silk x={w / 2} y={h - 5.5} size={Math.min(1.6, 18 / label.length)}>{label}</Silk>
-      {d.pins.map((p) => {
-        const bottom = p.y > h - 2;
-        return (
-          <g key={p.id}>
-            <Hole x={p.x} y={bottom ? p.y - 1 : p.y + 1} />
-          </g>
-        );
-      })}
+      <rect x={0.5} y={0.5} width={w - 1} height={bh} rx={0.7} fill={PCB_BLUE} stroke="#075a92" strokeWidth={0.3} />
+      <rect x={0.85} y={0.85} width={w - 1.7} height={bh - 0.7} rx={0.5} fill="none" stroke="#fff" strokeOpacity={0.13} strokeWidth={0.25} />
+      {/* shielded inductor + trim pot + SOIC-8 controller + SS diode */}
+      <rect x={2} y={bh / 2 - 3} width={6} height={5.6} rx={0.6} fill="#2b2f36" stroke="#000" strokeWidth={0.25} />
+      <rect x={2.6} y={bh / 2 - 2.4} width={4.8} height={0.7} fill="#c87f2f" opacity={0.8} />
+      <rect x={2.6} y={bh / 2 - 0.9} width={4.8} height={0.7} fill="#c87f2f" opacity={0.8} />
+      <rect x={9.6} y={bh / 2 - 2.2} width={4} height={4} rx={0.5} fill="#2b5ea8" stroke="#224a82" strokeWidth={0.2} />
+      <circle cx={11.6} cy={bh / 2 - 0.2} r={1.1} fill="url(#matBrass)" stroke="#8f5f18" strokeWidth={0.15} />
+      <path d={`M 10.9 ${bh / 2 - 0.2} L 12.3 ${bh / 2 - 0.2} M 11.6 ${bh / 2 - 0.9} L 11.6 ${bh / 2 + 0.5}`} stroke="#6b4a12" strokeWidth={0.22} />
+      <rect x={15} y={bh / 2 - 1.6} width={4.6} height={3.2} rx={0.3} fill="#17181c" stroke="#000" strokeWidth={0.15} />
+      {Array.from({ length: 4 }, (_, i) => (
+        <g key={i}>
+          <rect x={15.5 + i * 1.1} y={bh / 2 - 2.1} width={0.5} height={0.5} fill={METAL_D} />
+          <rect x={15.5 + i * 1.1} y={bh / 2 + 1.6} width={0.5} height={0.5} fill={METAL_D} />
+        </g>
+      ))}
+      <SmdPassive x={w - 4} y={1.4} w={2} h={1.1} body="#22262d" />
+      <Silk x={w / 2} y={bh - 0.7} size={Math.min(1.4, 18 / label.length)}>{label}</Silk>
+      {d.pins.map((p) => (
+        <g key={p.id}>
+          <Hole x={p.x} y={p.y > h - 2 ? p.y - 1 : p.y + 1} r={0.5} />
+          <CoreLead x1={p.x} y1={p.y > h - 2 ? p.y - 0.5 : p.y + 0.5} x2={p.x} y2={p.y} w={0.5} />
+        </g>
+      ))}
     </g>
   );
 };
@@ -515,13 +798,23 @@ const buckModuleArt: ArtFn = (d) => {
 const motorArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const label = text(d);
+  const bh = h - 3.6;
   return (
     <g>
-      <rect x={1} y={1} width={w - 2} height={h - 4.5} rx={Math.min(2, w * 0.15)} fill="#b8bcc2" stroke="#7c848e" strokeWidth={0.35} />
-      <rect x={w / 2 - 1.2} y={0.2} width={2.4} height={3} rx={0.5} fill={METAL_L} stroke={METAL_D} strokeWidth={0.2} />
-      <Silk x={w / 2} y={h / 2 + 0.5} size={Math.min(1.6, 14 / label.length)} fill="#2b2f36">{label}</Silk>
-      {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x} y1={h - 3.5} x2={p.x} y2={p.y} w={0.6} />
+      {/* brushed-steel can + end bell + shaft + terminal tabs */}
+      <rect x={1} y={1} width={w - 2} height={bh} rx={Math.min(2.4, w * 0.16)} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.35} />
+      <rect x={1.6} y={1.6} width={w - 3.2} height={bh * 0.2} rx={0.8} fill="#fff" opacity={0.35} />
+      <rect x={w - 4.4} y={1} width={3.4} height={bh} rx={1.4} fill="#9aa4ae" stroke="#6f7a86" strokeWidth={0.2} />
+      <circle cx={w / 2 - 1} cy={bh / 2 + 1} r={Math.min(1.6, w * 0.08)} fill={METAL_D} stroke="#5c6570" strokeWidth={0.15} />
+      <rect x={w / 2 - 1.6} y={-0.6} width={3.2} height={2.4} rx={0.5} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.18} />
+      <Mark x={w / 2 - 1} y={bh * 0.68} size={Math.min(1.3, (w * 0.5) / label.length)} fill="#3a3f46">
+        {label}
+      </Mark>
+      {d.pins.map((p, i) => (
+        <g key={p.id}>
+          <rect x={p.x - 0.7} y={bh + 0.6} width={1.4} height={1.2} rx={0.2} fill={i === 0 ? "#c8342a" : "#22262b"} />
+          <CoreLead x1={p.x} y1={bh + 1.6} x2={p.x} y2={p.y} w={0.55} />
+        </g>
       ))}
     </g>
   );
@@ -530,14 +823,32 @@ const motorArt: ArtFn = (d) => {
 const servoArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const label = text(d);
+  const bh = h - 3.6;
+  const blue = /sg9|mg90/.test(d.type);
+  const caseC = blue ? "#1c2a67" : "#22262b";
   return (
     <g>
-      <rect x={2} y={3} width={w - 4} height={h - 6.5} rx={1} fill="#1c2a67" stroke="#0f1740" strokeWidth={0.35} />
-      <rect x={w / 2 - 2.5} y={1} width={5} height={3.5} rx={0.5} fill={METAL} stroke={METAL_D} strokeWidth={0.2} />
-      <circle cx={w / 2} cy={3.2} r={1.5} fill={METAL_L} stroke={METAL_D} strokeWidth={0.2} />
-      <Silk x={w / 2} y={h / 2 + 1.5} size={Math.min(1.6, 14 / label.length)} fill="#dfe5ff">{label}</Silk>
+      {/* mounting flanges */}
+      <rect x={1.4} y={bh * 0.3} width={w - 2.8} height={2.2} rx={0.6} fill={caseC} stroke="#000" strokeWidth={0.2} />
+      <circle cx={2.6} cy={bh * 0.3 + 1.1} r={0.7} fill="#0d0f12" />
+      <circle cx={w - 2.6} cy={bh * 0.3 + 1.1} r={0.7} fill="#0d0f12" />
+      <rect x={w * 0.24} y={1.4} width={w * 0.52} height={bh - 1.4} rx={1.1} fill={caseC} stroke="#000" strokeWidth={0.3} />
+      <rect x={w * 0.24 + 0.4} y={1.8} width={w * 0.52 - 0.8} height={1.1} rx={0.5} fill="#fff" opacity={0.14} />
+      {/* output shaft + horn screw */}
+      <circle cx={w * 0.36} cy={bh * 0.34} r={Math.min(w, h) * 0.14} fill="#0d0f12" />
+      <circle cx={w * 0.36} cy={bh * 0.34} r={Math.min(w, h) * 0.09} fill={METAL_D} />
+      <circle cx={w * 0.36} cy={bh * 0.34} r={0.5} fill={METAL_L} />
+      {/* sticker label */}
+      <rect x={w * 0.28} y={bh * 0.52} width={w * 0.44} height={bh * 0.3} rx={0.4} fill="#e8e6dc" opacity={0.92} />
+      <Mark x={w * 0.5} y={bh * 0.52 + bh * 0.19} size={Math.min(1.2, (w * 0.34) / label.length)} fill="#22262b">
+        {label}
+      </Mark>
+      {/* 3-wire harness */}
+      {["#6b4a2e", "#c0392b", "#e67e22"].map((c, i) => (
+        <path key={c} d={`M ${w * 0.76} ${bh * (0.55 + i * 0.1)} Q ${w * 0.86} ${bh * (0.5 + i * 0.14)} ${d.pins[i] ? d.pins[i].x : w - 2} ${d.pins[i] ? d.pins[i].y - 1 : bh}`} fill="none" stroke={c} strokeWidth={0.75} strokeLinecap="round" />
+      ))}
       {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x} y1={h - 3.5} x2={p.x} y2={p.y} w={0.6} />
+        <CoreLead key={p.id} x1={p.x} y1={p.y - 1} x2={p.x} y2={p.y} w={0.5} />
       ))}
     </g>
   );
@@ -546,28 +857,46 @@ const servoArt: ArtFn = (d) => {
 const fanArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const cx = w / 2;
-  const cy = (h - 2) / 2 + 0.5;
+  const cy = (h - 2.6) / 2 + 0.8;
   const label = text(d);
+  const R = Math.min(w, h - 2.6) * 0.42;
   return (
     <g>
-      <rect x={1} y={1} width={w - 2} height={h - 3} rx={1} fill="#2b2f36" stroke="#000" strokeWidth={0.4} />
-      <circle cx={cx} cy={cy} r={Math.min(w, h) * 0.38} fill="#454c58" />
-      {Array.from({ length: 5 }, (_, i) => {
-        const a = (i / 5) * Math.PI * 2;
+      <rect x={1} y={1} width={w - 2} height={h - 3.6} rx={1.2} fill="#22262b" stroke="#000" strokeWidth={0.4} />
+      {[
+        [3.2, 3.2],
+        [w - 3.2, 3.2],
+        [3.2, h - 6.2],
+        [w - 3.2, h - 6.2],
+      ].map(([x, y]) => (
+        <circle key={`${x},${y}`} cx={x} cy={y} r={1.3} fill="#0d0f12" stroke="#3a3f46" strokeWidth={0.2} />
+      ))}
+      <circle cx={cx} cy={cy} r={R} fill="#171a1f" />
+      {Array.from({ length: 7 }, (_, i) => {
+        const a = (i / 7) * Math.PI * 2;
         return (
           <path
             key={i}
-            d={`M ${cx} ${cy} Q ${cx + Math.cos(a) * 5 - 1} ${cy + Math.sin(a) * 5 - 1} ${cx + Math.cos(a + 0.7) * 7} ${cy + Math.sin(a + 0.7) * 7}`}
+            d={`M ${cx + Math.cos(a) * R * 0.28} ${cy + Math.sin(a) * R * 0.28} Q ${cx + Math.cos(a + 0.5) * R * 0.8} ${cy + Math.sin(a + 0.5) * R * 0.8} ${cx + Math.cos(a + 1.05) * R * 0.94} ${cy + Math.sin(a + 1.05) * R * 0.94}`}
             fill="none"
-            stroke="#6f7a86"
-            strokeWidth={1.4}
+            stroke="#454c58"
+            strokeWidth={R * 0.3}
+            strokeLinecap="round"
           />
         );
       })}
-      <circle cx={cx} cy={cy} r={1.8} fill="#14161a" />
-      <Silk x={cx} y={h - 4.5} size={Math.min(1.4, 12 / label.length)}>{label}</Silk>
+      <circle cx={cx} cy={cy} r={R * 0.3} fill="#22262b" stroke="#3a3f46" strokeWidth={0.25} />
+      <rect x={cx - R * 0.5} y={cy - R * 0.22} width={R} height={R * 0.44} rx={0.4} fill="#e8e6dc" opacity={0.85} />
+      <Mark x={cx} y={cy + R * 0.1} size={Math.min(1.1, (R * 0.9) / label.length)} fill="#22262b">
+        {label}
+      </Mark>
+      {/* corner struts */}
+      {[45, 135, 225, 315].map((deg) => {
+        const a = (deg * Math.PI) / 180;
+        return <line key={deg} x1={cx + Math.cos(a) * R} y1={cy + Math.sin(a) * R} x2={cx + Math.cos(a) * (R + 2.4)} y2={cy + Math.sin(a) * (R + 2.4)} stroke="#22262b" strokeWidth={1.6} />;
+      })}
       {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x} y1={h - 2} x2={p.x} y2={p.y} w={0.55} />
+        <CoreLead key={p.id} x1={p.x} y1={h - 2.6} x2={p.x} y2={p.y} w={0.55} />
       ))}
     </g>
   );
@@ -597,15 +926,23 @@ const speakerArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const label = text(d);
   const cx = w / 2;
-  const cy = (h - 2) / 2;
+  const cy = (h - 2.6) / 2 + 0.6;
+  const R = Math.min(w, h - 2.6) * 0.44;
   return (
     <g>
-      <circle cx={cx} cy={cy} r={Math.min(w, h) * 0.42} fill="#2b2f36" stroke="#000" strokeWidth={0.35} />
-      <circle cx={cx} cy={cy} r={Math.min(w, h) * 0.22} fill="#454c58" />
-      <circle cx={cx} cy={cy} r={Math.min(w, h) * 0.08} fill="#14161a" />
-      <Silk x={cx} y={h - 1.5} size={Math.min(1.2, 10 / label.length)}>{label}</Silk>
+      <circle cx={cx} cy={cy} r={R} fill="#22262b" stroke="#000" strokeWidth={0.35} />
+      <circle cx={cx} cy={cy} r={R * 0.92} fill="none" stroke="#3a3f46" strokeWidth={R * 0.12} />
+      <path d={`M ${cx - R * 0.7} ${cy} A ${R * 0.7} ${R * 0.7} 0 0 1 ${cx + R * 0.7} ${cy} L ${cx + R * 0.34} ${cy + R * 0.1} A ${R * 0.34} ${R * 0.34} 0 0 0 ${cx - R * 0.34} ${cy + R * 0.1} Z`} fill="#454c58" />
+      <circle cx={cx} cy={cy} r={R * 0.3} fill="#454c58" stroke="#5c6572" strokeWidth={0.2} />
+      <circle cx={cx} cy={cy} r={R * 0.12} fill="#14161a" />
+      {[-1, 1].map((s) => (
+        <circle key={s} cx={cx + s * R * 0.86} cy={cy} r={0.7} fill={GOLD} stroke={GOLD_D} strokeWidth={0.12} />
+      ))}
+      <Mark x={cx} y={h - 1.4} size={Math.min(1, 12 / label.length)} fill="#5b6470">
+        {label}
+      </Mark>
       {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x} y1={h - 2.5} x2={p.x} y2={p.y} w={0.55} />
+        <CoreLead key={p.id} x1={p.x} y1={cy + R * 0.5} x2={p.x} y2={p.y} w={0.5} />
       ))}
     </g>
   );
