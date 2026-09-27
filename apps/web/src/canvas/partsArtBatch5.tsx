@@ -1,5 +1,16 @@
 import type { ReactElement } from "react";
 import type { PartDefinition, PartPin } from "@audrino/schema";
+import {
+  Dip,
+  ElectrolyticTop,
+  FemaleHeader,
+  Led5,
+  Mark,
+  ScrewTerminal,
+  To220,
+  To92,
+  Lead as CoreLead,
+} from "./partsCore";
 
 /**
  * Batch-5 art: pattern-resolved families (thousands of SKUs → few art rules).
@@ -46,14 +57,14 @@ function Hole({ x, y, r = 0.45 }: { x: number; y: number; r?: number }) {
 const dipArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const label = text(d);
+  const rows = [...new Set(d.pins.map((p) => Math.round(p.y * 10) / 10))];
+  const horizontal = rows.length === 2;
+  const body = horizontal
+    ? { x: 1.4, y: h * 0.28, w: w - 2.8, h: h * 0.44 }
+    : { x: w * 0.28, y: 1.4, w: w * 0.44, h: h - 2.8 };
   return (
     <g>
-      <rect x={1.2} y={0.5} width={w - 2.4} height={h - 1} rx={0.8} fill="#171a1f" stroke="#000" strokeWidth={0.3} />
-      <path d={`M ${w / 2 - 0.5} 0.5 a 2 2 0 0 0 -4 0`} fill="#0a0c0f" />
-      {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x < w / 2 ? 1.2 : w - 1.2} y1={p.y < 1 || p.y > h - 1 ? (p.y < 1 ? 1.1 : h - 1.1) : p.y} x2={p.x} y2={p.y} w={0.5} />
-      ))}
-      <Silk x={w / 2} y={h / 2 + 1.1} size={Math.min(3, 17 / label.length)}>{label}</Silk>
+      <Dip x={body.x} y={body.y} w={body.w} h={body.h} pins={d.pins} label={label} code={label.length < 12 ? "24N" : undefined} />
     </g>
   );
 };
@@ -63,10 +74,9 @@ const to92Art: ArtFn = (d) => {
   const label = text(d);
   return (
     <g>
-      <circle cx={w / 2} cy={h / 2 - 1.4} r={w * 0.52} fill="#1c222b" stroke="#000" strokeWidth={0.25} />
-      <Silk x={w / 2} y={h / 2 - 0.9} size={Math.min(1.3, 9 / label.length)}>{label}</Silk>
+      <To92 x={w / 2 - 2.4} y={0.6} w={4.8} h={h * 0.62} label={label} code="24N" />
       {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x} y1={h - 2.4} x2={p.x} y2={p.y} w={0.5} />
+        <CoreLead key={p.id} x1={p.x} y1={0.6 + h * 0.62} x2={p.x} y2={p.y} w={0.45} />
       ))}
     </g>
   );
@@ -77,11 +87,9 @@ const to220Art: ArtFn = (d) => {
   const label = text(d);
   return (
     <g>
-      <rect x={0.4} y={0.4} width={w - 0.8} height={h * 0.78} rx={0.8} fill="#22262d" stroke="#000" strokeWidth={0.3} />
-      <rect x={w / 2 - 2.5} y={1.5} width={5} height={3.5} rx={2.2} fill={METAL_D} />
-      <Silk x={w / 2} y={h * 0.52} size={Math.min(2.5, 24 / label.length)}>{label}</Silk>
+      <To220 x={0.5} y={0.5} w={w - 1} h={h * 0.72} label={label} code="24N" legs={d.pins.length} />
       {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x} y1={h * 0.84} x2={p.x} y2={p.y} w={0.6} />
+        <CoreLead key={p.id} x1={p.x} y1={0.5 + h * 0.72 + 1.2} x2={p.x} y2={p.y} w={0.55} />
       ))}
     </g>
   );
@@ -90,12 +98,22 @@ const to220Art: ArtFn = (d) => {
 const doArt = (band: string, body: string): ArtFn => (d) => {
   const { w, h } = d.size_mm;
   const label = text(d);
+  const glass = body !== "#22262d" && body !== "#c8442c";
   return (
     <g>
-      <Lead x1={0.5} y1={h / 2} x2={w - 0.5} y2={h / 2} w={0.5} />
-      <rect x={w * 0.22} y={h * 0.18} width={w * 0.56} height={h * 0.64} rx={h * 0.3} fill={body} stroke="#000" strokeWidth={0.2} />
-      <rect x={w * 0.64} y={h * 0.22} width={w * 0.08} height={h * 0.56} fill={band} />
-      <Silk x={w / 2} y={h * 0.12} size={1.1}>{label}</Silk>
+      <CoreLead x1={0.4} y1={h / 2} x2={w * 0.24} y2={h / 2} w={0.5} />
+      <CoreLead x1={w * 0.76} y1={h / 2} x2={w - 0.4} y2={h / 2} w={0.5} />
+      <path
+        d={`M ${w * 0.28} ${h * 0.16} Q ${w * 0.2} ${h * 0.16} ${w * 0.2} ${h * 0.34} L ${w * 0.2} ${h * 0.66} Q ${w * 0.2} ${h * 0.84} ${w * 0.28} ${h * 0.84} L ${w * 0.72} ${h * 0.84} Q ${w * 0.8} ${h * 0.84} ${w * 0.8} ${h * 0.66} L ${w * 0.8} ${h * 0.34} Q ${w * 0.8} ${h * 0.16} ${w * 0.72} ${h * 0.16} Z`}
+        fill={body}
+        stroke="#00000055"
+        strokeWidth={0.18}
+      />
+      <rect x={w * 0.24} y={h * 0.2} width={w * 0.5} height={h * 0.16} rx={h * 0.08} fill="#fff" opacity={glass ? 0.4 : 0.14} />
+      <rect x={w * 0.62} y={h * 0.16} width={w * 0.09} height={h * 0.68} fill={band} />
+      <Mark x={w / 2} y={h * 0.1} size={Math.min(1, (w * 0.5) / label.length)} fill="#5b6470">
+        {label}
+      </Mark>
     </g>
   );
 };
@@ -120,15 +138,13 @@ const LED_BODY: Record<string, string> = {
 const ledArt = (color: string): ArtFn => (d) => {
   const { w, h } = d.size_mm;
   const dome = LED_BODY[color] ?? "#ff2a2a";
-  const label = text(d);
+  const cx = w / 2;
+  const cy = h * 0.36;
   return (
     <g>
-      <rect x={w * 0.2} y={h * 0.45} width={w * 0.6} height={h * 0.35} rx={0.6} fill="#d8dee5" opacity={0.5} />
-      <circle cx={w / 2} cy={h * 0.38} r={Math.min(w, h) * 0.4} fill={dome} stroke="#00000033" strokeWidth={0.25} />
-      <circle cx={w / 2} cy={h * 0.38} r={Math.min(w, h) * 0.22} fill="#ffffff" opacity={0.35} />
-      <Silk x={w / 2} y={h * 0.98} size={0.85}>{label}</Silk>
-      {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x} y1={h * 0.75} x2={p.x} y2={p.y} w={0.45} />
+      <Led5 cx={cx} cy={cy} dome={dome} rim="#00000044" />
+      {d.pins.map((p, i) => (
+        <CoreLead key={p.id} x1={p.x} y1={cy + 2.4} x2={p.x} y2={p.y} w={0.45} />
       ))}
     </g>
   );
@@ -152,17 +168,11 @@ const relayArt: ArtFn = (d) => {
 
 const screwArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
-  const n = d.pins.length;
-  const seg = (w - 2) / n;
   return (
     <g>
-      <rect x={0.5} y={0.5} width={w - 1} height={h - 3.5} rx={0.8} fill="#1d5c9a" stroke="#0f3a66" strokeWidth={0.3} />
+      <ScrewTerminal x={0.5} y={0.6} w={w - 1} h={h - 4.2} pins={d.pins} />
       {d.pins.map((p) => (
-        <g key={p.id}>
-          <circle cx={p.x} cy={h / 2 - 1.2} r={Math.min(1.8, seg * 0.38)} fill={METAL} stroke={METAL_D} strokeWidth={0.25} />
-          <rect x={p.x - 1} y={h / 2 - 1.55} width={2} height={0.7} rx={0.15} fill="#6f7a86" />
-          <Hole x={p.x} y={p.y - 0.6} r={0.4} />
-        </g>
+        <CoreLead key={p.id} x1={p.x} y1={h - 3.4} x2={p.x} y2={p.y} w={0.55} />
       ))}
     </g>
   );
@@ -271,16 +281,28 @@ const mxArt = (color: string): ArtFn => (d) => (
 const stripArt: ArtFn = (d) => {
   const { w, h } = d.size_mm;
   const label = text(d);
+  const female = /dupont-f|ffc-/.test(d.type);
   return (
     <g>
-      <rect x={0.5} y={h * 0.18} width={w - 1} height={h * 0.5} rx={0.6} fill="#f2f2f2" stroke={METAL_D} strokeWidth={0.3} />
-      {d.pins.map((p) => (
-        <g key={p.id}>
-          <rect x={p.x - 0.9} y={h * 0.24} width={1.8} height={h * 0.38} rx={0.3} fill="#d8c27a" stroke="#8a7420" strokeWidth={0.15} />
-          <Hole x={p.x} y={p.y - 0.5} />
+      {female ? (
+        <FemaleHeader pts={d.pins.map((p) => ({ x: p.x, y: h * 0.42 }))} pitch={Math.min(2.54, (w - 1) / Math.max(1, d.pins.length))} />
+      ) : (
+        <g>
+          <rect x={0.5} y={h * 0.2} width={w - 1} height={h * 0.44} rx={0.35} fill="#16181d" stroke="#04060a" strokeWidth={0.2} />
+          {d.pins.map((p) => (
+            <g key={p.id}>
+              <rect x={p.x - 0.5} y={h * 0.26} width={1} height={h * 0.32} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.08} />
+              <rect x={p.x - 0.16} y={h * 0.26} width={0.32} height={h * 0.32} fill="#fff" opacity={0.35} />
+            </g>
+          ))}
         </g>
+      )}
+      <Mark x={w / 2} y={h * 0.86} size={0.8} fill="#5b6470">
+        {label}
+      </Mark>
+      {d.pins.map((p) => (
+        <CoreLead key={`l${p.id}`} x1={p.x} y1={h * 0.64} x2={p.x} y2={p.y} w={0.45} />
       ))}
-      <Silk x={w / 2} y={h * 0.88} size={0.8}>{label}</Silk>
     </g>
   );
 };
