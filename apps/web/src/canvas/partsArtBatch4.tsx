@@ -622,20 +622,6 @@ const Fan5v: ArtFn = (d) => {
   );
 };
 
-const LipoPack: ArtFn = (d) => {
-  const { w, h } = d.size_mm;
-  return (
-    <g>
-      <rect x={1} y={1} width={w - 2} height={h - 4} rx={1} fill="#2b2f36" stroke="#000" strokeWidth={0.35} />
-      <rect x={2.4} y={2.4} width={w - 4.8} height={h - 6.8} rx={0.7} fill="#3a3f46" />
-      <Silk x={w / 2} y={h / 2} size={1.2}>LiPo 2S</Silk>
-      <Silk x={w / 2} y={h / 2 + 2.4} size={0.85} fill="#8f9aa6">7.4V</Silk>
-      {d.pins.map((p) => (
-        <Lead key={p.id} x1={p.x} y1={h - 2.5} x2={p.x} y2={p.y} />
-      ))}
-    </g>
-  );
-};
 
 const Usb5v: ArtFn = (d) => {
   const { w, h } = d.size_mm;
@@ -759,6 +745,5 @@ export const BATCH4_ART: Record<string, ArtFn> = {
   "water-pump": TtMotor,
   electromagnet: Solenoid,
   // power
-  "lipo-2s": LipoPack,
   "usb-5v": Usb5v,
 };

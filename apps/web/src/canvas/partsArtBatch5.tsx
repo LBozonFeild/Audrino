@@ -1404,6 +1404,67 @@ const whipArt: ArtFn = (d) => {
   );
 };
 
+
+const solarPanelArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const cols = Math.max(2, Math.round((w - 2) / 9));
+  const rows = Math.max(2, Math.round((h - 2) / 9));
+  const cw = (w - 2.4) / cols;
+  const ch = (h - 2.4) / rows;
+  return (
+    <g>
+      <rect x={0.4} y={0.4} width={w - 0.8} height={h - 0.8} rx={0.7} fill="#c9ced6" stroke="#8f9aa6" strokeWidth={0.3} />
+      <rect x={1.2} y={1.2} width={w - 2.4} height={h - 2.4} rx={0.4} fill="#16375f" stroke="#0d2440" strokeWidth={0.25} />
+      {Array.from({ length: rows }, (_, r) =>
+        Array.from({ length: cols }, (_, c) => (
+          <g key={`${r}-${c}`}>
+            <rect x={1.35 + c * cw} y={1.35 + r * ch} width={cw - 0.3} height={ch - 0.3} rx={0.25} fill="#1d4373" stroke="#0d2440" strokeWidth={0.18} />
+            <line x1={1.35 + c * cw + (cw - 0.3) / 3} y1={1.5 + r * ch} x2={1.35 + c * cw + (cw - 0.3) / 3} y2={1.2 + r * ch + ch} stroke="#8fa8c4" strokeWidth={0.22} opacity={0.7} />
+            <line x1={1.35 + c * cw + (2 * (cw - 0.3)) / 3} y1={1.5 + r * ch} x2={1.35 + c * cw + (2 * (cw - 0.3)) / 3} y2={1.2 + r * ch + ch} stroke="#8fa8c4" strokeWidth={0.22} opacity={0.7} />
+          </g>
+        )),
+      )}
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={h - 1} x2={p.x} y2={p.y} w={0.5} />
+      ))}
+    </g>
+  );
+};
+
+const lipoPackArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const cells = d.type.replace(/[^0-9]/g, "") || "1";
+  return (
+    <g>
+      {d.pins.map((p, i) => (
+        <path key={p.id} d={`M ${p.x} ${h - 2.2} Q ${p.x + (i === 0 ? -1 : 1) * 0.8} ${h - 1.2} ${p.x} ${p.y}`} fill="none" stroke={i === 0 ? "#c8342a" : "#0d0f12"} strokeWidth={0.7} strokeLinecap="round" />
+      ))}
+      <rect x={0.8} y={0.8} width={w - 1.6} height={h - 3} rx={1.1} fill="#2b6cb8" stroke="#1d4e86" strokeWidth={0.35} />
+      <rect x={1.4} y={1.4} width={w - 2.8} height={(h - 4.2) * 0.22} rx={0.6} fill="#fff" opacity={0.22} />
+      <rect x={w * 0.2} y={h * 0.3} width={w * 0.6} height={h * 0.34} rx={0.5} fill="#e8eef4" />
+      <Mark x={w / 2} y={h * 0.44} size={Math.min(1.6, (w * 0.5) / 5)} fill="#22262b">{`LiPo ${cells}S`}</Mark>
+      <Mark x={w / 2} y={h * 0.58} size={Math.min(1, (w * 0.5) / 8)} fill="#5b6470">{`${(Number(cells) * 3.7).toFixed(1)}V`}</Mark>
+    </g>
+  );
+};
+
+const piezoArt: ArtFn = (d) => {
+  const { w, h } = d.size_mm;
+  const cx = w / 2;
+  const cy = (h - 2.6) / 2 + 0.6;
+  const r = Math.min(w, h - 2.6) * 0.46;
+  return (
+    <g>
+      {d.pins.map((p) => (
+        <CoreLead key={p.id} x1={p.x} y1={cy + r * 0.7} x2={p.x} y2={p.y} w={0.4} />
+      ))}
+      <circle cx={cx} cy={cy} r={r} fill="#c9a227" stroke="#8a7420" strokeWidth={0.3} />
+      <circle cx={cx} cy={cy} r={r * 0.62} fill="#e8e6dc" stroke="#b9b5a2" strokeWidth={0.2} />
+      <circle cx={cx - r * 0.3} cy={cy - r * 0.34} r={r * 0.16} fill="#fff" opacity={0.5} />
+    </g>
+  );
+};
+
 // ---- pattern resolver ------------------------------------------------------------
 const DIP_IC = /^(24c|m25|25aa|27c|6\d{3}|4n\d|pc817|tlp|moc|uln|mc14|mc3|ir21|tc44|lm[0-9]|tlc|se5|opa|ne5|lt1|ad6|ina1|ad8|ca3|ua7|tl0|tl4|icl|sg3|uc3|pt2|xr2|dac|lf3|max\d|tda\d|da[cs]\d)[\w-]*$/;
 
@@ -1455,7 +1516,9 @@ const byPrefixArt = (type: string): ArtFn | null => {
   if (/^(de9|db25)/.test(t)) return jackArt("dsub");
   if (/^rj(1|4)/.test(t)) return jackArt("rj");
   if (/^xlr-/.test(t)) return jackArt("xlr");
-  if (/^(aa-holder|aaa-holder|18650-holder|coin-|v9-clip|lipo-|solar-)/.test(t)) return holderArt;
+  if (/^solar-/.test(t)) return solarPanelArt;
+  if (/^lipo-/.test(t)) return lipoPackArt;
+  if (/^(aa-holder|aaa-holder|18650-holder|coin-|v9-clip)/.test(t)) return holderArt;
   if (/^(relay-hk|relay-jqc|reed-relay|relay-4ch|ssr-)/.test(t)) return relayArt;
   if (/^mx-/.test(t)) return mxArt(t === "mx-red" ? "#e8593c" : t === "mx-blue" ? "#3a7bff" : t === "mx-brown" ? "#8a5a2c" : t === "mx-silver" ? "#c0c8d0" : "#2b2f36");
   if (/^(dip-|toggle-|slide-|microswitch|keylock|tilt-mercury|ec11|push-|arcade|key-switch|rotary-)/.test(t)) return switchArt;
@@ -1480,7 +1543,8 @@ const byPrefixArt = (type: string): ArtFn | null => {
   if (/^(servo-|mg9|ds32)/.test(t)) return servoArt;
   if (/^fan-/.test(t)) return fanArt;
   if (/^(nema|bldc)/.test(t)) return nemaArt;
-  if (/^(spk-|piezo-disc|horn-)/.test(t)) return speakerArt;
+  if (/^piezo-/.test(t)) return piezoArt;
+  if (/^(spk-|horn-)/.test(t)) return speakerArt;
   return null;
 };
 
