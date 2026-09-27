@@ -1,0 +1,246 @@
+/**
+ * Home page — the product's front door: hero and start/continue cards
+ * (accounts live in the editor's account popover).
+ * Routes: "" / "#/" lands here; the editor is "#/editor" (see nav.ts).
+ */
+import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import { PART_DEFINITIONS, type Project } from "@audrino/schema";
+import { api, type Me, type ProjectSummary } from "../account/api";
+import { clearAutosave, docLooksTrivial, loadAutosave } from "../dsl/autosave";
+import { createEmptyProject } from "../dsl/load";
+import { openInEditor } from "../nav";
+
+function partCount(doc: Project): number {
+  return doc.boards.length + doc.components.length;
+}
+
+const FEATURES: { icon: ReactNode; title: string; body: string }[] = [
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <rect x="3" y="3" width="7" height="7" rx="1.5" />
+        <rect x="14" y="3" width="7" height="7" rx="1.5" />
+        <rect x="3" y="14" width="7" height="7" rx="1.5" />
+        <rect x="14" y="14" width="7" height="7" rx="1.5" />
+      </svg>
+    ),
+    title: "Real part catalog",
+    body: "Boards, passives, sensors and modules with true-to-life footprints and pinouts.",
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2Z" strokeLinejoin="round" />
+      </svg>
+    ),
+    title: "Live simulation",
+    body: "Compile the sketch, watch pins flip, LEDs light, and the scope trace move in real time.",
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1" strokeLinecap="round" />
+        <circle cx="12" cy="12" r="3.4" />
+      </svg>
+    ),
+    title: "AI builds circuits",
+    body: "Describe a build in one sentence — parts, wiring and firmware land on the canvas.",
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8">
+        <path d="M10 13a4.5 4.5 0 0 0 6.4.4l2.5-2.5a4.5 4.5 0 0 0-6.4-6.4L11.2 6" strokeLinecap="round" />
+        <path d="M14 11a4.5 4.5 0 0 0-6.4-.4l-2.5 2.5a4.5 4.5 0 0 0 6.4 6.4L12.8 18" strokeLinecap="round" />
+      </svg>
+    ),
+    title: "Share in one link",
+    body: "The whole circuit travels in the URL — no account, no export step, works offline.",
+  },
+];
+
+export function Home() {
+  const [me, setMe] = useState<Me | null>(null);
+  const [projects, setProjects] = useState<ProjectSummary[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  // Re-read on every render so "Continue" disappears after New project clears it.
+  const saved = loadAutosave();
+  const canContinue = saved !== null && !docLooksTrivial(saved);
+
+  const refresh = async () => {
+    const r = await api("/api/me", "GET");
+    if (r.status === 200) {
+      setMe(r.json.me as unknown as Me);
+      const p = await api("/api/projects", "GET");
+      if (p.status === 200) setProjects((p.json.projects as unknown as ProjectSummary[]) ?? []);
+    } else {
+      setMe(null);
+      setProjects([]);
+    }
+  };
+
+  useEffect(() => {
+    void refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const logout = async () => {
+    await api("/api/auth/logout", "POST");
+    setMe(null);
+    setProjects([]);
+  };
+
+  const newProject = () => {
+    clearAutosave();
+    openInEditor(structuredClone(createEmptyProject()));
+  };
+
+  const openCloud = async (id: string) => {
+    const r = await api(`/api/projects/${id}`, "GET");
+    if (r.status !== 200) {
+      setError(String(r.json.error ?? "could not open project"));
+      return;
+    }
+    openInEditor(r.json.doc as unknown as Project);
+  };
+
+  const deleteCloud = async (p: ProjectSummary) => {
+    if (!window.confirm(`Delete "${p.title}"? This cannot be undone.`)) return;
+    const r = await api(`/api/projects/${p.id}`, "DELETE");
+    if (r.status >= 300) setError(String(r.json.error ?? "delete failed"));
+    else setProjects((xs) => xs.filter((x) => x.id !== p.id));
+  };
+
+  return (
+    <div className="home-shell">
+      <header className="home-topbar">
+        <span className="brand">
+          <span className="brand-mark" aria-hidden>
+            ◎
+          </span>
+          Audrino
+        </span>
+        <span className="dim home-tag">the Arduino workbench, in your browser</span>
+        <span className="spacer" />
+        {me ? (
+          <>
+            <span className="badge">@{me.handle}</span>
+            <button onClick={() => void logout()}>Log out</button>
+          </>
+        ) : null}
+      </header>
+
+      <main className="home-main">
+        <section className="home-hero">
+          <div className="hero-bg" aria-hidden>
+            <svg viewBox="0 0 1200 480" preserveAspectRatio="xMidYMid slice">
+              <g className="pcb-traces" fill="none" strokeWidth="2">
+                <path d="M-20 90 H240 L300 150 H520" />
+                <path d="M-20 380 H180 L260 300 H470 L530 240 H760" />
+                <path d="M1220 70 H980 L920 130 H700 L640 190 H520" />
+                <path d="M1220 400 H1020 L940 320 H740" />
+                <path d="M60 480 V400 L140 320 V220" />
+                <path d="M1140 480 V380 L1060 300 V180" />
+              </g>
+              <g className="pcb-vias">
+                <circle cx="300" cy="150" r="6" />
+                <circle cx="530" cy="240" r="6" />
+                <circle cx="920" cy="130" r="6" />
+                <circle cx="260" cy="300" r="6" />
+                <circle cx="940" cy="320" r="6" />
+                <circle cx="140" cy="320" r="6" />
+                <circle cx="640" cy="190" r="6" />
+                <circle cx="470" cy="300" r="6" />
+              </g>
+            </svg>
+          </div>
+          <span className="hero-eyebrow">◇ open-source · no install · runs 100% in your browser</span>
+          <h1>
+            <span className="grad">Build it. Wire it. Run it.</span>
+          </h1>
+          <p>
+            Drag parts from the palette, wire up a real circuit, and simulate the firmware — no install, no board
+            required.
+          </p>
+          <div className="hero-cta">
+            <button className="primary" onClick={newProject}>
+              Start building →
+            </button>
+          </div>
+          <div className="hero-chips">
+            <span>{PART_DEFINITIONS.length} parts</span>
+            <span>live simulation</span>
+            <span>AI circuit builder</span>
+            <span>48 themes</span>
+          </div>
+        </section>
+
+        <section className="home-grid">
+          <section className="home-card">
+            <h2>New project</h2>
+            <p className="dim">An empty workplane, a fresh sketch, and the full parts palette.</p>
+            <button className="primary" onClick={newProject}>
+              ＋ Create project
+            </button>
+          </section>
+
+          <section className="home-card">
+            <h2>Continue</h2>
+            {canContinue && saved ? (
+              <>
+                <p className="home-proj-title">{saved.meta.name}</p>
+                <p className="dim">
+                  {partCount(saved)} part{partCount(saved) === 1 ? "" : "s"} · autosaved in this browser
+                </p>
+                <button onClick={() => openInEditor(saved)}>▶ Resume where you left off</button>
+              </>
+            ) : (
+              <p className="dim">Nothing saved in this browser yet — your work autosaves here as you edit.</p>
+            )}
+          </section>
+
+          {me && (
+            <section className="home-card" id="home-auth">
+              <h2>Your projects</h2>
+              <p className="dim">Saved to your account — open one to keep editing.</p>
+              {projects.length > 0 ? (
+                <div className="home-proj-list">
+                  {projects.map((p) => (
+                    <div className="home-proj-row" key={p.id}>
+                      <button className="home-proj-open" onClick={() => void openCloud(p.id)} title="Open project">
+                        {p.title}
+                        <span className="dim"> · {new Date(p.updatedAt).toLocaleDateString()}</span>
+                      </button>
+                      {p.owner === "me" && (
+                        <button onClick={() => void deleteCloud(p)} title="Delete">
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="dim">No cloud projects yet — press 💾 Save in the editor to store one here.</p>
+              )}
+              {error && <div className="badge warn">{error}</div>}
+            </section>
+          )}
+        </section>
+
+        <section className="feat-grid">
+          {FEATURES.map((f) => (
+            <div className="feat-card" key={f.title}>
+              <span className="feat-icon">{f.icon}</span>
+              <strong>{f.title}</strong>
+              <p className="dim">{f.body}</p>
+            </div>
+          ))}
+        </section>
+      </main>
+
+      <footer className="home-foot dim">
+        Every edit autosaves locally · share links carry the whole circuit in the URL · no account required
+      </footer>
+    </div>
+  );
+}

@@ -7,7 +7,7 @@ import type {
 } from "@audrino/schema";
 import { bridgeMatesOf } from "@audrino/schema";
 import { M0_PIN_CATALOG, parsePinRef, partDef, validateProject } from "@audrino/schema";
-import { relayoutWires } from "../dsl/netsFromConnections";
+import { relayoutWires, entityScale } from "../dsl/netsFromConnections";
 
 /** Clipboard payload (M0-SPEC §4): boards + components + their nets (pins ⊆ copies) + wires. */
 export interface Clipboard {
@@ -59,11 +59,15 @@ function defaultProps(type: string): Record<string, unknown> {
 const CANVAS_W = 4096;
 const CANVAS_H = 3072;
 
-/** Clamp a top-left so the part stays on the workplane. */
-const clampXY = (x: number, y: number, w: number, h: number): [number, number] => [
-  Math.min(Math.max(x, 0), Math.max(0, CANVAS_W - w)),
-  Math.min(Math.max(y, 0), Math.max(0, CANVAS_H - h)),
-];
+/** Clamp a top-left so the part's (scaled) footprint stays on the workplane. */
+const clampXY = (x: number, y: number, w: number, h: number, s = 1): [number, number] => {
+  // Visual box grows by (s-1)·size about the bbox centre.
+  const offX = (w * (s - 1)) / 2;
+  const offY = (h * (s - 1)) / 2;
+  const cx = Math.min(Math.max(x - offX, 0), Math.max(0, CANVAS_W - w * s));
+  const cy = Math.min(Math.max(y - offY, 0), Math.max(0, CANVAS_H - h * s));
+  return [cx + offX, cy + offY];
+};
 
 const shift = (t: { x: number; y: number }, dx: number, dy: number) => ({
   ...t,
@@ -85,7 +89,7 @@ export function place(
   const ids = collectIds(doc);
   const id = uniqueId(type, ids);
   const size = partDef(type)?.size_mm ?? { w: 0, h: 0 };
-  [x, y] = clampXY(x, y, size.w, size.h);
+  [x, y] = clampXY(x, y, size.w, size.h, entityScale(type));
   if (kind === "board") {
     const board: BoardPlacement = { id, type, transform: { x, y } };
     return ok(
@@ -145,10 +149,14 @@ export function docBBox(doc: Project): { minX: number; minY: number; maxX: numbe
     const turned = (((e.transform.rotation_deg ?? 0) % 180) + 180) % 180 !== 0;
     const bw = turned ? s.h : s.w;
     const bh = turned ? s.w : s.h;
-    minX = Math.min(minX, e.transform.x);
-    minY = Math.min(minY, e.transform.y);
-    maxX = Math.max(maxX, e.transform.x + bw);
-    maxY = Math.max(maxY, e.transform.y + bh);
+    // Grow for the component render scale so fit frames what you actually see.
+    const vs = entityScale(e.type);
+    const gx = (bw * (vs - 1)) / 2;
+    const gy = (bh * (vs - 1)) / 2;
+    minX = Math.min(minX, e.transform.x - gx);
+    minY = Math.min(minY, e.transform.y - gy);
+    maxX = Math.max(maxX, e.transform.x + bw + gx);
+    maxY = Math.max(maxY, e.transform.y + bh + gy);
   };
   doc.boards.forEach(acc);
   doc.components.forEach(acc);
@@ -167,10 +175,14 @@ export function move(doc: Project, ids: string[], dx: number, dy: number): OpRes
     const turned = (((e.transform.rotation_deg ?? 0) % 180) + 180) % 180 !== 0;
     const bw = turned ? s.h : s.w;
     const bh = turned ? s.w : s.h;
-    loX = Math.max(loX, -e.transform.x);
-    hiX = Math.min(hiX, CANVAS_W - bw - e.transform.x);
-    loY = Math.max(loY, -e.transform.y);
-    hiY = Math.min(hiY, CANVAS_H - bh - e.transform.y);
+    // The scaled (visual) footprint overhangs the anchor box by (s-1)·size/2.
+    const vs = e.type ? entityScale(e.type) : 1;
+    const gx = (bw * (vs - 1)) / 2;
+    const gy = (bh * (vs - 1)) / 2;
+    loX = Math.max(loX, gx - e.transform.x);
+    hiX = Math.min(hiX, CANVAS_W - bw - gx - e.transform.x);
+    loY = Math.max(loY, gy - e.transform.y);
+    hiY = Math.min(hiY, CANVAS_H - bh - gy - e.transform.y);
   };
   doc.boards.forEach((b) => moving.has(b.id) && bound(b));
   doc.components.forEach((c) => moving.has(c.id) && bound(c));

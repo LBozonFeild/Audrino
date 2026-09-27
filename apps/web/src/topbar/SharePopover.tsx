@@ -3,6 +3,8 @@ import type { Project } from "@audrino/schema";
 import { exportWokwi, importWokwiDiagram } from "../dsl/wokwi";
 import { encodeShare, shareUrl } from "../dsl/share";
 import { useEditorStore } from "../state/store";
+import { useViewStore } from "../canvas/viewStore";
+import { docBBox } from "../state/ops";
 
 async function copyText(text: string): Promise<boolean> {
   try {
@@ -91,6 +93,7 @@ export function SharePopover(props: { notify: (msg: string) => void }) {
       props.notify(`Import failed: ${feedback}`);
       return;
     }
+    useViewStore.getState().fitContent(docBBox(useEditorStore.getState().doc));
     setOpen(false);
     setImportOpen(false);
     setDiagramText("");

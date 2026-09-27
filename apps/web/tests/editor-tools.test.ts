@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import * as ops from "../src/state/ops";
 import { pinWorldPos as glyphPinWorldPos } from "../src/canvas/PartGlyph";
-import { pinWorldPos as netsPinWorldPos } from "../src/dsl/netsFromConnections";
+import { pinWorldPos as netsPinWorldPos, COMPONENT_SCALE } from "../src/dsl/netsFromConnections";
 import { useViewStore, VIEW_W, VIEW_H, DEFAULT_K } from "../src/canvas/viewStore";
 import { createEmptyProject } from "../src/dsl/load";
 
@@ -81,12 +81,12 @@ describe("fit-to-content", () => {
 });
 
 describe("docBBox", () => {
-  it("accounts for rotation-swapped bounds", () => {
+  it("accounts for rotation-swapped bounds (and the component render scale)", () => {
     const { doc, id } = placeResistor();
     const r = ops.rotate(doc, [id]);
     const bb = ops.docBBox(r.doc!)!;
-    // resistor 22x8 rotated 90° covers 8x22 at (100,200)
-    expect(bb.maxX - bb.minX).toBeCloseTo(8, 6);
-    expect(bb.maxY - bb.minY).toBeCloseTo(22, 6);
+    // resistor 22x8 rotated 90° covers 8x22 at (100,200), ×1.5 component scale
+    expect(bb.maxX - bb.minX).toBeCloseTo(8 * COMPONENT_SCALE, 6);
+    expect(bb.maxY - bb.minY).toBeCloseTo(22 * COMPONENT_SCALE, 6);
   });
 });

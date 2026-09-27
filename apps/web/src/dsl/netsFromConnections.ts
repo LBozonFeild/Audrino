@@ -13,6 +13,20 @@ export interface EntityPlace {
   transform: { x: number; y: number; rotation_deg?: number };
 }
 
+/**
+ * Visual scale for non-board components on the canvas (M1 UX: parts read
+ * bigger next to the boards without changing the catalog's real mm sizes).
+ * Boards keep 1:1 proportions. Art, pin anchors, hit boxes and wire ends all
+ * derive from this one number — PartGlyph's render and every pinWorldPos call
+ * scale about the part's bbox centre, so wires always land on the pads.
+ */
+export const COMPONENT_SCALE = 1.5;
+
+/** Board-category parts render at real size; everything else gets the boost. */
+export function entityScale(type: string): number {
+  return partDef(type)?.category === "board" ? 1 : COMPONENT_SCALE;
+}
+
 function rotatedPin(mm: { w: number; h: number }, x: number, y: number, rot: number): [number, number] {
   // Center-rotation convention — must match PartGlyph's render/pinWorldPos
   // (`rotate(rot, w/2, h/2)`), which differs from corner math on non-square parts.
@@ -27,8 +41,12 @@ export function pinWorldPos(e: EntityPlace, pinId: string): [number, number] | n
   const def = partDef(e.type);
   const pin = def?.pins.find((p) => p.id === pinId);
   if (!def || !pin) return null;
-  const [rx, ry] = rotatedPin(def.size_mm, pin.x, pin.y, e.transform.rotation_deg ?? 0);
-  return [e.transform.x + rx, e.transform.y + ry];
+  const [rx0, ry0] = rotatedPin(def.size_mm, pin.x, pin.y, e.transform.rotation_deg ?? 0);
+  // Scale about the bbox centre — same transform as PartGlyph's art group.
+  const s = entityScale(e.type);
+  const cx = def.size_mm.w / 2;
+  const cy = def.size_mm.h / 2;
+  return [e.transform.x + cx + (rx0 - cx) * s, e.transform.y + cy + (ry0 - cy) * s];
 }
 
 /**

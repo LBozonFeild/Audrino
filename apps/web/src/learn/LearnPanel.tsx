@@ -3,6 +3,8 @@ import type { Lesson } from "./lessons";
 import { LESSONS, evaluateCheckpoint } from "./lessons";
 import { loadFixture } from "../dsl/load";
 import { useEditorStore } from "../state/store";
+import { useViewStore } from "../canvas/viewStore";
+import { docBBox } from "../state/ops";
 import { useSimStore } from "../sim/SimProvider";
 import { useTraceStore } from "../sim/traceStore";
 
@@ -47,6 +49,7 @@ export function LearnPanel(props: { notify: (msg: string) => void }) {
       props.notify(`Could not load lesson project: ${feedback}`);
       return;
     }
+    useViewStore.getState().fitContent(docBBox(useEditorStore.getState().doc));
     if (lesson.sketch) {
       const name = useEditorStore.getState().doc.code.main;
       const err = useEditorStore.getState().setCode(name, lesson.sketch);

@@ -3,31 +3,9 @@ import type { Project } from "@audrino/schema";
 import { clearAutosave, loadAutosave, docLooksTrivial } from "../dsl/autosave";
 import { createEmptyProject } from "../dsl/load";
 import { useEditorStore } from "../state/store";
-
-interface Me {
-  id: string;
-  handle: string;
-  email: string;
-  verified: boolean;
-}
-
-interface ProjectSummary {
-  id: string;
-  title: string;
-  isPublic: boolean;
-  owner: string;
-  updatedAt: number;
-}
-
-async function api(path: string, method: string, body?: unknown): Promise<{ status: number; json: Record<string, unknown> }> {
-  const r = await fetch(path, {
-    method,
-    headers: body === undefined ? {} : { "content-type": "application/json" },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-  const json = ((await r.json().catch(() => ({}))) ?? {}) as Record<string, unknown>;
-  return { status: r.status, json };
-}
+import { useViewStore } from "../canvas/viewStore";
+import { docBBox } from "../state/ops";
+import { api, type Me, type ProjectSummary } from "./api";
 
 /** §12.1 account surface: signup/login, profile, saved projects, export, deletion. */
 export function AccountPopover(props: { notify: (msg: string) => void }) {
@@ -109,6 +87,7 @@ export function AccountPopover(props: { notify: (msg: string) => void }) {
       return;
     }
     const feedback = useEditorStore.getState().loadProject(r.json.doc as unknown as Project);
+    if (feedback === null) useViewStore.getState().fitContent(docBBox(useEditorStore.getState().doc));
     props.notify(feedback ?? `Opened "${String(r.json.title)}"`);
     setOpen(false);
   };
@@ -143,6 +122,7 @@ export function AccountPopover(props: { notify: (msg: string) => void }) {
   const newProject = () => {
     useEditorStore.getState().loadProject(structuredClone(createEmptyProject()));
     clearAutosave();
+    useViewStore.getState().fitContent(docBBox(useEditorStore.getState().doc)); // empty → centred default
     props.notify("New project started");
     setOpen(false);
   };

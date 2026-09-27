@@ -11,11 +11,15 @@ import { useEditorStore } from "../src/state/store";
 import { createEmptyProject } from "../src/dsl/load";
 import { __setSimRunner, type SimRunner } from "../src/sim/simRunner";
 import { useSimStore } from "../src/sim/SimProvider";
+import { useViewStore, DEFAULT_K } from "../src/canvas/viewStore";
 
 beforeEach(() => {
   cleanup();
   __setSimRunner(null);
   useSimStore.setState({ status: "idle", lines: [], result: null, error: null });
+  // Parts here are placed at fixed world coords — pin the viewport so culling
+  // doesn't depend on the (centred) default view.
+  useViewStore.setState({ view: { x: 0, y: 0, k: DEFAULT_K } });
   useEditorStore.setState({
     doc: createEmptyProject(),
     selection: [],
@@ -114,6 +118,15 @@ describe("canvas affordances", () => {
     fireEvent.doubleClick(container.querySelector(".canvas-svg .part")!);
     expect(useEditorStore.getState().ui.activeTab).toBe("inspect");
     expect(screen.getByText("Net connections")).toBeTruthy();
+  });
+
+  it("empty workplane offers guided next steps (Blink one-click)", () => {
+    const { container } = render(<App />);
+    expect(container.querySelector(".canvas-empty")).not.toBeNull();
+    fireEvent.click(screen.getByText("Open the Blink example"));
+    expect(useEditorStore.getState().doc.boards).toHaveLength(1);
+    expect(useEditorStore.getState().doc.components.length).toBeGreaterThan(0);
+    expect(container.querySelector(".canvas-empty")).toBeNull();
   });
 });
 

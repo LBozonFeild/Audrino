@@ -13,6 +13,8 @@ export function scheduleAutosave(getDoc: () => Project, delayMs = 800): void {
   timer = window.setTimeout(() => {
     try {
       localStorage.setItem(KEY, JSON.stringify(getDoc()));
+      // Let the chrome (topbar save chip) know a snapshot just landed.
+      window.dispatchEvent(new Event("audrino-saved"));
     } catch {
       /* quota full — autosave best-effort */
     }

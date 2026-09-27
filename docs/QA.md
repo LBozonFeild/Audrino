@@ -325,3 +325,75 @@ _Chain_ **169/169** (schema 75 + sim 16 + web 78) · _typecheck_ 0.
 - Chain 178/178 (schema 75 + sim 16 + web 87); typecheck 0. New tests:
   editor-tools.test.ts (rotate wrap, wire re-land, pin-math consistency,
   fit clamp/center, docBBox rotation-swap).
+
+## Home page, centred opening view, bigger components, wheel-pan — 2026-09-26
+
+- Four-part UX round ("spawn on the centre of the palette / components bigger /
+  scroll button to move across the canvas / home page with new-continue-login"):
+- **Centred opening view**: the workspace no longer opens pinned to the world's
+  top-left corner at k=5 — initial view and `resetView` frame the stage centre
+  (360, 270) at `DEFAULT_K` 4 (the empty-state hint lands dead-centre). Every
+  `loadProject` path now fits its content afterwards (home hand-off, AI spawn,
+  lessons, wokwi import, cloud open, in-editor New) so nothing opens off-screen.
+- **Bigger components**: `COMPONENT_SCALE` 1.5 (netsFromConnections), applied
+  about the bbox centre — PartGlyph's art group and the one shared `pinWorldPos`
+  (PartGlyph now delegates instead of duplicating the math) scale together, so
+  pads, hit boxes and wire ends never diverge; boards stay 1:1 and palette
+  previews pass `raw`. place/move clamps, `docBBox`, culling and the placement
+  ghost all account for the overhang; saved docs re-land via relayoutWires.
+- **Wheel pans the canvas**: deltaX/deltaY convert to world units through the
+  svg viewBox (trackpad two-finger swipes pan too); ctrl/⌘+wheel keeps
+  zoom-at-cursor via a non-passive listener that swallows the browser page-zoom;
+  tool-strip hint updated ("scroll to move · ctrl+scroll zooms").
+- **Home page**: hash routing (`Root.tsx` + `nav.ts`) — `""`/`#/` → home,
+  `#/editor` and `#p=` share links → editor (share deep-links keep working, no
+  server config). Home offers New project, Continue (autosave card) and
+  sign-in/sign-up + cloud project list on the existing `/api/auth`/`/api/projects`
+  surface; ⌂ Home in the topbar; editor boot consumes an explicit home hand-off
+  before falling back to autosave/share restore.
+- Chain: schema 75 + web 93 green (18 files); typecheck 0; `vite build` clean.
+  `@audrino/sim` 8 failures are pre-existing sandbox gaps (no zig/avr-gcc/
+  arduino-cli). New tests: home.test.tsx (route table, new/continue hand-off
+  beats autosave, sign-in form, `#p=` deep-link → editor).
+
+## Visual overhaul + quality-of-life pass ("compete with the best") — 2026-09-26
+
+- Design-language refresh across the whole app, all theme-driven (color-mix off
+  the 17 theme vars, so all 48 themes keep working; no hardcoded chrome colors):
+  layered shadows, hover lifts, focus-visible rings, themed thin scrollbars,
+  `::selection`, reduced-motion guard, toast slide-in, Nunito self-hosted via
+  `@fontsource/nunito` (no Google Fonts dependency).
+- **Home**: full redesign — sticky blur header with brand mark, hero with
+  animated PCB-trace backdrop + gradient headline + CTA row, **template gallery
+  with live fixture previews** (Blink / Traffic light / Servo arm rendered from
+  real PartGlyph art, framed by docBBox), start/continue/auth cards, feature
+  strip, entrance animations, responsive tweaks.
+- **Palette**: two-column card tiles (glyph over type label, hover glow),
+  blurred sticky search with magnifier icon, category rows with count pills and
+  open/close carets.
+- **Editor chrome**: segmented btn-seg cluster (undo/redo/rotate/fit), chip
+  project name, "✓ saved" autosave heartbeat chip (autosave now dispatches
+  `audrino-saved`), pulsing "simulating…" badge, danger-styled Stop state,
+  segmented (iOS-style) right-panel tabs, glassier tool strip, focus rings.
+- **Canvas**: fine+major workplane grid replaces sparse dots (LODs out below
+  0.3× to avoid moiré), soft vignette, guided empty state card ("Build with AI"
+  / "Open the Blink example" one-click, tests pin both), tool-aware cursors
+  (crosshair for wire, grab on parts).
+- **Bug fixes found on the way**: `--font-mono` (undefined) → `--bench-mono`
+  (pin labels/part labels/zoom % were silently inheriting the body font);
+  AI diff card + scope screen were hardcoded for dark backgrounds (now
+  theme-safe: `.ai-card/.ai-sec` use border/panel vars, scope has `--scope-bg`);
+  run/stop + brand mark use the theme's `accent-ink` pair for contrast.
+- Chain: typecheck 0; web 95/95 (18 files — +3 tests: template gallery,
+  empty-state Blink, all home routing); `vite build` clean. sim suite still
+  toolchain-gated in this sandbox (pre-existing).
+- **Follow-up (2026-09-26)**: removed the logged-out **sign-in card** from the
+  home grid (the form that wrapped under "New project") and the dead topbar
+  "Log in / Sign up" anchor. Accounts stay reachable via the editor's account
+  popover; signed-in users still get the "Your projects" card on home.
+  home.test locks the absence (no email/password prompts, both action cards
+  remain): typecheck 0, web 95/95 (18 files), `vite build` clean.
+- **Follow-up 2 (2026-09-26)**: removed the home **template gallery**
+  ("Start from a template" section + hero "Explore templates" link and
+  `#tpl` anchor; fixtures still reachable from the editor). home.test now
+  locks its absence. typecheck 0, web 95/95 (18 files), `vite build` clean.

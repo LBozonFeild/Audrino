@@ -12,6 +12,7 @@ import { decodeShare, tokenFromHash } from "./dsl/share";
 import { useEditorStore } from "./state/store";
 import { useViewStore } from "./canvas/viewStore";
 import { docBBox } from "./state/ops";
+import { takePendingOpen } from "./nav";
 import type { Tab } from "./state/store";
 import { Topbar } from "./topbar/Topbar";
 
@@ -39,11 +40,18 @@ export function App() {
 
   const doc = useEditorStore((s) => s.doc);
 
-  // Autosave every edit; on boot restore autosave first, then any share link.
+  // Autosave every edit; on boot an explicit hand-off from the home page wins
+  // (new/continue/cloud open), else restore autosave first, then a share link.
   useEffect(() => {
     scheduleAutosave(() => useEditorStore.getState().doc);
   }, [doc]);
   useEffect(() => {
+    const pre = takePendingOpen();
+    if (pre) {
+      useEditorStore.getState().loadProject(pre);
+      useViewStore.getState().fitContent(docBBox(useEditorStore.getState().doc));
+      return;
+    }
     void (async () => {
       const saved = loadAutosave();
       if (saved && !docLooksTrivial(saved)) {
