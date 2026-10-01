@@ -294,6 +294,23 @@ export function ArtDefs() {
         <rect width="25" height="25" fill="url(#matGrid)" />
         <path className="grid-line-major" d="M 25 0 L 0 0 L 0 25" fill="none" />
       </pattern>
+      <filter id="matGrain" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" result="n" />
+        <feColorMatrix in="n" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.032 0" result="g" />
+        <feComposite in="g" in2="SourceGraphic" operator="in" result="gin" />
+        <feMerge>
+          <feMergeNode in="SourceGraphic" />
+          <feMergeNode in="gin" />
+        </feMerge>
+      </filter>
+      <pattern id="matBrushed" width="3" height="0.7" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="0.35" x2="3" y2="0.35" stroke="#ffffff" strokeWidth="0.1" opacity="0.22" />
+      </pattern>
+      <radialGradient id="matAO" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" stopColor="#0b1016" stopOpacity="0.4" />
+        <stop offset="0.7" stopColor="#0b1016" stopOpacity="0.16" />
+        <stop offset="1" stopColor="#0b1016" stopOpacity="0" />
+      </radialGradient>
       <filter id="matLift" x="-60%" y="-60%" width="220%" height="220%">
         <feDropShadow dx="0" dy="0.35" stdDeviation="0.28" floodColor="#0b1016" floodOpacity="0.42" result="tight" />
         <feDropShadow dx="0" dy="1.1" stdDeviation="1.15" floodColor="#0b1016" floodOpacity="0.26" />
@@ -414,7 +431,7 @@ const Uno: ArtFn = (d) => {
       <Silk x={38.2} y={24.85} size={2.3} weight={800} fill={PCB_TEAL} spacing={0.3}>UNO</Silk>
       <rect x={43.5} y={22.2} width={4.4} height={3.5} rx={0.25} fill="none" stroke={SILK} strokeWidth={0.3} />
       <Silk x={45.7} y={24.85} size={2.1} weight={700} fill={SILK}>R3</Silk>
-      <Silk x={54.9} y={28.4} size={1.05} weight={700} fill={SILK} anchor="start" spacing={0.2}>ARDUINO.CC</Silk>
+      <Silk x={52.6} y={30.4} size={1.05} weight={700} fill={SILK} anchor="start" spacing={0.2}>ARDUINO.CC</Silk>
       {/* ATmega328P-PU DIP-28, notch toward the USB end */}
       <Dip x={29.9} y={32.6} w={35.4} h={6.6} pins={mcuPins} label="ATMEGA328P-PU" code="2039YE8" />
       {/* radial electrolytics + DPAK regulator + SMA diode */}
@@ -438,15 +455,21 @@ const Uno: ArtFn = (d) => {
       {/* main ICSP 2×3 */}
       <MaleHeader pts={icspMain.map(([x, y]) => ({ x, y }))} />
       <Silk x={65.9} y={20.2} size={0.95} fill={SILK}>ICSP</Silk>
+      <Silk x={58.6} y={41.9} size={0.85} fill={SILK} anchor="start" spacing={0.12}>MADE IN ITALY</Silk>
       {/* barrel jack */}
       <rect x={0.5} y={39.7} width={13.2} height={10.4} rx={0.7} fill="#191c21" stroke="#000" strokeWidth={0.3} />
       <rect x={0.5} y={39.7} width={13.2} height={1.1} rx={0.5} fill="#fff" opacity={0.08} />
+      <circle cx={4.9} cy={44.9} r={3.6} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
+      <circle cx={4.9} cy={44.9} r={3.6} fill="url(#matBrushed)" />
       <circle cx={4.9} cy={44.9} r={3.15} fill="#2b2f36" stroke="#000" strokeWidth={0.3} />
+      <circle cx={4.9} cy={44.9} r={3.15} fill="none" stroke="#fff" strokeWidth={0.15} opacity={0.25} />
       <circle cx={4.9} cy={44.9} r={1.35} fill="#050506" />
+      <circle cx={4.9} cy={44.9} r={0.5} fill={METAL_D} />
+      <path d="M 3.2 43.2 A 2.4 2.4 0 0 1 4.6 42.4" fill="none" stroke="#fff" strokeWidth={0.25} opacity={0.4} />
       <rect x={10.6} y={41.2} width={2.2} height={7.4} rx={0.4} fill="#22262b" />
       {/* silkscreen: digital group (vertical labels like the real board) */}
-      <rect x={31.5} y={8.1} width={15.1} height={2.4} rx={0.2} fill={SILK} />
-      <Silk x={39.05} y={9.85} size={1.5} weight={700} fill={PCB_TEAL} spacing={0.2}>DIGITAL (PWM~)</Silk>
+      <rect x={30.9} y={8.1} width={17.3} height={2.4} rx={0.2} fill={SILK} />
+      <Silk x={39.55} y={9.85} size={1.5} weight={700} fill={PCB_TEAL} spacing={0.2}>DIGITAL (PWM~)</Silk>
       {top.map((p) => (
         <Silk key={`s${p.id}`} x={p.x + 0.45} y={4.4} size={1.25} fill={SILK} rotate={90} anchor="start">
           {p.name}
@@ -1388,6 +1411,7 @@ export const PartGlyph = memo(function PartGlyph(props: {
       }
     >
       <g transform={scaleT || undefined}>
+        {!props.board && <ellipse cx={w / 2} cy={h + 0.45} rx={Math.max(w * 0.44, 1.6)} ry={0.85} fill="url(#matAO)" />}
         <g filter="url(#matLift)">{art}</g>
         {props.partRef && !props.board && (
           <text className="part-label" x={w / 2} y={h + 2.8} textAnchor="middle">
