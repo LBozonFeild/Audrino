@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 import type { PartDefinition, PartPin } from "@audrino/schema";
+import { Seg7 } from "./partsCore";
 
 /** Batch-4 art: radio/MCU modules, drivers, displays, motors, power. */
 
@@ -478,23 +479,6 @@ function Glass({ x, y, w, h, active = "#0a1120", tint }: { x: number; y: number;
   );
 }
 
-/** One seven-segment digit, segment polygons (not a font glyph). */
-function Seg7({ x, y, w, h, on = "#d92b2b", off = "#4a1212", dp = true }: { x: number; y: number; w: number; h: number; on?: string; off?: string; dp?: boolean }) {
-  const t = Math.max(0.5, w * 0.18);
-  const seg = (d: string, lit: boolean) => <path d={d} fill={lit ? on : off} opacity={lit ? 1 : 0.55} />;
-  const hw = w / 2, hh = h / 2;
-  const H = (yy: number) => `M ${x + t * 0.7} ${yy} L ${x + t * 1.2} ${yy - t * 0.5} L ${x + w - t * 1.2} ${yy - t * 0.5} L ${x + w - t * 0.7} ${yy} L ${x + w - t * 1.2} ${yy + t * 0.5} L ${x + t * 1.2} ${yy + t * 0.5} Z`;
-  const V = (xx: number, y0: number) => `M ${xx} ${y0 + t * 0.7} L ${xx - t * 0.5} ${y0 + t * 1.2} L ${xx - t * 0.5} ${y0 + hh - t * 1.2} L ${xx} ${y0 + hh - t * 0.7} L ${xx + t * 0.5} ${y0 + hh - t * 1.2} L ${xx + t * 0.5} ${y0 + t * 1.2} Z`;
-  return (
-    <g>
-      {seg(H(y + t * 0.6), true)}{seg(H(y + hh), true)}{seg(H(y + h - t * 0.6), true)}
-      {seg(V(x + t * 0.6, y), true)}{seg(V(x + w - t * 0.6, y), true)}
-      {seg(V(x + t * 0.6, y + hh), true)}{seg(V(x + w - t * 0.6, y + hh), true)}
-      {dp ? <circle cx={x + w + t * 0.9} cy={y + h - t * 0.6} r={t * 0.55} fill={off} opacity={0.6} /> : null}
-    </g>
-  );
-}
-
 /** Black male header plastic with gold pins along a row. */
 function HeaderStrip({ x, y, n, pitch, vert = false }: { x: number; y: number; n: number; pitch: number; vert?: boolean }) {
   const len = n * pitch;
@@ -641,10 +625,7 @@ const ServoTester: ArtFn = (d) => {
         </g>
       ))}
       <rect x={12} y={6.4} width={7} height={4.4} rx={0.3} fill={CHIP} stroke="#000" strokeWidth={0.2} />
-      <Silk x={15.5} y={9.2} size={0.7}>SVO TESTER</Silk>
-      <Tact x={3} y={6.6} w={3} h={3} />
-      <rect x={8} y={7} width={1.4} height={0.9} rx={0.2} fill="#d43b2e" />
-      <rect x={8} y={8.6} width={1.4} height={0.9} rx={0.2} fill="#3bd465" />
+      <Silk x={16} y={9.4} size={0.7}>SVO TESTER</Silk>
       <PinMarks d={d} ls={0.55} />
     </g>
   );

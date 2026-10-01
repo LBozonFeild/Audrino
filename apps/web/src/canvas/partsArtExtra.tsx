@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 import type { PartDefinition, PartPin } from "@audrino/schema";
+import { Seg7 } from "./partsCore";
 
 /** Art for the second wave of parts (sensors, ICs, modules). Merged into ART in PartGlyph. */
 
@@ -364,24 +365,10 @@ const Max7219Matrix: ArtFn = (d) => (
 const Tm1637: ArtFn = (d) => (
   <g>
     <rect x={0.5} y={0.5} width={23} height={13.5} rx={0.5} fill={PCB_NAVY} stroke="#163a66" strokeWidth={0.3} />
-    <rect x={1.5} y={1} width={21} height={8} rx={0.4} fill={BLACK} stroke="#000" strokeWidth={0.25} />
-    {[0, 1, 2, 3].map((dg) => {
-      const x = 3 + dg * 5;
-      return (
-        <g key={dg} opacity={0.85}>
-          <rect x={x} y={1.8} width={3.4} height={0.7} rx={0.3} fill="#d43b2e" />
-          <rect x={x} y={4.6} width={3.4} height={0.7} rx={0.3} fill="#d43b2e" />
-          <rect x={x} y={7.3} width={3.4} height={0.7} rx={0.3} fill="#d43b2e" />
-          <rect x={x - 0.4} y={2.1} width={0.7} height={2.8} rx={0.3} fill="#d43b2e" />
-          <rect x={x + 3.1} y={2.1} width={0.7} height={2.8} rx={0.3} fill="#d43b2e" />
-          <rect x={x - 0.4} y={4.9} width={0.7} height={2.8} rx={0.3} fill="#d43b2e" />
-          <rect x={x + 3.1} y={4.9} width={0.7} height={2.8} rx={0.3} fill="#d43b2e" />
-        </g>
-      );
-    })}
-    <circle cx={20} cy={4} r={0.45} fill="#d43b2e" />
-    <circle cx={20} cy={6} r={0.45} fill="#d43b2e" />
-    <Silk x={12} y={11.6} size={1}>TM1637</Silk>
+    <rect x={1.5} y={1} width={21} height={8.4} rx={0.4} fill={BLACK} stroke="#000" strokeWidth={0.25} />
+    {[0, 1, 2, 3].map((dg) => (
+      <Seg7 key={dg} x={2.6 + dg * 5.1} y={1.9} w={3.6} h={6.6} on="#d43b2e" off="#4a1212" />
+    ))}
     <Pads pins={d.pins} />
   </g>
 );
@@ -469,7 +456,6 @@ function dip(label: string, big = false): ArtFn {
 const BuckLm2596: ArtFn = (d) => (
   <g>
     <rect x={0.5} y={0.5} width={29} height={19} rx={0.6} fill={PCB_BLUE} stroke="#075a92" strokeWidth={0.3} />
-    {/* shielded inductor, LM2596 TO-263, 3296W trim pot, SS34 */}
     <rect x={12} y={2.4} width={7.4} height={7.4} rx={0.5} fill="#2b2f36" stroke="#17191d" strokeWidth={0.3} />
     <circle cx={15.7} cy={6.1} r={2.4} fill="#22262b" stroke="#3a3f46" strokeWidth={0.25} />
     <rect x={3.4} y={9.6} width={8} height={5.6} rx={0.4} fill={CHIP} stroke="#000" strokeWidth={0.2} />
@@ -496,8 +482,8 @@ const Tp4056: ArtFn = (d) => (
     <rect x={0.9} y={4.6} width={2.2} height={2.8} rx={0.3} fill="#2b3138" />
     <rect x={5.5} y={3.6} width={5} height={4.4} rx={0.3} fill={CHIP} stroke="#000" strokeWidth={0.15} />
     <Silk x={8} y={6.2} size={0.8} fill="#9aa4ae">4056</Silk>
-    <rect x={12.6} y={3.2} width={1.4} height={0.9} rx={0.2} fill="#d43b2e" />
-    <rect x={12.6} y={5.2} width={1.4} height={0.9} rx={0.2} fill="#3bd465" />
+    <rect x={12.6} y={3.2} width={1.4} height={0.9} rx={0.2} fill="#7a352c" />
+    <rect x={12.6} y={5.2} width={1.4} height={0.9} rx={0.2} fill="#3f6b4a" />
     <Silk x={9} y={10.4} size={0.85}>TP4056 LI-ION 1A</Silk>
     {d.pins.map((p) => (
       <g key={p.id}>
@@ -528,13 +514,12 @@ const Nrf24l01: ArtFn = (d) => (
 const Hc05: ArtFn = (d) => (
   <g>
     <rect x={0.5} y={0.5} width={34} height={15} rx={0.6} fill={PCB_NAVY} stroke="#163a66" strokeWidth={0.3} />
-    {/* daughter board carrying the shield + antenna */}
     <rect x={1.6} y={1.2} width={29.5} height={11.4} rx={0.5} fill="#0a74b8" stroke="#075a92" strokeWidth={0.25} />
     <rect x={3} y={2.2} width={16.5} height={9.4} rx={0.6} fill={METAL} stroke={METAL_D} strokeWidth={0.25} />
     <Silk x={11.2} y={7.6} size={1.5} fill="#3a3f46">HC-05</Silk>
     <path d="M 21.5 9.6 V 3.2 H 23.7 V 6.2 H 25.9 V 3.2 H 28.1 V 6.2 H 30.3 V 9.6" fill="none" stroke={GOLD} strokeWidth={0.5} />
     <rect x={22} y={9.4} width={2.6} height={1.8} rx={0.2} fill={CHIP} />
-    <circle cx={27} cy={10.3} r={0.5} fill="#3c6" />
+    <circle cx={27} cy={10.3} r={0.5} fill="#3f6b4a" />
     <rect x={3} y={13.2} width={2.4} height={1.6} rx={0.2} fill={CHIP} />
     <Tact x={31.6} y={3} w={2.4} h={2.4} />
     <Pads pins={d.pins} />

@@ -92,6 +92,40 @@ export function Shade({ x, y, w, h, rx = 0.5 }: { x: number; y: number; w: numbe
   );
 }
 
+
+/** Seven-segment digit: mitered segment polygons with clearance gaps, so no
+ *  segment ever overlaps its neighbour (real display geometry). */
+export function Seg7({ x, y, w, h, on = "#d92b2b", off = "#4a1212", dp = true }: { x: number; y: number; w: number; h: number; on?: string; off?: string; dp?: boolean }): ReactElement {
+  const t = Math.max(0.45, w * 0.16);
+  const g = t * 0.18; // clearance gap between segments
+  const H = (xx: number, yy: number, len: number, lit: boolean) => (
+    <path
+      d={`M ${xx + t / 2} ${yy} L ${xx + t} ${yy - t / 2 + g} L ${xx + len - t} ${yy - t / 2 + g} L ${xx + len - t / 2} ${yy} L ${xx + len - t} ${yy + t / 2 - g} L ${xx + t} ${yy + t / 2 - g} Z`}
+      fill={lit ? on : off}
+    />
+  );
+  const V = (xx: number, yy: number, len: number, lit: boolean) => (
+    <path
+      d={`M ${xx} ${yy + t / 2} L ${xx - t / 2 + g} ${yy + t} L ${xx - t / 2 + g} ${yy + len - t} L ${xx} ${yy + len - t / 2} L ${xx + t / 2 - g} ${yy + len - t} L ${xx + t / 2 - g} ${yy + t} Z`}
+      fill={lit ? on : off}
+    />
+  );
+  const hh = h / 2;
+  const vl = hh - t * 0.75;
+  return (
+    <g>
+      {H(x + t * 0.5, y + t * 0.5, w - t, true)}
+      {H(x + t * 0.5, y + hh, w - t, true)}
+      {H(x + t * 0.5, y + h - t * 0.5, w - t, true)}
+      {V(x + t * 0.5, y + t * 0.5, vl, true)}
+      {V(x + w - t * 0.5, y + t * 0.5, vl, true)}
+      {V(x + t * 0.5, y + hh + t * 0.25, vl, true)}
+      {V(x + w - t * 0.5, y + hh + t * 0.25, vl, true)}
+      {dp ? <circle cx={x + w + t * 0.8} cy={y + h - t * 0.5} r={t * 0.45} fill={off} /> : null}
+    </g>
+  );
+}
+
 /** Through-hole pad: gold annular ring + drilled bore. */
 export function Hole({ x, y, r = 0.55 }: { x: number; y: number; r?: number }): ReactElement {
   return (
