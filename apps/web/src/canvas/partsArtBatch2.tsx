@@ -122,7 +122,6 @@ function axial(band: string, glass = false, secondBand?: string): ArtFn {
       ) : (
         <g>
           <rect x={5} y={1.4} width={6} height={3.2} rx={0.9} fill="#17181c" stroke="#000" strokeWidth={0.2} />
-          <rect x={5.5} y={1.7} width={4.4} height={0.6} rx={0.3} fill="#fff" opacity={0.18} />
         </g>
       )}
       <rect x={9.2} y={1.3} width={1} height={3.4} fill={band} />
@@ -359,7 +358,6 @@ const TransformerEi: ArtFn = (d) => {
 const probeArt = (label: string): ArtFn => (d) => (
   <g>
     <rect x={3.5} y={1} width={5} height={10} rx={2.2} fill="#23262b" stroke="#000" strokeWidth={0.3} />
-    <rect x={4.2} y={1.4} width={1.4} height={3} rx={0.5} fill="#fff" opacity={0.15} />
     <Silk x={6} y={7.6} size={0.8}>{label}</Silk>
     <Lead x1={4.5} y1={11} x2={3.5} y2={16} />
     <Lead x1={7.5} y1={11} x2={8.5} y2={16} />
@@ -563,7 +561,6 @@ const ArcadeButton: ArtFn = (d) => {
     <g>
       <circle cx={w / 2} cy={w / 2 - 1} r={w * 0.42} fill="#c22" stroke="#8a1c1c" strokeWidth={0.4} />
       <circle cx={w / 2} cy={w / 2 - 1} r={w * 0.3} fill="#e0353b" />
-      <path d={`M ${w / 2 - 5} ${w / 2 - 5} A 6 6 0 0 1 ${w / 2} ${w / 2 - 6}`} stroke="#fff" strokeWidth={0.6} opacity={0.35} fill="none" />
       <rect x={w / 2 - 8} y={w - 6.5} width={16} height={3} rx={0.4} fill={METAL_D} />
       {d.pins.map((p) => (
         <Lead key={p.id} x1={p.x} y1={w - 3} x2={p.x} y2={p.y} />

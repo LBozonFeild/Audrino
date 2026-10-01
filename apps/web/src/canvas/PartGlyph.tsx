@@ -173,7 +173,6 @@ function Header({ pts, vertical }: { pts: { x: number; y: number }[]; vertical?:
   const h = (v ? Math.max(...ys) - Math.min(...ys) : 0) + 2.7;
   return (
     <g>
-      <rect x={x - 0.4} y={y - 0.4} width={w + 0.8} height={h + 0.8} rx={0.7} fill="none" stroke="#fff" strokeOpacity={0.3} strokeWidth={0.22} />
       <rect x={x} y={y} width={w} height={h} rx={0.5} fill="#16181d" stroke="#0b0d10" strokeWidth={0.25} />
       <rect x={x} y={y} width={w} height={0.7} rx={0.3} fill="#fff" opacity={0.1} />
       {pts.map((p) => (
@@ -221,70 +220,19 @@ function Chip({ x, y, w, h, label }: { x: number; y: number; w: number; h: numbe
 export function ArtDefs() {
   return (
     <defs>
-      <linearGradient id="matSteel" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#ffffff" />
-        <stop offset="0.14" stopColor="#eef2f6" />
-        <stop offset="0.32" stopColor="#c3cad2" />
-        <stop offset="0.52" stopColor="#a6afb9" />
-        <stop offset="0.7" stopColor="#87919c" />
-        <stop offset="0.88" stopColor="#6b747e" />
-        <stop offset="1" stopColor="#535c66" />
-      </linearGradient>
-      <linearGradient id="matGold" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#fff3c4" />
-        <stop offset="0.3" stopColor="#f0d060" />
-        <stop offset="0.55" stopColor="#d8b13c" />
-        <stop offset="0.8" stopColor="#b08a24" />
-        <stop offset="1" stopColor="#8a7420" />
-      </linearGradient>
-      <radialGradient id="matScrew" cx="0.35" cy="0.3" r="0.9">
-        <stop offset="0" stopColor="#f4f7fa" />
-        <stop offset="0.45" stopColor="#b9c2cb" />
-        <stop offset="0.8" stopColor="#79838e" />
-        <stop offset="1" stopColor="#4c5560" />
-      </radialGradient>
-      <radialGradient id="matSheen" cx="0.32" cy="0.24" r="0.95">
-        <stop offset="0" stopColor="#ffffff" stopOpacity="0.55" />
-        <stop offset="0.45" stopColor="#ffffff" stopOpacity="0.16" />
-        <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
-      </radialGradient>
-      <linearGradient id="matBrass" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#fff6d0" />
-        <stop offset="0.22" stopColor="#f2cd6a" />
-        <stop offset="0.5" stopColor="#d8a13e" />
-        <stop offset="0.78" stopColor="#a9761f" />
-        <stop offset="1" stopColor="#7d5212" />
-      </linearGradient>
-      <linearGradient id="matBlack" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#6b6b74" />
-        <stop offset="0.18" stopColor="#44444c" />
-        <stop offset="0.5" stopColor="#26262d" />
-        <stop offset="0.85" stopColor="#141419" />
-        <stop offset="1" stopColor="#0a0a0e" />
-      </linearGradient>
-      <linearGradient id="matAbs" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#fffef8" />
-        <stop offset="0.55" stopColor="#f0efe6" />
-        <stop offset="1" stopColor="#d6d4c6" />
-      </linearGradient>
-      <linearGradient id="matCeramic" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#f6e3b4" />
-        <stop offset="0.5" stopColor="#e2c288" />
-        <stop offset="1" stopColor="#b98f52" />
-      </linearGradient>
-      <linearGradient id="matCan" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stopColor="#f4f7fa" />
-        <stop offset="0.45" stopColor="#aab3bd" />
-        <stop offset="1" stopColor="#5f6872" />
-      </linearGradient>
+      <linearGradient id="matSteel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#b8c2cc" /></linearGradient>
+      <linearGradient id="matGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#d8b13c" /></linearGradient>
+      <radialGradient id="matScrew" cx="0.35" cy="0.3" r="0.9"><stop offset="0" stopColor="#b9c2cb" /></radialGradient>
+      <radialGradient id="matSheen" cx="0.32" cy="0.24" r="0.95"><stop offset="0" stopColor="#ffffff" stopOpacity="0" /></radialGradient>
+      <linearGradient id="matBrass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#d8a13e" /></linearGradient>
+      <linearGradient id="matBlack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#23232a" /></linearGradient>
+      <linearGradient id="matAbs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#f0efe6" /></linearGradient>
+      <linearGradient id="matCeramic" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#e2c288" /></linearGradient>
+      <linearGradient id="matCan" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#aab3bd" /></linearGradient>
       {(["red", "green", "blue", "yellow", "white", "orange"] as const).map((c) => {
         const pair = LED_COLORS[c] ?? LED_COLORS.red!;
         return (
-          <radialGradient key={c} id={`matDome-${c}`} cx="0.35" cy="0.28" r="0.95">
-            <stop offset="0" stopColor="#fff" stopOpacity="0.9" />
-            <stop offset="0.35" stopColor={pair[0]} stopOpacity="0.95" />
-            <stop offset="1" stopColor={pair[1]} />
-          </radialGradient>
+          <radialGradient key={c} id={`matDome-${c}`} cx="0.35" cy="0.28" r="0.95"><stop offset="0" stopColor={pair[0]} /></radialGradient>
         );
       })}
       <pattern id="matGrid" width="5" height="5" patternUnits="userSpaceOnUse">
@@ -458,15 +406,11 @@ const Uno: ArtFn = (d) => {
       <Silk x={58.6} y={41.9} size={0.85} fill={SILK} anchor="start" spacing={0.12}>MADE IN ITALY</Silk>
       {/* barrel jack */}
       <rect x={0.5} y={39.7} width={13.2} height={10.4} rx={0.7} fill="#191c21" stroke="#000" strokeWidth={0.3} />
-      <rect x={0.5} y={39.7} width={13.2} height={1.1} rx={0.5} fill="#fff" opacity={0.08} />
       <circle cx={4.9} cy={44.9} r={3.6} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
-      <circle cx={4.9} cy={44.9} r={3.6} fill="url(#matBrushed)" />
-      <circle cx={4.9} cy={44.9} r={3.15} fill="#2b2f36" stroke="#000" strokeWidth={0.3} />
-      <circle cx={4.9} cy={44.9} r={3.15} fill="none" stroke="#fff" strokeWidth={0.15} opacity={0.25} />
+            <circle cx={4.9} cy={44.9} r={3.15} fill="#2b2f36" stroke="#000" strokeWidth={0.3} />
       <circle cx={4.9} cy={44.9} r={1.35} fill="#050506" />
       <circle cx={4.9} cy={44.9} r={0.5} fill={METAL_D} />
-      <path d="M 3.2 43.2 A 2.4 2.4 0 0 1 4.6 42.4" fill="none" stroke="#fff" strokeWidth={0.25} opacity={0.4} />
-      <rect x={10.6} y={41.2} width={2.2} height={7.4} rx={0.4} fill="#22262b" />
+            <rect x={10.6} y={41.2} width={2.2} height={7.4} rx={0.4} fill="#22262b" />
       {/* silkscreen: digital group (vertical labels like the real board) */}
       <rect x={30.9} y={8.1} width={17.3} height={2.4} rx={0.2} fill={SILK} />
       <Silk x={39.55} y={9.85} size={1.5} weight={700} fill={PCB_TEAL} spacing={0.2}>DIGITAL (PWM~)</Silk>
@@ -626,8 +570,7 @@ const Led: ArtFn = (d, values) => {
 const RgbLed: ArtFn = (d) => (
   <g>
     <circle cx={7} cy={5.9} r={4.8} fill="#dfe6ee" stroke="#9aa7b4" strokeWidth={0.4} />
-    <ellipse cx={4.9} cy={3.4} rx={1.7} ry={1.05} fill="#fff" opacity={0.55} transform="rotate(-30 4.9 3.4)" />
-    <circle cx={5.1} cy={5.7} r={0.85} fill="#e33" />
+        <circle cx={5.1} cy={5.7} r={0.85} fill="#e33" />
     <circle cx={7} cy={5.7} r={0.85} fill="#3c6" />
     <circle cx={8.9} cy={5.7} r={0.85} fill="#48f" />
     <rect x={4.6} y={7.3} width={4.8} height={1.05} rx={0.4} fill={METAL_D} />
@@ -641,8 +584,7 @@ const Ws2812: ArtFn = () => (
   <g>
     <rect x={2} y={2} width={8} height={8} rx={0.8} fill="#e8e8e6" stroke="#b8bcc0" strokeWidth={0.35} />
     <circle cx={6} cy={6} r={2.2} fill="#d9d2b8" stroke="#b0a98c" strokeWidth={0.25} />
-    <ellipse cx={5.3} cy={5.2} rx={0.8} ry={0.5} fill="#fff" opacity={0.5} />
-    <path d="M 2 3.2 L 3.4 2 L 2 2 Z" fill="#c22" />
+        <path d="M 2 3.2 L 3.4 2 L 2 2 Z" fill="#c22" />
     <Silk x={6} y={11} size={0.9} fill="#5c6572">5050</Silk>
     {[
       [2, 2],
@@ -657,15 +599,18 @@ const Ws2812: ArtFn = () => (
 
 const Oled: ArtFn = (d) => (
   <g>
-    <rect x={0.5} y={2} width={29} height={26} rx={0.8} fill="#1a2733" stroke="#0b1219" strokeWidth={0.35} />
-    <rect x={3} y={3} width={24} height={14.5} rx={0.5} fill="#0b1520" stroke="#24384c" strokeWidth={0.3} />
-    <rect x={4} y={4} width={22} height={12.5} fill="#0e1d2c" opacity={0.8} />
-    <Silk x={15} y={11} size={2} fill="#5ac8fa">SSD1306</Silk>
-    <Silk x={15} y={21.5} size={1.4} fill="#8f9aa6">I2C OLED</Silk>
-    {d.pins.map((p) => (
+    <rect x={0.5} y={0.5} width={29} height={27.5} rx={0.8} fill={PCB_BLUE} stroke="#075a92" strokeWidth={0.35} />
+    {/* 0.96" glass: black bezel, dark active area, raking sheen */}
+    <rect x={2.6} y={1.6} width={24.8} height={17.6} rx={0.6} fill="#08090c" stroke="#000" strokeWidth={0.35} />
+    <rect x={3.2} y={2.2} width={23.6} height={16.4} rx={0.4} fill="none" stroke="#3a4149" strokeWidth={0.25} opacity={0.7} />
+    <rect x={4.8} y={3.8} width={20.4} height={13.2} fill="#0c1424" />
+        <Silk x={15} y={22.6} size={1} fill="#c8d2dc">SSD1306 0.96"</Silk>
+    {/* 4-pin male header along the bottom edge */}
+    <rect x={4.6} y={25.6} width={20.8} height={2.3} rx={0.3} fill="#17181c" stroke="#000" strokeWidth={0.2} />
+    {d.pins.map((p, i) => (
       <g key={p.id}>
-        <Hole x={p.x} y={p.y - 1} />
-        <Silk x={p.x} y={p.y - 2.4} size={0.95}>{p.id}</Silk>
+        <rect x={6 + i * 6 - 0.4} y={26.35} width={0.8} height={0.8} fill={GOLD} />
+        <Silk x={p.x} y={25} size={0.85}>{p.id}</Silk>
       </g>
     ))}
   </g>
@@ -686,22 +631,19 @@ const Lcd1602: ArtFn = (d) => (
     <rect x={4} y={3} width={46} height={21} rx={0.6} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.3} />
     <rect x={5.4} y={4.4} width={43.2} height={18.2} rx={0.4} fill="#23272e" />
     <rect x={6.4} y={5.4} width={41.2} height={16.2} rx={0.3} fill="#9db98a" />
-    <rect x={6.4} y={5.4} width={41.2} height={4} fill="#fff" opacity={0.12} />
-    {Array.from({ length: 16 }, (_, i) => (
+        {Array.from({ length: 16 }, (_, i) => (
       <g key={i}>
         <rect x={7.4 + i * 2.5} y={6.8} width={2} height={3.4} rx={0.2} fill="#3a4a34" opacity={0.5} />
         <rect x={7.4 + i * 2.5} y={13.4} width={2} height={3.4} rx={0.2} fill="#3a4a34" opacity={0.5} />
       </g>
     ))}
-    {/* I2C backpack on the right */}
-    <rect x={51} y={5} width={7.6} height={20} rx={0.5} fill={PCB_NAVY} stroke="#163a66" strokeWidth={0.3} />
-    <circle cx={54.8} cy={9.4} r={1.7} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
-    <Qfn x={52.2} y={14} w={5} h={4.4} label="" pads={4} />
-    <Silk x={27} y={27.6} size={1.5} weight={700} spacing={0.2}>LCD1602 · I2C</Silk>
-    {d.pins.map((p) => (
+    {/* I2C backpack lives on the BACK: only its edge peeks past the top */}
+    <Silk x={43} y={27.6} size={1.4} weight={700} spacing={0.2}>LCD1602 · I2C</Silk>
+    <rect x={4.4} y={28.6} width={21.2} height={2.4} rx={0.3} fill="#17181c" stroke="#000" strokeWidth={0.2} />
+    {d.pins.map((p, i) => (
       <g key={p.id}>
-        <Hole x={p.x} y={p.y - 1} />
-        <Silk x={p.x} y={p.y - 2.3} size={0.95}>{p.id}</Silk>
+        <rect x={6 + i * 6 - 0.45} y={29.35} width={0.9} height={0.9} fill={GOLD} />
+        <Silk x={p.x} y={28.1} size={0.95}>{p.id}</Silk>
       </g>
     ))}
   </g>
@@ -730,11 +672,9 @@ const Resistor: ArtFn = (d, values) => {
       />
       <path d="M 2.6 0.3 Q 1.5 0.3 1.5 1.6 L 1.5 6.4 Q 1.5 7.7 2.6 7.7 L 3.6 7.7 L 3.6 0.3 Z" fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.12} />
       <path d="M 19.4 0.3 Q 20.5 0.3 20.5 1.6 L 20.5 6.4 Q 20.5 7.7 19.4 7.7 L 18.4 7.7 L 18.4 0.3 Z" fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.12} />
-      <rect x={3.8} y={0.85} width={14.4} height={1.15} rx={0.55} fill="#fff" opacity={0.35} />
       {bands.map(([x, c]) => (
         <g key={x}>
           <rect x={x} y={0.3} width={1.3} height={7.4} fill={c} />
-          <rect x={x} y={0.85} width={1.3} height={1.15} fill="#fff" opacity={0.22} />
         </g>
       ))}
     </g>
@@ -767,7 +707,6 @@ const Electrolytic: ArtFn = () => (
     <Mark x={7.2} y={8.6} size={1.5} fill="#cdd6e4">25V</Mark>
     {/* crimp + sheen */}
     <rect x={1.1} y={11.6} width={9.8} height={1.1} fill="#101a35" opacity={0.55} />
-    <rect x={9.2} y={2.4} width={1.1} height={10.6} rx={0.5} fill="#fff" opacity={0.14} />
   </g>
 );
 
@@ -787,7 +726,6 @@ const Diode: ArtFn = () => (
     <Lead x1={0} y1={3} x2={3.8} y2={3} w={0.75} />
     <Lead x1={12.2} y1={3} x2={16} y2={3} w={0.75} />
     <rect x={3.8} y={0.5} width={8.4} height={5} rx={1.3} fill="#17181c" stroke="#000" strokeWidth={0.2} />
-    <rect x={4.5} y={1} width={6.2} height={0.85} rx={0.4} fill="#fff" opacity={0.18} />
     <rect x={10} y={0.5} width={1.3} height={5} fill="#d8d8d8" />
   </g>
 );
@@ -802,7 +740,6 @@ const Ldr: ArtFn = () => (
       strokeWidth={0.6}
       strokeLinejoin="round"
     />
-    <path d="M 2.2 3.2 A 5.6 5.6 0 0 1 6 0.1" stroke="#fff" strokeWidth={0.5} opacity={0.25} fill="none" />
     <Lead x1={5} y1={11.5} x2={4} y2={14} />
     <Lead x1={7} y1={11.5} x2={8} y2={14} />
   </g>
@@ -811,7 +748,6 @@ const Ldr: ArtFn = () => (
 const Thermistor: ArtFn = () => (
   <g>
     <circle cx={5} cy={4.5} r={4} fill="#3a6ea5" stroke="#274e78" strokeWidth={0.3} />
-    <circle cx={3.7} cy={3} r={1.15} fill="#fff" opacity={0.35} />
     <Lead x1={4} y1={8.2} x2={3} y2={12} />
     <Lead x1={6} y1={8.2} x2={7} y2={12} />
   </g>
@@ -1025,7 +961,6 @@ const HcSr04: ArtFn = (d) => (
           const a = (i / 12) * Math.PI * 2;
           return <circle key={i} cx={x + Math.cos(a) * 2.75} cy={y + Math.sin(a) * 2.75} r={0.28} fill="#3a3f46" />;
         })}
-        <circle cx={x - 1.4} cy={y - 1.6} r={0.9} fill="#fff" opacity={0.35} />
       </g>
     ))}
     <Crystal x={19.4} y={6.6} w={3.4} h={2.1} oval={false} />
@@ -1102,7 +1037,6 @@ const Joystick: ArtFn = (d) => (
     <rect x={15} y={1.5} width={5.5} height={4} rx={0.4} fill={METAL_D} />
     <circle cx={11} cy={10.5} r={4.6} fill="#22262c" stroke="#000" strokeWidth={0.3} />
     <circle cx={11} cy={10} r={3.1} fill="#101216" stroke="#000" strokeWidth={0.25} />
-    <path d="M 9.3 8.6 A 2.4 2.4 0 0 1 11 7.9" stroke="#fff" strokeWidth={0.45} opacity={0.25} fill="none" />
     {d.pins.map((p) => (
       <g key={p.id}>
         <Hole x={p.x} y={p.y - 1.2} r={0.55} />
@@ -1123,7 +1057,6 @@ const Keypad: ArtFn = (d) => {
         return (
           <g key={lb}>
             <rect x={cx} y={cy} width={7.2} height={6.2} rx={0.8} fill="#454c58" stroke="#5c6572" strokeWidth={0.3} />
-            <rect x={cx + 0.5} y={cy + 0.4} width={6.2} height={1.6} rx={0.5} fill="#fff" opacity={0.08} />
             <Silk x={cx + 3.6} y={cy + 4.6} size={2}>{lb}</Silk>
           </g>
         );
@@ -1140,7 +1073,7 @@ const Mpu6050: ArtFn = (d) => (
     <rect x={0.5} y={0.5} width={17} height={15.5} rx={0.6} fill={PCB_PURPLE} stroke="#42296b" strokeWidth={0.35} />
     <Chip x={5} y={3} w={8} h={8} label="6050" />
     <rect x={1.5} y={3} width={2} height={1.2} fill={METAL_D} />
-    <Silk x={9} y={13.6} size={1.2}>GY-521</Silk>
+    <Silk x={13.6} y={3.6} size={1} anchor="end">GY-521</Silk>
     {d.pins.map((p) => (
       <g key={p.id}>
         <Hole x={p.x} y={p.y - 1} r={0.55} />
@@ -1157,7 +1090,6 @@ function servoArt(body: { x: number; y: number; w: number; h: number }, caseColo
       <rect x={body.x} y={body.y - 1.6} width={5} height={1.6} rx={0.4} fill={caseColor} stroke="#000" strokeWidth={0.15} />
       <rect x={body.x} y={body.y + body.h} width={5} height={1.6} rx={0.4} fill={caseColor} stroke="#000" strokeWidth={0.15} />
       <rect x={body.x} y={body.y} width={body.w} height={body.h} rx={1} fill={caseColor} stroke="#000" strokeWidth={0.3} />
-      <rect x={body.x + 0.4} y={body.y + 0.4} width={body.w - 0.8} height={1.2} rx={0.5} fill="#fff" opacity={0.15} />
       {/* horn */}
       <g transform={`rotate(-18 ${horn.x} ${horn.y})`}>
         <rect x={horn.x - horn.r * 1.7} y={horn.y - 1.1} width={horn.r * 3.4} height={2.2} rx={1.1} fill="#f2f2f0" stroke={METAL_D} strokeWidth={0.2} />
@@ -1205,7 +1137,6 @@ const Stepper: ArtFn = (d) => (
   <g>
     {/* stamped steel can + black end bell + white 5-way connector */}
     <rect x={1} y={2} width={20} height={16} rx={1.1} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.3} />
-    <rect x={1.6} y={2.6} width={18.8} height={3} rx={1} fill="#fff" opacity={0.35} />
     <rect x={18.4} y={2} width={2.6} height={16} rx={0.8} fill="#22262b" stroke="#000" strokeWidth={0.2} />
     <circle cx={9.6} cy={10} r={2.6} fill={METAL_D} stroke="#5c6570" strokeWidth={0.25} />
     <circle cx={9.6} cy={10} r={1.1} fill={METAL_L} stroke={METAL_D} strokeWidth={0.2} />
@@ -1225,7 +1156,6 @@ const Buzzer: ArtFn = () => (
   <g>
     <circle cx={6} cy={6} r={4.8} fill="#1a1c20" stroke="#000" strokeWidth={0.3} />
     <circle cx={6.3} cy={5.6} r={1.15} fill="#050506" />
-    <path d="M 3.2 3.8 A 3.5 3.5 0 0 1 6 2.4" stroke="#fff" strokeWidth={0.45} opacity={0.18} fill="none" />
     <Silk x={3.3} y={3.4} size={1.4} fill="#8f9aa6">+</Silk>
     <Lead x1={4} y1={10.5} x2={4} y2={12} />
     <Lead x1={8} y1={10.5} x2={8} y2={12} />
@@ -1237,7 +1167,6 @@ const Speaker: ArtFn = () => (
     <rect x={1} y={1} width={16} height={16} rx={1} fill="#2b2f36" stroke="#000" strokeWidth={0.3} />
     <circle cx={9} cy={9} r={6.3} fill="#454c58" stroke="#5c6572" strokeWidth={0.25} />
     <circle cx={9} cy={9} r={2.4} fill="#2b2f36" stroke="#5c6572" strokeWidth={0.2} />
-    <path d="M 5 5.4 A 5 5 0 0 1 9 3.2" stroke="#fff" strokeWidth={0.4} opacity={0.15} fill="none" />
     <Lead x1={7} y1={17} x2={7} y2={18} />
     <Lead x1={11} y1={17} x2={11} y2={18} />
     <Silk x={2.6} y={2.8} size={1.1} fill="#8f9aa6">+</Silk>
@@ -1411,8 +1340,7 @@ export const PartGlyph = memo(function PartGlyph(props: {
       }
     >
       <g transform={scaleT || undefined}>
-        {!props.board && <ellipse cx={w / 2} cy={h + 0.45} rx={Math.max(w * 0.44, 1.6)} ry={0.85} fill="url(#matAO)" />}
-        <g filter="url(#matLift)">{art}</g>
+        <g>{art}</g>
         {props.partRef && !props.board && (
           <text className="part-label" x={w / 2} y={h + 2.8} textAnchor="middle">
             {partNameLabel(props.partRef, props.values ?? {})}

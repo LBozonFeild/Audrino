@@ -81,19 +81,14 @@ export function Lead(props: { x1: number; y1: number; x2: number; y2: number; w?
     <g>
       <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#5f6873" strokeWidth={w} strokeLinecap="round" />
       <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={LEAD} strokeWidth={w * 0.72} strokeLinecap="round" />
-      <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#f2f6fa" strokeWidth={w * 0.26} strokeLinecap="round" opacity={0.75} />
-    </g>
+          </g>
   );
 }
 
 /** Glossy-plastic coat: top sheen + bottom shade + left light, over any fill. */
 export function Shade({ x, y, w, h, rx = 0.5 }: { x: number; y: number; w: number; h: number; rx?: number }): ReactElement {
   return (
-    <g style={{ pointerEvents: "none" }}>
-      <rect x={x} y={y} width={w} height={h} rx={rx} fill="url(#matSheen)" />
-      <rect x={x} y={y + h * 0.72} width={w} height={h * 0.28} rx={rx} fill="#000" opacity={0.18} />
-      <rect x={x} y={y} width={w} height={h * 0.14} rx={rx} fill="#fff" opacity={0.22} />
-    </g>
+<g />
   );
 }
 
@@ -156,9 +151,8 @@ export function Dip(props: {
       {rowB.map((p) => (
         <DipLead key={`b${p.id}`} x={horizontal ? p.x : x + w - 0.35} y={horizontal ? (ys[1] > y + h / 2 ? y + h - 0.2 : p.y) : p.y} dir={1} axis={horizontal ? "h" : "v"} />
       ))}
-      <rect x={x} y={y} width={w} height={h} rx={0.55} fill="url(#matBlack)" stroke="#000" strokeWidth={0.22} filter="url(#matGrain)" />
+      <rect x={x} y={y} width={w} height={h} rx={0.55} fill="url(#matBlack)" stroke="#000" strokeWidth={0.22} />
       <rect x={x + 0.35} y={y + 0.35} width={w - 0.7} height={h - 0.7} rx={0.4} fill="none" stroke="#ffffff" strokeWidth={0.12} opacity={0.09} />
-      <rect x={x + 0.5} y={y + 0.45} width={w - 1} height={h * 0.28} rx={0.35} fill="#fff" opacity={0.05} />
       <path d={`M ${x} ${y + h / 2 - 1.15} A 1.15 1.15 0 0 0 ${x} ${y + h / 2 + 1.15} Z`} fill="#05070a" />
       <path d={`M ${x} ${y + h / 2 - 1.15} A 1.15 1.15 0 0 0 ${x} ${y + h / 2 + 1.15}`} fill="none" stroke="#3d434b" strokeWidth={0.14} />
       <circle cx={x + 1.5} cy={y + 1.5} r={0.52} fill="#05070a" />
@@ -182,8 +176,7 @@ export function To92({ x, y, w, h, label, code }: { x: number; y: number; w: num
   const r = w / 2;
   return (
     <g>
-      <path d={`M ${x} ${y + h} L ${x} ${y + r} A ${r} ${r} 0 0 1 ${x + w} ${y + r} L ${x + w} ${y + h} Z`} fill="url(#matBlack)" stroke="#000" strokeWidth={0.2} filter="url(#matGrain)" />
-      <path d={`M ${x + 0.5} ${y + h - 0.4} L ${x + 0.5} ${y + r} A ${r - 0.5} ${r - 0.5} 0 0 1 ${x + w * 0.62} ${y + 0.62}`} fill="none" stroke="#fff" strokeWidth={0.35} opacity={0.12} />
+      <path d={`M ${x} ${y + h} L ${x} ${y + r} A ${r} ${r} 0 0 1 ${x + w} ${y + r} L ${x + w} ${y + h} Z`} fill="url(#matBlack)" stroke="#000" strokeWidth={0.2} />
       <Mark x={x + w / 2} y={y + r + 0.6} size={Math.min(1.35, (w * 0.86) / label.length)} fill="#c8cdd3">
         {label}
       </Mark>
@@ -202,11 +195,9 @@ export function To220({ x, y, w, h, label, code, legs = 3 }: { x: number; y: num
   return (
     <g>
       <rect x={x} y={y} width={w} height={tabH} rx={0.5} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.18} />
-      <rect x={x + 0.3} y={y + 0.3} width={w - 0.6} height={tabH - 0.6} rx={0.4} fill="url(#matBrushed)" />
-      <circle cx={x + w / 2} cy={y + tabH * 0.5} r={Math.min(1.8, tabH * 0.36)} fill="#454c55" stroke="#31383f" strokeWidth={0.2} />
+            <circle cx={x + w / 2} cy={y + tabH * 0.5} r={Math.min(1.8, tabH * 0.36)} fill="#454c55" stroke="#31383f" strokeWidth={0.2} />
       <circle cx={x + w / 2} cy={y + tabH * 0.5} r={Math.min(1.8, tabH * 0.36)} fill="none" stroke="#e8edf2" strokeWidth={0.14} opacity={0.5} />
-      <rect x={x} y={y + tabH} width={w} height={h - tabH} rx={0.45} fill="url(#matBlack)" stroke="#000" strokeWidth={0.22} filter="url(#matGrain)" />
-      <rect x={x + 0.4} y={y + tabH + 0.35} width={w - 0.8} height={(h - tabH) * 0.3} rx={0.3} fill="#fff" opacity={0.06} />
+      <rect x={x} y={y + tabH} width={w} height={h - tabH} rx={0.45} fill="url(#matBlack)" stroke="#000" strokeWidth={0.22} />
       <Mark x={x + w / 2} y={y + tabH + (h - tabH) * 0.52} size={Math.min(1.7, (w * 0.8) / label.length)} fill="#c8cdd3">
         {label}
       </Mark>
@@ -230,7 +221,7 @@ export function Smd3({ x, y, w, h, label }: { x: number; y: number; w: number; h
       <rect x={x - 0.5} y={y + h * 0.15} width={0.7} height={h * 0.32} fill={METAL_D} />
       <rect x={x - 0.5} y={y + h * 0.55} width={0.7} height={h * 0.32} fill={METAL_D} />
       <rect x={x + w - 0.2} y={y + h * 0.35} width={0.7} height={h * 0.32} fill={METAL_D} />
-      <rect x={x} y={y} width={w} height={h} rx={0.25} fill="url(#matBlack)" stroke="#000" strokeWidth={0.14} filter="url(#matGrain)" />
+      <rect x={x} y={y} width={w} height={h} rx={0.25} fill="url(#matBlack)" stroke="#000" strokeWidth={0.14} />
       {label && <Mark x={x + w / 2} y={y + h / 2 + 0.35} size={Math.min(0.85, (w * 0.7) / label.length)}>{label}</Mark>}
     </g>
   );
@@ -243,7 +234,6 @@ export function SmdPassive({ x, y, w, h, body = "#17181c", code, term = METAL_D 
       <rect x={x} y={y} width={w} height={h} rx={0.18} fill={body} stroke="#000" strokeWidth={0.1} />
       <rect x={x} y={y} width={w * 0.22} height={h} rx={0.18} fill="url(#matSteel)" />
       <rect x={x + w * 0.78} y={y} width={w * 0.22} height={h} rx={0.18} fill="url(#matSteel)" />
-      <rect x={x} y={y} width={w} height={h * 0.4} rx={0.18} fill="#fff" opacity={0.14} />
       {code && <Mark x={x + w / 2} y={y + h / 2 + 0.32} size={Math.min(0.75, (w * 0.5) / code.length)} fill="#e8ecef">{code}</Mark>}
     </g>
   );
@@ -254,8 +244,6 @@ export function ElectrolyticTop({ x, y, r, sleeve = "#2b3a67", stripe }: { x: nu
   return (
     <g>
       <circle cx={x} cy={y} r={r} fill={sleeve} stroke="#0d1428" strokeWidth={0.25} />
-      <circle cx={x} cy={y} r={r * 0.97} fill="url(#matBrushed)" opacity={0.5} />
-      <circle cx={x} cy={y} r={r * 0.86} fill="none" stroke="#fff" strokeWidth={0.16} opacity={0.14} />
       <path d={`M ${x} ${y - r * 0.62} L ${x} ${y + r * 0.62} M ${x - r * 0.62} ${y} L ${x + r * 0.62} ${y}`} stroke="#8f9aa6" strokeWidth={0.35} opacity={0.8} />
       {stripe && (
         <path d={`M ${x - r * 0.9} ${y} A ${r * 0.9} ${r * 0.9} 0 0 1 ${x + r * 0.9} ${y}`} fill="none" stroke={stripe} strokeWidth={r * 0.34} opacity={0.9} transform={`rotate(115 ${x} ${y})`} />
@@ -297,7 +285,6 @@ export function Tact({ x, y, w = 6, h = 6, plunger = "#0d0f12", frame = METAL }:
       ))}
       <rect x={x} y={y} width={w} height={h} rx={0.35} fill={frame === METAL ? "url(#matSteel)" : frame} stroke="#6f7a86" strokeWidth={0.18} />
       <rect x={x + 0.35} y={y + 0.35} width={w - 0.7} height={h - 0.7} rx={0.3} fill="url(#matSteel)" />
-      <rect x={x + 0.5} y={y + 0.5} width={w - 1} height={(h - 1) * 0.35} rx={0.25} fill="#fff" opacity={0.35} />
       <circle cx={x + w / 2} cy={y + h / 2} r={Math.min(w, h) * 0.32} fill={plunger} stroke="#000" strokeWidth={0.16} />
       <circle cx={x + w / 2} cy={y + h / 2} r={Math.min(w, h) * 0.32} fill="url(#matSheen)" opacity={0.5} />
       <circle cx={x + w / 2 - 0.35} cy={y + h / 2 - 0.4} r={Math.min(w, h) * 0.12} fill="#fff" opacity={0.55} />
@@ -345,7 +332,6 @@ export function MaleHeader({ pts }: { pts: { x: number; y: number }[] }): ReactE
   return (
     <g>
       <rect x={x} y={y} width={w} height={h} rx={0.25} fill="url(#matBlack)" stroke="#04060a" strokeWidth={0.2} />
-      <rect x={x + 0.15} y={y + 0.15} width={w - 0.3} height={h * 0.3} rx={0.2} fill="#fff" opacity={0.14} />
       {pts.map((p) => (
         <g key={`${p.x},${p.y}`}>
           <rect x={p.x - 0.55} y={p.y - 0.55} width={1.1} height={1.1} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.08} />
@@ -364,7 +350,6 @@ export function ScrewTerminal({ x, y, w, h, pins, color = "#1d5c9a", dark = "#0f
   return (
     <g>
       <rect x={x} y={y} width={w} height={h} rx={0.5} fill={color} stroke={dark} strokeWidth={0.28} />
-      <rect x={x + 0.25} y={y + 0.25} width={w - 0.5} height={0.6} rx={0.3} fill="#fff" opacity={0.16} />
       {pins.map((p, i) => (
         <g key={p.id ?? i}>
           <rect x={x + i * seg + seg * 0.14} y={y + h * 0.16} width={seg * 0.72} height={h * 0.42} rx={0.3} fill="#0b1c30" />
@@ -395,8 +380,7 @@ export function UsbShell({ x, y, w, h, kind = "b" }: { x: number; y: number; w: 
         {[0, 1, 2, 3].map((i) => (
           <rect key={i} x={x + 2.8 + i * ((w - 5.6) / 3)} y={y + h * 0.37} width={0.55} height={h * 0.26} fill={GOLD} />
         ))}
-        <rect x={x + 0.6} y={y + 0.6} width={w - 1.2} height={0.7} rx={0.35} fill="#fff" opacity={0.4} />
-      </g>
+              </g>
     );
   }
   if (kind === "micro" || kind === "mini") {
@@ -404,8 +388,7 @@ export function UsbShell({ x, y, w, h, kind = "b" }: { x: number; y: number; w: 
       <g>
         <rect x={x} y={y} width={w} height={h} rx={0.6} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
         <rect x={x + 0.5} y={y + h * 0.22} width={w - 1} height={h * 0.56} rx={0.5} fill="#23272e" />
-        <rect x={x + 0.5} y={y + h * 0.22} width={w - 1} height={0.4} rx={0.2} fill="#fff" opacity={0.3} />
-      </g>
+              </g>
     );
   }
   return (
@@ -425,8 +408,7 @@ export function Crystal({ x, y, w, h, oval = true, label }: { x: number; y: numb
       {oval ? (
         <g>
           <rect x={x} y={y} width={w} height={h} rx={h / 2} fill="url(#matCan)" stroke="#5c6570" strokeWidth={0.2} />
-          <rect x={x + 0.3} y={y + 0.3} width={w - 0.6} height={h - 0.6} rx={(h - 0.6) / 2} fill="url(#matBrushed)" />
-          <rect x={x + 0.35} y={y + 0.35} width={w - 0.7} height={h - 0.7} rx={(h - 0.7) / 2} fill="none" stroke="#8f9aa6" strokeWidth={0.18} opacity={0.8} />
+                    <rect x={x + 0.35} y={y + 0.35} width={w - 0.7} height={h - 0.7} rx={(h - 0.7) / 2} fill="none" stroke="#8f9aa6" strokeWidth={0.18} opacity={0.8} />
           <rect x={x + h * 0.18} y={y + h * 0.16} width={w - h * 0.36} height={h * 0.26} rx={h * 0.13} fill="#fff" opacity={0.5} />
           <rect x={x + h * 0.22} y={y + h * 0.62} width={w - h * 0.44} height={h * 0.16} rx={h * 0.08} fill="#000" opacity={0.14} />
         </g>
@@ -451,7 +433,7 @@ export function Qfn({ x, y, w, h, label, pads = 8 }: { x: number; y: number; w: 
   const idx = Array.from({ length: per }, (_, i) => (per === 1 ? 0.5 : (i + 0.5) / per));
   return (
     <g>
-      <rect x={x} y={y} width={w} height={h} rx={0.45} fill="url(#matBlack)" stroke="#000" strokeWidth={0.18} filter="url(#matGrain)" />
+      <rect x={x} y={y} width={w} height={h} rx={0.45} fill="url(#matBlack)" stroke="#000" strokeWidth={0.18} />
       <rect x={x + 0.3} y={y + 0.3} width={w - 0.6} height={h - 0.6} rx={0.35} fill="none" stroke="#fff" strokeWidth={0.1} opacity={0.1} />
       <circle cx={x + 1} cy={y + 1} r={0.4} fill="#3d434b" />
       {idx.map((f) => (
@@ -472,21 +454,6 @@ export function Board({ w, h, fill, edge, rx = 1.4, traces }: { w: number; h: nu
   return (
     <g>
       <rect x={0.3} y={0.3} width={w - 0.6} height={h - 0.6} rx={rx} fill={fill} stroke={edge} strokeWidth={0.45} />
-      <rect x={0.75} y={0.75} width={w - 1.5} height={h - 1.5} rx={rx - 0.3} fill="none" stroke="#fff" strokeOpacity={0.14} strokeWidth={0.35} />
-      <line x1={0.8} y1={0.8} x2={w - 0.8} y2={0.8} stroke="#fff" strokeWidth={0.3} opacity={0.28} />
-      <line x1={0.8} y1={0.8} x2={0.8} y2={h - 0.8} stroke="#fff" strokeWidth={0.3} opacity={0.2} />
-      <line x1={0.8} y1={h - 0.8} x2={w - 0.8} y2={h - 0.8} stroke="#000" strokeWidth={0.35} opacity={0.3} />
-      <line x1={w - 0.8} y1={0.8} x2={w - 0.8} y2={h - 0.8} stroke="#000" strokeWidth={0.35} opacity={0.22} />
-      <path d={`M 0.6 ${h * 0.42} L ${w * 0.42} 0.6 L ${w * 0.58} 0.6 L 0.6 ${h * 0.58} Z`} fill="#fff" opacity={0.05} />
-      <path d={`M 0.6 ${h * 0.78} L ${w * 0.78} 0.6 L ${w * 0.86} 0.6 L 0.6 ${h * 0.86} Z`} fill="#fff" opacity={0.04} />
-      <rect x={0.6} y={h * 0.86} width={w - 1.2} height={h * 0.08} rx={rx * 0.5} fill="#000" opacity={0.12} />
-      {traces && (
-        <g fill="none" stroke="#fff" strokeOpacity={0.07} strokeWidth={0.5}>
-          {traces.map((dPath) => (
-            <path key={dPath} d={dPath} />
-          ))}
-        </g>
-      )}
     </g>
   );
 }
