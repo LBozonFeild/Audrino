@@ -222,20 +222,45 @@ export function ArtDefs() {
   return (
     <defs>
       <linearGradient id="matSteel" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#fdfefe" />
-        <stop offset="0.35" stopColor="#c3cad2" />
-        <stop offset="0.65" stopColor="#8e97a2" />
-        <stop offset="1" stopColor="#5c6570" />
+        <stop offset="0" stopColor="#ffffff" />
+        <stop offset="0.14" stopColor="#eef2f6" />
+        <stop offset="0.32" stopColor="#c3cad2" />
+        <stop offset="0.52" stopColor="#a6afb9" />
+        <stop offset="0.7" stopColor="#87919c" />
+        <stop offset="0.88" stopColor="#6b747e" />
+        <stop offset="1" stopColor="#535c66" />
       </linearGradient>
+      <linearGradient id="matGold" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#fff3c4" />
+        <stop offset="0.3" stopColor="#f0d060" />
+        <stop offset="0.55" stopColor="#d8b13c" />
+        <stop offset="0.8" stopColor="#b08a24" />
+        <stop offset="1" stopColor="#8a7420" />
+      </linearGradient>
+      <radialGradient id="matScrew" cx="0.35" cy="0.3" r="0.9">
+        <stop offset="0" stopColor="#f4f7fa" />
+        <stop offset="0.45" stopColor="#b9c2cb" />
+        <stop offset="0.8" stopColor="#79838e" />
+        <stop offset="1" stopColor="#4c5560" />
+      </radialGradient>
+      <radialGradient id="matSheen" cx="0.32" cy="0.24" r="0.95">
+        <stop offset="0" stopColor="#ffffff" stopOpacity="0.55" />
+        <stop offset="0.45" stopColor="#ffffff" stopOpacity="0.16" />
+        <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
+      </radialGradient>
       <linearGradient id="matBrass" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#ffe9b0" />
+        <stop offset="0" stopColor="#fff6d0" />
+        <stop offset="0.22" stopColor="#f2cd6a" />
         <stop offset="0.5" stopColor="#d8a13e" />
-        <stop offset="1" stopColor="#8f5f18" />
+        <stop offset="0.78" stopColor="#a9761f" />
+        <stop offset="1" stopColor="#7d5212" />
       </linearGradient>
       <linearGradient id="matBlack" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#55555c" />
-        <stop offset="0.4" stopColor="#2c2c33" />
-        <stop offset="1" stopColor="#101014" />
+        <stop offset="0" stopColor="#6b6b74" />
+        <stop offset="0.18" stopColor="#44444c" />
+        <stop offset="0.5" stopColor="#26262d" />
+        <stop offset="0.85" stopColor="#141419" />
+        <stop offset="1" stopColor="#0a0a0e" />
       </linearGradient>
       <linearGradient id="matAbs" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stopColor="#fffef8" />
@@ -269,8 +294,9 @@ export function ArtDefs() {
         <rect width="25" height="25" fill="url(#matGrid)" />
         <path className="grid-line-major" d="M 25 0 L 0 0 L 0 25" fill="none" />
       </pattern>
-      <filter id="matLift" x="-40%" y="-40%" width="180%" height="180%">
-        <feDropShadow dx="0.15" dy="0.5" stdDeviation="0.35" floodColor="#000" floodOpacity="0.3" />
+      <filter id="matLift" x="-60%" y="-60%" width="220%" height="220%">
+        <feDropShadow dx="0" dy="0.35" stdDeviation="0.28" floodColor="#0b1016" floodOpacity="0.42" result="tight" />
+        <feDropShadow dx="0" dy="1.1" stdDeviation="1.15" floodColor="#0b1016" floodOpacity="0.26" />
       </filter>
     </defs>
   );
