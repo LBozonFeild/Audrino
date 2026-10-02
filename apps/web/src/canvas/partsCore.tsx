@@ -403,7 +403,7 @@ export function UsbShell({ x, y, w, h, kind = "b" }: { x: number; y: number; w: 
     return (
       <g>
         <rect x={x} y={y} width={w} height={h} rx={0.9} fill="#b8c2cc" stroke="#5c6570" strokeWidth={0.3} />
-        <rect x={x} y={y + h * 0.18} width={1.4} height={h * 0.64} rx={0.5} fill="#23272e" />
+        <rect x={x} y={y + h * 0.16} width={1.8} height={h * 0.68} rx={0.5} fill="#23272e" />
         <rect x={x + 2.4} y={y + h * 0.2} width={1.8} height={1.2} rx={0.3} fill="#8f9aa6" />
         <rect x={x + 2.4} y={y + h * 0.8 - 1.2} width={1.8} height={1.2} rx={0.3} fill="#8f9aa6" />
         <line x1={x + w * 0.45} y1={y + 0.4} x2={x + w * 0.45} y2={y + h - 0.4} stroke="#8f9aa6" strokeWidth={0.25} />
@@ -492,9 +492,8 @@ export function Board({ w, h, fill, edge, rx = 1.4, traces }: { w: number; h: nu
 export function MountHole({ x, y, r = 1.6 }: { x: number; y: number; r?: number }): ReactElement {
   return (
     <g>
-      <circle cx={x} cy={y} r={r + 0.55} fill="#b8c2cc" stroke="#8f9aa6" strokeWidth={0.25} />
+      <circle cx={x} cy={y} r={r + 0.4} fill="#9aa4ae" />
       <circle cx={x} cy={y} r={r} fill="#0d0f12" />
-      <circle cx={x} cy={y} r={r} fill="none" stroke="#5c6570" strokeWidth={0.2} />
     </g>
   );
 }

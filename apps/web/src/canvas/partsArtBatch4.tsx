@@ -454,12 +454,12 @@ function PinMarks({ d, ls = 0.6 }: { d: PartDefinition; ls?: number }) {
         return bottom || top ? (
           <g key={p.id}>
             <Hole x={p.x} y={bottom ? p.y - 1 : p.y + 1} r={0.5} />
-            <Silk x={p.x} y={bottom ? p.y - 1.9 : p.y + 2.7} size={ls}>{p.id}</Silk>
+            <Silk x={p.x} y={bottom ? p.y - 2 : p.y + 2.8} size={Math.max(ls, 0.8)}>{p.id}</Silk>
           </g>
         ) : (
           <g key={p.id}>
             <Hole x={p.x > w / 2 ? p.x - 1 : p.x + 1} y={p.y} r={0.5} />
-            <Silk x={p.x > w / 2 ? p.x - 2 : p.x + 2} y={p.y + 0.35} size={ls} anchor={p.x > w / 2 ? "end" : "start"}>{p.id}</Silk>
+            <Silk x={p.x > w / 2 ? p.x - 2.1 : p.x + 2.1} y={p.y + 0.35} size={Math.max(ls, 0.7)} anchor={p.x > w / 2 ? "end" : "start"}>{p.id}</Silk>
           </g>
         );
       })}

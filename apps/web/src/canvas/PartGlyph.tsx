@@ -346,7 +346,7 @@ const Uno: ArtFn = (d) => {
       {/* USB-B shell */}
       <g>
         <rect x={-1.1} y={8.2} width={12.8} height={12} rx={0.9} fill="#b8c2cc" stroke="#5c6570" strokeWidth={0.3} />
-        <rect x={-1.1} y={10.4} width={1.5} height={7.6} rx={0.5} fill="#23272e" />
+        <rect x={-1.1} y={10.2} width={1.9} height={8} rx={0.5} fill="#23272e" />
         <rect x={1.6} y={10.6} width={1.9} height={1.3} rx={0.3} fill="#8f9aa6" />
         <rect x={1.6} y={16.5} width={1.9} height={1.3} rx={0.3} fill="#8f9aa6" />
         <line x1={4.6} y1={8.6} x2={4.6} y2={19.8} stroke="#8f9aa6" strokeWidth={0.25} />
@@ -413,8 +413,8 @@ const Uno: ArtFn = (d) => {
       <Silk x={58.6} y={41.9} size={0.85} fill={SILK} anchor="start" spacing={0.12}>MADE IN ITALY</Silk>
       {/* barrel jack */}
       <rect x={1.7} y={39.9} width={12} height={10} rx={0.6} fill="#17191d" stroke="#000" strokeWidth={0.3} />
-      <rect x={0.3} y={41.3} width={4.8} height={7.2} rx={2.2} fill="#101214" stroke="#000" strokeWidth={0.3} />
-      <rect x={0.3} y={42.7} width={1} height={4.4} rx={0.5} fill="#050506" />
+      <rect x={0.3} y={41.3} width={4.8} height={7.2} rx={1} fill="#101214" stroke="#000" strokeWidth={0.3} />
+      <rect x={0.3} y={42.5} width={1.2} height={4.8} rx={0.4} fill="#050506" />
       <line x1={6.2} y1={40.4} x2={6.2} y2={49.4} stroke="#0b0d10" strokeWidth={0.35} />
       <line x1={9.4} y1={40.4} x2={9.4} y2={49.4} stroke="#0b0d10" strokeWidth={0.35} />
       <rect x={11.4} y={39.2} width={1.8} height={1.1} rx={0.3} fill="#b8c2cc" />
@@ -1080,7 +1080,7 @@ const Mpu6050: ArtFn = (d) => (
     <rect x={0.5} y={0.5} width={17} height={15.5} rx={0.6} fill={PCB_PURPLE} stroke="#42296b" strokeWidth={0.35} />
     <Chip x={5} y={3} w={8} h={8} label="6050" />
     <rect x={1.5} y={3} width={2} height={1.2} fill={METAL_D} />
-    <Silk x={13.6} y={3.6} size={1} anchor="end">GY-521</Silk>
+    <Silk x={9} y={12.9} size={0.9}>GY-521</Silk>
     {d.pins.map((p) => (
       <g key={p.id}>
         <Hole x={p.x} y={p.y - 1} r={0.55} />
