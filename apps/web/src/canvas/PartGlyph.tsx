@@ -344,7 +344,14 @@ const Uno: ArtFn = (d) => {
         <MountHole key={`${x},${y}`} x={x} y={y} r={1.55} />
       ))}
       {/* USB-B shell */}
-      <UsbShell x={0.4} y={8.2} w={11} h={12} kind="b" />
+      <g>
+        <rect x={-1.1} y={8.2} width={12.8} height={12} rx={0.9} fill="#b8c2cc" stroke="#5c6570" strokeWidth={0.3} />
+        <rect x={-1.1} y={10.4} width={1.5} height={7.6} rx={0.5} fill="#23272e" />
+        <rect x={1.6} y={10.6} width={1.9} height={1.3} rx={0.3} fill="#8f9aa6" />
+        <rect x={1.6} y={16.5} width={1.9} height={1.3} rx={0.3} fill="#8f9aa6" />
+        <line x1={4.6} y1={8.6} x2={4.6} y2={19.8} stroke="#8f9aa6" strokeWidth={0.25} />
+        <rect x={11.7} y={9.6} width={1.3} height={9.2} rx={0.3} fill="#8f9aa6" />
+      </g>
       {/* reset tact + vertical RESET silk */}
       <Tact x={3.4} y={1.3} w={6.2} h={5.6} plunger={METAL_L} frame={METAL} />
       <Silk x={2.2} y={7.4} size={1.05} fill={SILK} rotate={-90} anchor="start">RESET</Silk>
@@ -405,12 +412,13 @@ const Uno: ArtFn = (d) => {
       <Silk x={65.9} y={20.2} size={0.95} fill={SILK}>ICSP</Silk>
       <Silk x={58.6} y={41.9} size={0.85} fill={SILK} anchor="start" spacing={0.12}>MADE IN ITALY</Silk>
       {/* barrel jack */}
-      <rect x={0.5} y={39.7} width={13.2} height={10.4} rx={0.7} fill="#191c21" stroke="#000" strokeWidth={0.3} />
-      <circle cx={4.9} cy={44.9} r={3.6} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
-            <circle cx={4.9} cy={44.9} r={3.15} fill="#2b2f36" stroke="#000" strokeWidth={0.3} />
-      <circle cx={4.9} cy={44.9} r={1.35} fill="#050506" />
-      <circle cx={4.9} cy={44.9} r={0.5} fill={METAL_D} />
-            <rect x={10.6} y={41.2} width={2.2} height={7.4} rx={0.4} fill="#22262b" />
+      <rect x={1.7} y={39.9} width={12} height={10} rx={0.6} fill="#17191d" stroke="#000" strokeWidth={0.3} />
+      <rect x={0.3} y={41.3} width={4.8} height={7.2} rx={2.2} fill="#101214" stroke="#000" strokeWidth={0.3} />
+      <rect x={0.3} y={42.7} width={1} height={4.4} rx={0.5} fill="#050506" />
+      <line x1={6.2} y1={40.4} x2={6.2} y2={49.4} stroke="#0b0d10" strokeWidth={0.35} />
+      <line x1={9.4} y1={40.4} x2={9.4} y2={49.4} stroke="#0b0d10" strokeWidth={0.35} />
+      <rect x={11.4} y={39.2} width={1.8} height={1.1} rx={0.3} fill="#b8c2cc" />
+      <rect x={11.4} y={49.5} width={1.8} height={1.1} rx={0.3} fill="#b8c2cc" />
       {/* silkscreen: digital group (vertical labels like the real board) */}
       <rect x={30.9} y={8.1} width={17.3} height={2.4} rx={0.2} fill={SILK} />
       <Silk x={39.55} y={9.85} size={1.5} weight={700} fill={PCB_TEAL} spacing={0.2}>DIGITAL (PWM~)</Silk>
@@ -1341,6 +1349,18 @@ export const PartGlyph = memo(function PartGlyph(props: {
     >
       <g transform={scaleT || undefined}>
         <g>{art}</g>
+        {props.type === "arduino-uno" && (
+          <g
+            style={{ cursor: "pointer" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              useSimStore.getState().reset();
+            }}
+          >
+            <title>Reset board (restarts the simulation)</title>
+            <circle cx={6.5} cy={4.1} r={3.4} fill="#fff" opacity={0.001} />
+          </g>
+        )}
         {props.partRef && !props.board && (
           <text className="part-label" x={w / 2} y={h + 2.8} textAnchor="middle">
             {partNameLabel(props.partRef, props.values ?? {})}

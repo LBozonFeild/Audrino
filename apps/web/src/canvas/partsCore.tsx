@@ -496,10 +496,9 @@ export function Board({ w, h, fill, edge, rx = 1.4, traces }: { w: number; h: nu
 export function MountHole({ x, y, r = 1.6 }: { x: number; y: number; r?: number }): ReactElement {
   return (
     <g>
-      <circle cx={x} cy={y} r={r + 0.55} fill="url(#matSteel)" stroke="#8f9aa6" strokeWidth={0.25} />
-      <circle cx={x} cy={y} r={r + 0.55} fill="none" stroke="#fff" strokeWidth={0.2} opacity={0.5} />
-      <circle cx={x} cy={y} r={r} fill="#e8e6dc" stroke="#9aa0a6" strokeWidth={0.2} />
-      <circle cx={x} cy={y} r={r - 0.35} fill="#b9b8ae" />
+      <circle cx={x} cy={y} r={r + 0.55} fill="#b8c2cc" stroke="#8f9aa6" strokeWidth={0.25} />
+      <circle cx={x} cy={y} r={r} fill="#0d0f12" />
+      <circle cx={x} cy={y} r={r} fill="none" stroke="#5c6570" strokeWidth={0.2} />
     </g>
   );
 }
