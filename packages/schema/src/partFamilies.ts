@@ -568,6 +568,87 @@ const miscDefs = (): PartDefinition[] => {
   return out;
 };
 
+
+// ---------------------------------------------------------------- bench passives / electromech / connectivity (non-IC expansion to 1500+)
+const benchDefs = (): PartDefinition[] => {
+  const out: PartDefinition[] = [];
+  const OHMS: [string, number][] = [["1r0",1],["4r7",4.7],["10r",10],["22r",22],["47r",47],["100r",100],["150r",150],["220r",220],["330r",330],["470r",470],["1k",1000],["1k5",1500],["2k2",2200],["3k3",3300],["4k7",4700],["6k8",6800],["10k",10000],["15k",15000],["22k",22000],["33k",33000],["47k",47000],["68k",68000],["100k",100000],["150k",150000],["220k",220000],["330k",330000],["470k",470000],["680k",680000],["1M",1e6],["2M2",2.2e6],["4M7",4.7e6],["10M",1e7]];
+  for (const [code, r] of OHMS) out.push(def(`resistor-${code.toLowerCase()}`, code.toUpperCase(), "passive", 9, 3.2, [px("1", "1", 0, 1.6), px("2", "2", 9, 1.6)], { resistance_ohms: r }));
+  for (const [size, w, h] of [["0603", 1.6, 0.8], ["0805", 2, 1.25]] as [string, number, number][])
+    for (const code of ["0r", "10r", "100r", "1k", "4k7", "10k", "100k", "1M"])
+      out.push(def(`smd-res-${size}-${code.toLowerCase()}`, code.toUpperCase(), "passive", w, h, [px("1", "1", 0.2, h / 2), px("2", "2", w - 0.2, h / 2)], {}));
+  for (const [t, w, h] of [["0603-100n", 1.6, 0.8], ["0603-1u", 1.6, 0.8], ["0805-100n", 2, 1.25], ["0805-1u", 2, 1.25], ["1206-10u", 3.2, 1.6], ["1206-22u", 3.2, 1.6]] as [string, number, number][])
+    out.push(def(`smd-cap-${t}`, t.split("-")[1].toUpperCase(), "passive", w, h, [px("1", "1", 0.2, h / 2), px("2", "2", w - 0.2, h / 2)], {}));
+  const RAD: [string, number, number, number][] = [["1u",6.3,11,2.5],["4u7",6.3,11,2.5],["10u",6.3,11,2.5],["22u",6.3,11,2.5],["33u",6.3,11,2.5],["47u",6.3,11,2.5],["68u",8,11.5,3.5],["100u",8,11.5,3.5],["150u",8,11.5,3.5],["220u",8,11.5,3.5],["330u",8,11.5,3.5],["470u",10,16,5],["680u",10,16,5],["1000u",10,16,5],["2200u",12.5,20,5],["4700u",12.5,20,5]];
+  for (const [code, w, h, pp] of RAD) out.push(def(`cap-rad-${code}`, code.toUpperCase(), "passive", w, h, [px("+", "+", w / 2 - pp / 2, h), px("-", "−", w / 2 + pp / 2, h)], {}));
+  for (const code of ["102", "103", "104", "224", "474", "105", "225", "335"]) out.push(def(`cap-film-${code}`, code, "passive", 10, 8, [px("1", "1", 3, 8), px("2", "2", 7, 8)], {}));
+  for (const code of ["101", "15p", "33p", "47p", "105"]) out.push(def(`cap-ceramic-${code}`, code, "passive", 8, 10, [px("1", "1", 2.5, 10), px("2", "2", 5.5, 10)], {}));
+  for (const code of ["3m579", "4m", "6m", "8m", "10m", "11m059", "12m", "14m318", "16m", "18m432", "20m", "24m", "25m", "27m", "32m"]) out.push(def(`crystal-${code}`, code.toUpperCase(), "passive", 11.5, 5, [px("1", "1", 3.4, 5), px("2", "2", 8.1, 5)], {}));
+  out.push(def("crystal-cyl-32k768", "32.768k", "passive", 2.5, 8, [px("1", "1", 0.8, 8), px("2", "2", 1.7, 8)], {}));
+  for (const code of ["4m", "8m", "12m", "16m", "20m", "24m", "25m", "32m", "40m", "50m"]) out.push(def(`osc-${code}`, code.toUpperCase(), "passive", 5, 3.2, [px("1", "1", 0.8, 0.5), px("2", "OUT", 4.2, 0.5), px("3", "VDD", 4.2, 2.7), px("4", "GND", 0.8, 2.7)], {}));
+  for (const code of ["1uh", "4u7", "10uh", "22uh", "47uh", "100uh", "220uh", "470uh", "1mh"]) out.push(def(`inductor-${code}`, code.toUpperCase(), "passive", 8, 10, [px("1", "1", 2.5, 10), px("2", "2", 5.5, 10)], {}));
+  for (const [code, w] of [["07d471", 7], ["10d471", 10], ["14d471", 14]] as [string, number][]) out.push(def(`mov-${code}`, code.toUpperCase(), "passive", w, 9, [px("1", "1", w / 2 - 2.5, 9), px("2", "2", w / 2 + 2.5, 9)], {}));
+  for (const code of ["10k", "47k", "100k"]) out.push(def(`thermistor-${code}`, code, "passive", 5, 8, [px("1", "1", 1.5, 8), px("2", "2", 3.5, 8)], {}));
+  for (const [code, w] of [["5d", 9], ["10d", 12], ["47d", 18]] as [string, number][]) out.push(def(`inrush-ntc-${code}`, code.toUpperCase(), "passive", w, 10, [px("1", "1", w / 2 - 2.5, 10), px("2", "2", w / 2 + 2.5, 10)], {}));
+  for (const code of ["250ma", "500ma", "1a", "2a", "3a", "5a", "8a", "10a"]) out.push(def(`fuse-glass-${code}`, code.toUpperCase(), "passive", 20, 5, [px("1", "1", 0, 2.5), px("2", "2", 20, 2.5)], {}));
+  out.push(def("fuse-holder-panel", "FUSE-H", "passive", 18, 8, [px("1", "1", 3, 8), px("2", "2", 15, 8)], {}));
+  out.push(def("fuse-holder-pcb", "FUSE-PCB", "passive", 10, 8, [px("1", "1", 2, 8), px("2", "2", 8, 8)], {}));
+  for (const v of ["5v", "12v", "24v"]) out.push(def(`relay-bare-${v}`, v.toUpperCase(), "output", 19, 15.5, [px("C1", "Coil", 2, 15.5), px("C2", "Coil", 5, 15.5), px("COM", "COM", 11, 15.5), px("NO", "NO", 14, 15.5), px("NC", "NC", 17, 15.5)], {}));
+  for (const [code, taper] of [["1k", "lin"], ["10k", "lin"], ["100k", "lin"], ["500k", "lin"], ["1M", "lin"], ["10k", "log"], ["100k", "log"]] as [string, string][]) out.push(def(`pot-${code.toLowerCase()}-${taper}`, `B${code.toUpperCase()}`, "passive", 17, 17, row(["1", "2", "3"], 17, 4, 13), { taper }));
+  for (const n of [45, 60, 75, 100]) out.push(def(`slide-pot-${n}`, `${n}mm`, "input", n + 15, 9, row(["1", "2", "3"], 9, (n + 15) / 2 - 2.5, (n + 15) / 2 + 2.5), {}));
+  const hdr1 = (n: number) => out.push(def(`header-1x${n}`, `1x${n}`, "connector", n * 2.54, 2.54, row(Array.from({ length: n }, (_, i) => String(i + 1)), 2.54, 1.27, (n - 1) * 2.54 + 1.27), {}));
+  [2, 3, 5, 6, 7, 9, 10, 12, 13, 14, 15, 16, 20, 24, 30, 36, 40].forEach(hdr1);
+  const hdr2 = (n: number) => out.push(def(`header-2x${n}`, `2x${n}`, "connector", n * 2.54, 5.08, [...row(Array.from({ length: n }, (_, i) => String(i + 1)), 1.27, 1.27, (n - 1) * 2.54 + 1.27), ...row(Array.from({ length: n }, (_, i) => String(n + i + 1)), 3.81, 1.27, (n - 1) * 2.54 + 1.27)], {}));
+  [4, 5, 6, 8, 10, 13, 20].forEach(hdr2);
+  const fem1 = (n: number) => out.push(def(`female-1x${n}`, `F1x${n}`, "connector", n * 2.54, 2.54, row(Array.from({ length: n }, (_, i) => String(i + 1)), 2.54, 1.27, (n - 1) * 2.54 + 1.27), {}));
+  [4, 6, 8, 10, 12, 16, 20, 40].forEach(fem1);
+  const fem2 = (n: number) => out.push(def(`female-2x${n}`, `F2x${n}`, "connector", n * 2.54, 5.08, [...row(Array.from({ length: n }, (_, i) => String(i + 1)), 1.27, 1.27, (n - 1) * 2.54 + 1.27), ...row(Array.from({ length: n }, (_, i) => String(n + i + 1)), 3.81, 1.27, (n - 1) * 2.54 + 1.27)], {}));
+  [4, 8, 10, 20].forEach(fem2);
+  for (const n of [10, 16, 20, 26, 34, 40]) {
+    const half = n / 2;
+    out.push(def(`idc-${n}`, `IDC${n}`, "connector", half * 2.54 + 3, 8.8, [...row(Array.from({ length: half }, (_, i) => String(i + 1)), 2.54, 2.77, (half - 1) * 2.54 + 2.77), ...row(Array.from({ length: half }, (_, i) => String(n - i)), 6.26, 2.77, (half - 1) * 2.54 + 2.77)], {}));
+  }
+  for (const n of [3, 7, 9, 11, 14, 16]) out.push(def(`screw-terminal-${n}`, `SCREW ${n}P`, "connector", n * 5 + 2, 7, row(Array.from({ length: n }, (_, i) => String(i + 1)), 7, 3, n * 5 - 1), {}));
+  for (const n of [2, 3, 4]) out.push(def(`screw-term-508-${n}`, `KF301-${n}`, "connector", n * 5.08 + 2, 8, row(Array.from({ length: n }, (_, i) => String(i + 1)), 8, 3, n * 5.08 - 1), {}));
+  for (const n of [9, 10, 12]) out.push(def(`dupont-${n}`, `DUPONT ${n}P`, "connector", n * 2.5 + 1, 4, row(Array.from({ length: n }, (_, i) => String(i + 1)), 4, 1.5, n * 2.5 - 0.5), {}));
+  for (const kind of ["mm", "ff", "mf"]) for (const len of [10, 20, 30]) out.push(def(`jumper-${kind}-${len}`, `${kind.toUpperCase()} ${len}cm`, "connector", 26, 22, [px("1", "1", 3, 22), px("2", "2", 23, 22)], {}));
+  for (const n of [4, 6, 8, 10]) out.push(def(`res-net-${n}`, `RN${n}`, "passive", n * 2.54, 5, row(Array.from({ length: n }, (_, i) => String(i + 1)), 5, 1.27, (n - 1) * 2.54 + 1.27), {}));
+  for (const [t, w, h] of [["4x4", 4, 4], ["6x6", 6, 6], ["12x12", 12, 12], ["3x6", 3, 6]] as [string, number, number][]) out.push(def(`tact-${t}`, t, "input", w, h, [px("1", "1", 0.8, 0.8), px("2", "2", w - 0.8, 0.8), px("3", "3", 0.8, h - 0.8), px("4", "4", w - 0.8, h - 0.8)], {}));
+  for (const n of [7, 8, 9, 14, 18, 20]) out.push(def(`dip-${n}`, `DIP-${n * 2}`, "input", n * 2.4 + 2, 6, [...row(Array.from({ length: n }, (_, i) => String(i + 1)), 6, 2, n * 2.4), ...row(Array.from({ length: n }, (_, i) => String(i + n + 1)), 0, 2, n * 2.4)], {}));
+  for (const color of ["pink", "cyan", "warm"]) {
+    out.push(def(`led-5mm-${color}`, `5mm ${color}`, "led-display", 6, 7.5, [px("A", "A", 1, 7.5), px("K", "K", 5, 7.5)], { color }));
+    out.push(def(`led-3mm-${color}`, `3mm ${color}`, "led-display", 5, 6.5, [px("A", "A", 1, 6.5), px("K", "K", 4, 6.5)], { color }));
+  }
+  for (const color of ["red", "green", "blue"]) out.push(def(`led-8mm-${color}`, `8mm ${color}`, "led-display", 9.5, 10, [px("A", "A", 2, 10), px("K", "K", 7, 10)], { color }));
+  out.push(def("led-bicolor-3", "BICOLOR", "led-display", 5, 6.5, [px("A", "A", 1, 6.5), px("K", "K", 2.5, 6.5), px("B", "B", 4, 6.5)], {}));
+  for (const color of ["green", "blue", "white", "amber"]) out.push(def(`seven-seg-${color}`, `7SEG ${color}`, "display", 12.7, 19, [...row(["1", "2", "3", "4", "5"], 0, 1.27, 11.43), ...row(["6", "7", "8", "9", "10"], 19, 1.27, 11.43)], { color }));
+  for (const sz of [25, 45, 57]) out.push(def(`spk-${sz}mm`, `${sz}mm`, "output", sz, sz, row(["+", "-"], sz, sz * 0.35, sz * 0.65), {}));
+  out.push(def("bulb-e5", "E5", "output", 8, 12, [px("1", "1", 3, 12), px("2", "2", 5, 12)], {}));
+  out.push(def("bulb-e14", "E14", "output", 12, 20, [px("1", "1", 5, 20), px("2", "2", 7, 20)], {}));
+  out.push(def("cell-aaa", "AAA", "power", 44, 10, [px("+", "+", 0, 5), px("-", "-", 44, 5)], {}));
+  out.push(def("cell-c", "C", "power", 50, 26, [px("+", "+", 0, 13), px("-", "-", 50, 13)], {}));
+  out.push(def("cell-d", "D", "power", 61, 34, [px("+", "+", 0, 17), px("-", "-", 61, 17)], {}));
+  out.push(def("cell-cr123a", "CR123A", "power", 34, 17, [px("+", "+", 0, 8.5), px("-", "-", 34, 8.5)], {}));
+  out.push(def("aaa-holder-4", "AAA×4", "power", 48, 52, [px("+", "+", 6, 52), px("-", "-", 42, 52)], {}));
+  out.push(def("18650-holder-3", "18650×3", "power", 63, 70, [px("+", "+", 8, 70), px("-", "-", 55, 70)], {}));
+  out.push(def("18650-holder-4", "18650×4", "power", 84, 70, [px("+", "+", 8, 70), px("-", "-", 76, 70)], {}));
+  out.push(def("wcharge-coil-tx", "QI-TX", "power", 40, 40, [px("1", "1", 18, 40), px("2", "2", 22, 40)], {}));
+  out.push(def("micro-usb-plug", "MICRO-B", "connector", 12, 6, row(["VBUS", "D-", "D+", "ID", "GND"], 6, 2, 10), {}));
+  out.push(def("din5-plug", "DIN5", "connector", 16, 16, row(["1", "2", "3", "4", "5"], 16, 3, 13), {}));
+  out.push(def("speakon-nl4", "NL4", "connector", 23, 23, [px("+", "+", 9, 23), px("-", "-", 14, 23)], {}));
+  out.push(def("xt90", "XT90", "connector", 16, 12, [px("+", "+", 5, 12), px("-", "−", 11, 12)], {}));
+  for (const c of ["red", "black"]) out.push(def(`banana-plug-${c}`, `BANANA ${c[0].toUpperCase()}`, "connector", 14, 5, [px("IN", "Screw", 2, 2.5), px("OUT", "Tip", 12, 2.5)], { color: c }));
+  out.push(def("alligator-clip", "GATOR", "connector", 45, 7, [px("1", "Wire", 3, 3.5), px("2", "Jaw", 42, 3.5)], {}));
+  out.push(def("test-hook", "HOOK", "connector", 15, 5, [px("1", "Wire", 2, 2.5), px("2", "Hook", 13, 2.5)], {}));
+  for (const [t, w, h] of [["n20-motor", 12, 10], ["310-motor", 20, 14], ["550-motor", 37, 25]] as [string, number, number][]) out.push(def(t, t.split("-")[0].toUpperCase(), "motor", w, h, [px("M-", "Motor −", w / 2 - 3, h), px("M+", "Motor +", w / 2 + 3, h)], {}));
+  for (const code of ["5516", "5528", "5549"]) out.push(def(`ldr-${code}`, code, "sensor", 6, 8, [px("1", "1", 2, 8), px("2", "2", 4, 8)], {}));
+  out.push(def("temp-probe-ds18b20", "DS18B20-P", "sensor", 40, 6, [px("DQ", "Data", 36, 3), px("GND", "GND", 39, 3)], {}));
+  out.push(def("oled-066", "OLED 0.66", "display", 18, 14, row(["GND", "VCC", "SCL", "SDA"], 14, 3, 15), {}));
+  const perf = (colsN: number, rowsN: number, name: string) => out.push(def(name, name.split("-")[1].toUpperCase(), "passive", colsN * 2.54 + 3, rowsN * 2.54 + 3, Array.from({ length: colsN * rowsN }, (_, i) => px(`h${Math.floor(i / colsN) + 1}${(i % colsN) + 1}`, `h${Math.floor(i / colsN) + 1}${(i % colsN) + 1}`, 2.54 + (i % colsN) * 2.54, 2.54 + Math.floor(i / colsN) * 2.54)), {}));
+  perf(7, 9, "perfboard-7x9"); perf(10, 15, "perfboard-10x15");
+  return out;
+};
+
 /** All generated family defs (deduped against base by type). */
 export function buildFamilyDefs(base: PartDefinition[]): PartDefinition[] {
   const seen = new Set(base.map((d) => d.type));
@@ -586,6 +667,7 @@ export function buildFamilyDefs(base: PartDefinition[]): PartDefinition[] {
     ...swDefs(),
     ...pwrDefs(),
     ...miscDefs(),
+    ...benchDefs(),
   ];
   const out: PartDefinition[] = [];
   for (const d of all) {

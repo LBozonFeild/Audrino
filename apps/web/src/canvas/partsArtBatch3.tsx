@@ -458,6 +458,16 @@ const CapacitiveSoil: ArtFn = (d) => {
   );
 };
 
+const Bme280: ArtFn = (d) => (
+  <g>
+    <rect x={0.5} y={0.5} width={17} height={15.5} rx={0.6} fill={PCB_PURPLE} stroke="#42296b" strokeWidth={0.35} />
+    <rect x={4.5} y={3} width={9} height={7.5} rx={0.6} fill={METAL} stroke={METAL_D} strokeWidth={0.25} />
+    <circle cx={9} cy={6.7} r={0.7} fill="#3a3f46" />
+    <Silk x={9} y={12.3} size={1.05}>BME280</Silk>
+    <Pads pins={d.pins} />
+  </g>
+);
+
 export const BATCH3_ART: Record<string, ArtFn> = {
   // MQ gas family
   "mq-3": mq("MQ-3", "#8a4450"),
@@ -470,7 +480,7 @@ export const BATCH3_ART: Record<string, ArtFn> = {
   "mq-131": mq("MQ-131", "#3ab8a8"),
   // environmental breakouts
   sht31: brk("SHT31"),
-  bme280: brk("BME280"),
+  bme280: Bme280,
   bme680: brk("BME680"),
   bmp180: brk("BMP180", PCB_BLUE),
   si7021: brk("Si7021", PCB_BLUE),

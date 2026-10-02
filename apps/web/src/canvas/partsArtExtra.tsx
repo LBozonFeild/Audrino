@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 import type { PartDefinition, PartPin } from "@audrino/schema";
+import { Seg7 } from "./partsCore";
 
 /** Art for the second wave of parts (sensors, ICs, modules). Merged into ART in PartGlyph. */
 
@@ -72,6 +73,15 @@ function TrimPot({ x, y }: { x: number; y: number }) {
 }
 
 /** Bottom-row pads + optional tiny labels. */
+function Tact({ x, y, w = 4, h = 4 }: { x: number; y: number; w?: number; h?: number }) {
+  return (
+    <g>
+      <rect x={x} y={y} width={w} height={h} rx={0.3} fill={METAL} stroke={METAL_D} strokeWidth={0.25} />
+      <circle cx={x + w / 2} cy={y + h / 2} r={Math.min(w, h) * 0.32} fill="#0d0f12" />
+    </g>
+  );
+}
+
 function Pads({ pins, label = true }: { pins: PartPin[]; label?: boolean }) {
   return (
     <g>
@@ -114,7 +124,7 @@ function to92(label: string): ArtFn {
   return (d) => (
     <g>
       <path d="M 1.9 9.1 L 1.9 5 A 4.1 4.1 0 0 1 10.1 5 L 10.1 9.1 Z" fill="#1a1c20" stroke="#000" strokeWidth={0.25} />
-      <Silk x={6} y={1} size={1.55}>{label}</Silk>
+            <Silk x={6} y={7.4} size={Math.min(1.3, 7.4 / label.length)}>{label}</Silk>
       {d.pins.map((p) => (
         <Lead key={p.id} x1={p.x} y1={9.1} x2={p.x} y2={p.y} />
       ))}
@@ -326,15 +336,28 @@ const IrRemote: ArtFn = () => (
 // ---- display extras -----------------------------------------------------------------
 const Max7219Matrix: ArtFn = (d) => (
   <g>
-    <rect x={0.5} y={0.5} width={31} height={31} rx={0.6} fill={PCB_RED} stroke="#7c241b" strokeWidth={0.35} />
-    <rect x={2} y={2} width={28} height={28} fill={BLACK} stroke="#000" strokeWidth={0.3} />
+    <rect x={0.5} y={0.5} width={31} height={31} rx={0.7} fill={PCB_RED} stroke="#7c241b" strokeWidth={0.35} />
+    {[[2.2, 2.2], [29.8, 2.2], [2.2, 29.8], [29.8, 29.8]].map(([x, y]) => (
+      <g key={`${x},${y}`}>
+        <circle cx={x} cy={y} r={1} fill="#0d0f12" />
+        <circle cx={x} cy={y} r={1} fill="none" stroke={METAL_D} strokeWidth={0.3} />
+      </g>
+    ))}
+    <rect x={4} y={4} width={24} height={24} rx={0.5} fill="#141519" stroke="#000" strokeWidth={0.3} />
     {Array.from({ length: 64 }, (_, i) => {
-      const cx = 4.2 + (i % 8) * 3.35;
-      const cy = 4.2 + Math.floor(i / 8) * 3.35;
-      const lit = [11, 18, 20, 27, 34, 35, 36, 37, 42, 50].includes(i);
-      return <rect key={i} x={cx - 0.85} y={cy - 0.85} width={1.7} height={1.7} rx={0.3} fill={lit ? "#f04a3a" : "#5a1512"} />;
+      const cx = 5.6 + (i % 8) * 2.97;
+      const cy = 5.6 + Math.floor(i / 8) * 2.97;
+      return (
+        <g key={i}>
+          <circle cx={cx} cy={cy} r={0.95} fill="#5a1512" />
+                  </g>
+      );
     })}
-    <Silk x={16} y={31} size={1.1}>MAX7219</Silk>
+    <rect x={11} y={0.6} width={10} height={2.2} rx={0.3} fill="#17181c" stroke="#000" strokeWidth={0.2} />
+    {Array.from({ length: 5 }, (_, i) => (
+      <rect key={i} x={12.4 + i * 1.8 - 0.35} y={1.35} width={0.7} height={0.7} fill={GOLD} />
+    ))}
+    <Silk x={16} y={30.6} size={0.8}>MAX7219</Silk>
     <Pads pins={d.pins} label={false} />
   </g>
 );
@@ -342,24 +365,10 @@ const Max7219Matrix: ArtFn = (d) => (
 const Tm1637: ArtFn = (d) => (
   <g>
     <rect x={0.5} y={0.5} width={23} height={13.5} rx={0.5} fill={PCB_NAVY} stroke="#163a66" strokeWidth={0.3} />
-    <rect x={1.5} y={1} width={21} height={8} rx={0.4} fill={BLACK} stroke="#000" strokeWidth={0.25} />
-    {[0, 1, 2, 3].map((dg) => {
-      const x = 3 + dg * 5;
-      return (
-        <g key={dg} opacity={0.85}>
-          <rect x={x} y={1.8} width={3.4} height={0.7} rx={0.3} fill="#d43b2e" />
-          <rect x={x} y={4.6} width={3.4} height={0.7} rx={0.3} fill="#d43b2e" />
-          <rect x={x} y={7.3} width={3.4} height={0.7} rx={0.3} fill="#d43b2e" />
-          <rect x={x - 0.4} y={2.1} width={0.7} height={2.8} rx={0.3} fill="#d43b2e" />
-          <rect x={x + 3.1} y={2.1} width={0.7} height={2.8} rx={0.3} fill="#d43b2e" />
-          <rect x={x - 0.4} y={4.9} width={0.7} height={2.8} rx={0.3} fill="#d43b2e" />
-          <rect x={x + 3.1} y={4.9} width={0.7} height={2.8} rx={0.3} fill="#d43b2e" />
-        </g>
-      );
-    })}
-    <circle cx={20} cy={4} r={0.45} fill="#d43b2e" />
-    <circle cx={20} cy={6} r={0.45} fill="#d43b2e" />
-    <Silk x={12} y={11.6} size={1}>TM1637</Silk>
+    <rect x={1.5} y={1} width={21} height={8.4} rx={0.4} fill={BLACK} stroke="#000" strokeWidth={0.25} />
+    {[0, 1, 2, 3].map((dg) => (
+      <Seg7 key={dg} x={2.6 + dg * 5.1} y={1.9} w={3.6} h={6.6} on="#d43b2e" off="#4a1212" />
+    ))}
     <Pads pins={d.pins} />
   </g>
 );
@@ -446,17 +455,22 @@ function dip(label: string, big = false): ArtFn {
 // ---- modules & power --------------------------------------------------------------------
 const BuckLm2596: ArtFn = (d) => (
   <g>
-    <rect x={0.5} y={0.5} width={29} height={19} rx={0.5} fill={PCB_NAVY} stroke="#163a66" strokeWidth={0.3} />
-    <rect x={11} y={4} width={10} height={9} rx={0.5} fill="#4a5568" stroke="#2b2f36" strokeWidth={0.25} />
-    <Silk x={16} y={9.5} size={1.5} fill="#d7dee9">330</Silk>
-    <Chip x={3.5} y={8} w={5} h={5} />
-    <TrimPot x={23.5} y={3.5} />
-    <Silk x={15} y={17.5} size={1.2}>LM2596 BUCK</Silk>
-    <ScrewBlock x={0.5} y={3.2} label="IN+" />
-    <ScrewBlock x={0.5} y={11.2} label="IN−" />
-    <ScrewBlock x={25} y={8.5} label="OUT" />
-    {d.pins.filter((p) => p.x > 20).map((p) => (
-      <Lead key={p.id} x1={29.2} y1={p.y} x2={p.x} y2={p.y} />
+    <rect x={0.5} y={0.5} width={29} height={19} rx={0.6} fill={PCB_BLUE} stroke="#075a92" strokeWidth={0.3} />
+    <rect x={12} y={2.4} width={7.4} height={7.4} rx={0.5} fill="#2b2f36" stroke="#17191d" strokeWidth={0.3} />
+    <circle cx={15.7} cy={6.1} r={2.4} fill="#22262b" stroke="#3a3f46" strokeWidth={0.25} />
+    <rect x={3.4} y={9.6} width={8} height={5.6} rx={0.4} fill={CHIP} stroke="#000" strokeWidth={0.2} />
+    <rect x={3.4} y={8.2} width={8} height={1.6} rx={0.3} fill={METAL} stroke={METAL_D} strokeWidth={0.2} />
+    <Silk x={7.4} y={13} size={0.9} fill="#9aa4ae">LM2596S</Silk>
+    <TrimPot x={21.5} y={10.4} />
+    <rect x={14} y={14.6} width={4.4} height={2.6} rx={0.3} fill={CHIP} stroke="#000" strokeWidth={0.15} />
+    <line x1={15.2} y1={14.6} x2={15.2} y2={17.2} stroke={METAL_D} strokeWidth={0.3} />
+    <rect x={20} y={4} width={1.6} height={0.9} rx={0.2} fill="#8a6d3b" />
+    <rect x={20} y={6} width={1.6} height={0.9} rx={0.2} fill="#8a6d3b" />
+    {d.pins.map((p) => (
+      <g key={p.id}>
+        <rect x={p.x < 15 ? 0.2 : 28.2} y={p.y - 1.1} width={1.6} height={2.2} rx={0.25} fill={GOLD} stroke="#8a7420" strokeWidth={0.15} />
+        <Silk x={p.x < 15 ? 2.4 : 27.6} y={p.y + 0.4} size={0.7} anchor={p.x < 15 ? "start" : "end"}>{p.id}</Silk>
+      </g>
     ))}
   </g>
 );
@@ -464,15 +478,17 @@ const BuckLm2596: ArtFn = (d) => (
 const Tp4056: ArtFn = (d) => (
   <g>
     <rect x={0.5} y={0.5} width={17} height={11} rx={0.5} fill={PCB_NAVY} stroke="#163a66" strokeWidth={0.3} />
-    <rect x={0.5} y={3.6} width={3.2} height={4.8} rx={0.4} fill={METAL} stroke={METAL_D} strokeWidth={0.2} />
-    <Chip x={5.5} y={3.8} w={5} h={4.5} label="4056" />
-    <circle cx={13} cy={3.5} r={0.45} fill="#c22" />
-    <circle cx={13} cy={6.5} r={0.4} fill="#3c6" />
-    <Silk x={9} y={10.2} size={0.9}>LI-ION CHARGER</Silk>
+    <rect x={0.3} y={3.4} width={3.4} height={5.2} rx={0.5} fill={METAL} stroke={METAL_D} strokeWidth={0.2} />
+    <rect x={0.9} y={4.6} width={2.2} height={2.8} rx={0.3} fill="#2b3138" />
+    <rect x={5.5} y={3.6} width={5} height={4.4} rx={0.3} fill={CHIP} stroke="#000" strokeWidth={0.15} />
+    <Silk x={8} y={6.2} size={0.8} fill="#9aa4ae">4056</Silk>
+    <rect x={12.6} y={3.2} width={1.4} height={0.9} rx={0.2} fill="#7a352c" />
+    <rect x={12.6} y={5.2} width={1.4} height={0.9} rx={0.2} fill="#3f6b4a" />
+    <Silk x={9} y={10.4} size={0.85}>TP4056 LI-ION 1A</Silk>
     {d.pins.map((p) => (
       <g key={p.id}>
-        <rect x={p.x < 9 ? 2.5 : 14.2} y={p.y - 1.2} width={2.2} height={2.4} rx={0.3} fill={GOLD} stroke="#8a7420" strokeWidth={0.15} />
-        <Lead x1={p.x < 9 ? 2.5 : 16.4} y1={p.y} x2={p.x} y2={p.y} w={0.5} />
+        <rect x={p.x < 9 ? 0.3 : 15.9} y={p.y - 1} width={1.7} height={2} rx={0.25} fill={GOLD} stroke="#8a7420" strokeWidth={0.15} />
+        <Silk x={p.x < 9 ? 2.6 : 15.3} y={p.y + 0.35} size={0.6} anchor={p.x < 9 ? "start" : "end"}>{p.id}</Silk>
       </g>
     ))}
   </g>
@@ -480,21 +496,32 @@ const Tp4056: ArtFn = (d) => (
 
 const Nrf24l01: ArtFn = (d) => (
   <g>
-    <rect x={0.5} y={0.5} width={15} height={23} rx={0.5} fill={PCB_DARK} stroke="#0b0d10" strokeWidth={0.3} />
-    <path d="M 3 3 L 6.5 3 L 6.5 5.5 L 9.5 5.5 L 9.5 3 L 13 3 L 13 8" fill="none" stroke={GOLD} strokeWidth={0.5} />
-    <Chip x={3} y={9.5} w={8} h={7} label="nRF24" />
-    <Silk x={8} y={19.5} size={0.9} fill="#8f9aa6">L01+</Silk>
-    <Pads pins={d.pins} label={false} />
+    <rect x={0.5} y={0.5} width={15} height={23} rx={0.6} fill={PCB_DARK} stroke="#0b0d10" strokeWidth={0.3} />
+    <path d="M 2.4 8.6 V 2.4 H 4.6 V 5.6 H 6.8 V 2.4 H 9 V 5.6 H 11.2 V 2.4 H 13.4 V 8.6" fill="none" stroke={GOLD} strokeWidth={0.5} />
+    <rect x={4} y={9.6} width={7} height={6.6} rx={0.3} fill={CHIP} stroke="#000" strokeWidth={0.2} />
+    <circle cx={5} cy={10.6} r={0.4} fill="#3a4149" />
+    <Silk x={7.5} y={13.4} size={0.8} fill="#9aa4ae">nRF24L01+</Silk>
+    <rect x={11.6} y={10.4} width={2.4} height={1.5} rx={0.2} fill={METAL} stroke={METAL_D} strokeWidth={0.15} />
+    <rect x={2.2} y={11} width={1.4} height={0.8} rx={0.2} fill="#8a6d3b" />
+    <rect x={2.2} y={13} width={1.4} height={0.8} rx={0.2} fill="#8a6d3b" />
+    <rect x={1.2} y={21} width={13.6} height={2.4} rx={0.3} fill="#101216" stroke="#000" strokeWidth={0.2} />
+    {d.pins.map((p) => (
+      <rect key={p.id} x={p.x - 0.4} y={p.y - 1.4} width={0.8} height={0.8} fill={GOLD} />
+    ))}
   </g>
 );
 
 const Hc05: ArtFn = (d) => (
   <g>
-    <rect x={0.5} y={0.5} width={34} height={15} rx={0.5} fill={PCB_NAVY} stroke="#163a66" strokeWidth={0.3} />
-    <rect x={2} y={1.8} width={17} height={12.4} rx={0.6} fill={METAL} stroke={METAL_D} strokeWidth={0.25} />
-    <Silk x={10.5} y={9} size={1.5} fill="#3a3f46">HC-05</Silk>
-    <path d="M 21 4 L 24 4 L 24 6.5 L 27 6.5 L 27 4 L 30 4 L 30 9" fill="none" stroke={GOLD} strokeWidth={0.5} />
-    <circle cx={22} cy={11.5} r={0.5} fill="#3c6" />
+    <rect x={0.5} y={0.5} width={34} height={15} rx={0.6} fill={PCB_NAVY} stroke="#163a66" strokeWidth={0.3} />
+    <rect x={1.6} y={1.2} width={29.5} height={11.4} rx={0.5} fill="#0a74b8" stroke="#075a92" strokeWidth={0.25} />
+    <rect x={3} y={2.2} width={16.5} height={9.4} rx={0.6} fill={METAL} stroke={METAL_D} strokeWidth={0.25} />
+    <Silk x={11.2} y={7.6} size={1.5} fill="#3a3f46">HC-05</Silk>
+    <path d="M 21.5 9.6 V 3.2 H 23.7 V 6.2 H 25.9 V 3.2 H 28.1 V 6.2 H 30.3 V 9.6" fill="none" stroke={GOLD} strokeWidth={0.5} />
+    <rect x={22} y={9.4} width={2.6} height={1.8} rx={0.2} fill={CHIP} />
+    <circle cx={27} cy={10.3} r={0.5} fill="#3f6b4a" />
+    <rect x={3} y={13.2} width={2.4} height={1.6} rx={0.2} fill={CHIP} />
+    <Tact x={31.6} y={3} w={2.4} h={2.4} />
     <Pads pins={d.pins} />
   </g>
 );
@@ -513,13 +540,18 @@ const SdModule: ArtFn = (d) => (
 
 const Ds3231: ArtFn = (d) => (
   <g>
-    <rect x={0.5} y={0.5} width={21} height={27} rx={0.5} fill={PCB_NAVY} stroke="#163a66" strokeWidth={0.3} />
-    <circle cx={11} cy={8} r={5.4} fill="#1a1c20" stroke="#000" strokeWidth={0.3} />
-    <circle cx={11} cy={8} r={4} fill="#c2ccd4" stroke={METAL_D} strokeWidth={0.25} />
-    <Silk x={11} y={8.8} size={1.4} fill="#5c6572">2032</Silk>
-    <Chip x={3} y={16} w={6} h={5} label="3231" />
-    <rect x={11} y={17} width={5.5} height={3} rx={1.2} fill={METAL} stroke={METAL_D} strokeWidth={0.2} />
-    <Silk x={11} y={24} size={1}>DS3231 RTC</Silk>
+    <rect x={0.5} y={0.5} width={21} height={27} rx={0.6} fill={PCB_NAVY} stroke="#163a66" strokeWidth={0.3} />
+    <circle cx={11} cy={8} r={5.6} fill="#1a1c20" stroke="#000" strokeWidth={0.3} />
+    <circle cx={11} cy={8} r={4.3} fill="#c2ccd4" stroke={METAL_D} strokeWidth={0.25} />
+    <circle cx={11} cy={8} r={3} fill="none" stroke="#9aa4ae" strokeWidth={0.2} />
+    <Silk x={11} y={8.8} size={1.3} fill="#5c6572">CR2032</Silk>
+    <Silk x={16.4} y={4.4} size={1.4}>+</Silk>
+    <rect x={2.6} y={16} width={6.4} height={4.4} rx={0.3} fill={CHIP} stroke="#000" strokeWidth={0.15} />
+    <Silk x={5.8} y={18.6} size={0.9} fill="#9aa4ae">DS3231</Silk>
+    <rect x={11.4} y={16.6} width={4.6} height={3.2} rx={0.3} fill={CHIP} stroke="#000" strokeWidth={0.15} />
+    <Silk x={13.7} y={18.6} size={0.7} fill="#9aa4ae">24C32</Silk>
+    <rect x={6} y={21.6} width={2.4} height={1.4} rx={0.2} fill={METAL} stroke={METAL_D} strokeWidth={0.15} />
+    <Silk x={11} y={24.6} size={1}>DS3231 RTC</Silk>
     <Pads pins={d.pins} />
   </g>
 );

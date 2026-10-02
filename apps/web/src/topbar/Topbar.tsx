@@ -8,6 +8,10 @@ import { useViewStore } from "../canvas/viewStore";
 import { docBBox } from "../state/ops";
 import { goHome } from "../nav";
 
+// Component-artwork revision stamp. Bump on every art pass so a stale
+// cached build is instantly identifiable on screen.
+const ART_REV = "2026-10-02.r4";
+
 export function Topbar(props: { notify: (msg: string) => void }) {
   const doc = useEditorStore((s) => s.doc);
   const status = useSimStore((s) => s.status);
@@ -45,6 +49,7 @@ export function Topbar(props: { notify: (msg: string) => void }) {
         ⌂ Home
       </button>
       <span className="brand">◎ Audrino</span>
+      <span className="dim mono" style={{ fontSize: 10, opacity: 0.6 }} title="Component artwork revision — if this doesn't match the latest commit date, hard-refresh (Ctrl+Shift+R)">art {ART_REV}</span>
       <span className="proj-name mono">{doc.meta.name}</span>
       <span className="badge">{board ? board.type : "no board"}</span>
       {savedTick > 0 && (
