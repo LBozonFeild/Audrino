@@ -370,7 +370,6 @@ export function MaleHeader({ pts }: { pts: { x: number; y: number }[] }): ReactE
         <g key={`${p.x},${p.y}`}>
           <rect x={p.x - 0.55} y={p.y - 0.55} width={1.1} height={1.1} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.08} />
           <rect x={p.x - 0.34} y={p.y - 0.34} width={0.68} height={0.68} fill="url(#matGold)" />
-          <rect x={p.x - 0.2} y={p.y - 0.55} width={0.4} height={1.1} fill="#fff" opacity={0.4} />
         </g>
       ))}
     </g>
@@ -398,39 +397,36 @@ export function ScrewTerminal({ x, y, w, h, pins, color = "#1d5c9a", dark = "#0f
 
 /** USB-B / micro-B / C shell seen from above. */
 export function UsbShell({ x, y, w, h, kind = "b" }: { x: number; y: number; w: number; h: number; kind?: "b" | "micro" | "c" | "mini" }): ReactElement {
+  // Top view of the metal shell: plain top face, opening slit on the outer
+  // (board-edge) side, crimp dimples - never an open cavity from above.
   if (kind === "b") {
-    const c = 1.6;
     return (
       <g>
-        <path
-          d={`M ${x} ${y + c} L ${x + c} ${y} L ${x + w - c} ${y} L ${x + w} ${y + c} L ${x + w} ${y + h - c} L ${x + w - c} ${y + h} L ${x + c} ${y + h} L ${x} ${y + h - c} Z`}
-          fill="url(#matSteel)"
-          stroke="#5c6570"
-          strokeWidth={0.25}
-        />
-        <rect x={x + 0.6} y={y + 0.6} width={w - 1.2} height={h - 1.2} rx={0.7} fill="#9aa4ae" />
-        <rect x={x + 1.4} y={y + h * 0.16} width={w - 2.6} height={h * 0.68} rx={0.5} fill="#23272e" />
-        <rect x={x + 2.2} y={y + h * 0.34} width={w - 4.2} height={h * 0.32} rx={0.3} fill="#e6ebef" />
-        {[0, 1, 2, 3].map((i) => (
-          <rect key={i} x={x + 2.8 + i * ((w - 5.6) / 3)} y={y + h * 0.37} width={0.55} height={h * 0.26} fill={GOLD} />
-        ))}
-              </g>
+        <rect x={x} y={y} width={w} height={h} rx={0.9} fill="#b8c2cc" stroke="#5c6570" strokeWidth={0.3} />
+        <rect x={x} y={y + h * 0.18} width={1.4} height={h * 0.64} rx={0.5} fill="#23272e" />
+        <rect x={x + 2.4} y={y + h * 0.2} width={1.8} height={1.2} rx={0.3} fill="#8f9aa6" />
+        <rect x={x + 2.4} y={y + h * 0.8 - 1.2} width={1.8} height={1.2} rx={0.3} fill="#8f9aa6" />
+        <line x1={x + w * 0.45} y1={y + 0.4} x2={x + w * 0.45} y2={y + h - 0.4} stroke="#8f9aa6" strokeWidth={0.25} />
+        <rect x={x + w - 1.2} y={y + 1.2} width={1.2} height={h - 2.4} rx={0.3} fill="#8f9aa6" />
+      </g>
     );
   }
   if (kind === "micro" || kind === "mini") {
     return (
       <g>
-        <rect x={x} y={y} width={w} height={h} rx={0.6} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
-        <rect x={x + 0.5} y={y + h * 0.22} width={w - 1} height={h * 0.56} rx={0.5} fill="#23272e" />
-              </g>
+        <rect x={x} y={y} width={w} height={h} rx={0.7} fill="#b8c2cc" stroke="#5c6570" strokeWidth={0.25} />
+        <rect x={x + 0.7} y={y} width={w - 1.4} height={0.9} rx={0.45} fill="#23272e" />
+        <rect x={x + 1.2} y={y + h * 0.55} width={1.4} height={0.9} rx={0.3} fill="#8f9aa6" />
+        <rect x={x + w - 2.6} y={y + h * 0.55} width={1.4} height={0.9} rx={0.3} fill="#8f9aa6" />
+        <line x1={x + 0.5} y1={y + h - 0.7} x2={x + w - 0.5} y2={y + h - 0.7} stroke="#8f9aa6" strokeWidth={0.2} />
+      </g>
     );
   }
   return (
     <g>
-      <rect x={x} y={y} width={w} height={h} rx={h / 2} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
-      <rect x={x + 0.6} y={y + 0.6} width={w - 1.2} height={h - 1.2} rx={(h - 1.2) / 2} fill="#23272e" />
-      <rect x={x + 1.4} y={y + h / 2 - 0.35} width={w - 2.8} height={0.7} rx={0.35} fill="#c9ced6" />
-      <Shade x={x} y={y} w={w} h={h} rx={0.5} />
+      <rect x={x} y={y} width={w} height={h} rx={h / 2} fill="#b8c2cc" stroke="#5c6570" strokeWidth={0.25} />
+      <rect x={x + 0.8} y={y} width={w - 1.6} height={0.8} rx={0.4} fill="#23272e" />
+      <line x1={x + 1} y1={y + h - 0.6} x2={x + w - 1} y2={y + h - 0.6} stroke="#8f9aa6" strokeWidth={0.2} />
     </g>
   );
 }

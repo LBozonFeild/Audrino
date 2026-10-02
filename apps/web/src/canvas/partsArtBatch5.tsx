@@ -673,7 +673,6 @@ const brkArt = (extra: "none" | "lens" | "twin" | "mic" | "term" = "none", fill 
         <g>
           <rect x={2.2} y={2.2} width={4.2} height={4.6} rx={0.6} fill="#0d0f12" />
           <circle cx={4.3} cy={4} r={0.9} fill="#6d5a8a" opacity={0.65} />
-          <circle cx={4} cy={3.6} r={0.35} fill="#fff" opacity={0.4} />
         </g>
       )}
       {extra === "twin" && (
@@ -685,7 +684,7 @@ const brkArt = (extra: "none" | "lens" | "twin" | "mic" | "term" = "none", fill 
       )}
       {extra === "mic" && (
         <g>
-          <circle cx={4} cy={bh / 2 - 0.6} r={1.9} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.2} />
+          <rect x={2.1} y={bh / 2 - 2.5} width={3.8} height={3.8} rx={1.9} fill="#b8c2cc" stroke="#5c6570" strokeWidth={0.2} />
           <circle cx={4} cy={bh / 2 - 0.6} r={0.5} fill="#3a3f46" />
         </g>
       )}

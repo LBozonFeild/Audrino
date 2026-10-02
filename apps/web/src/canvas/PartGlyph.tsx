@@ -464,7 +464,7 @@ const Uno: ArtFn = (d) => {
 const Nano: ArtFn = (d) => (
   <g>
     <Board w={45} h={19} fill={PCB_TEAL} edge={PCB_TEAL_D} rx={1} />
-    <UsbShell x={19.4} y={0.2} w={6.2} h={3.4} kind="mini" />
+    <UsbShell x={19.4} y={-0.9} w={6.2} h={3.6} kind="mini" />
     {/* ATmega328P in QFN-32 + FT232RL SSOP-28 */}
     <Qfn x={20.2} y={7} w={7.4} h={7.4} label="328P" pads={8} />
     <rect x={30.4} y={7.6} width={7.6} height={4.4} rx={0.35} fill="url(#matBlack)" stroke="#000" strokeWidth={0.15} />
@@ -488,19 +488,18 @@ const Nano: ArtFn = (d) => (
       <circle cx={17.4} cy={15.6} r={1.15} />
       <circle cx={19.6} cy={15.6} r={1.15} />
     </g>
-    <MaleHeader pts={d.pins.slice(0, 15)} />
-    <MaleHeader pts={d.pins.slice(15)} />
+    <MaleHeader pts={d.pins.filter((p) => p.x < d.size_mm.w / 2)} />
+    <MaleHeader pts={d.pins.filter((p) => p.x >= d.size_mm.w / 2)} />
   </g>
 );
 
 const Esp32: ArtFn = (d) => (
   <g>
     <Board w={52} h={30} fill={PCB_DARK} edge="#0b0d10" rx={1.1} />
-    <UsbShell x={22.4} y={0.1} w={7} h={3.4} kind="micro" />
+    <UsbShell x={22.4} y={-0.9} w={7} h={3.6} kind="micro" />
     {/* WROOM-32 module: shield + meander PCB antenna */}
     <rect x={15} y={4.6} width={21} height={14.4} rx={0.6} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.25} />
-    <rect x={15.5} y={5.1} width={20} height={0.7} rx={0.35} fill="#fff" opacity={0.4} />
-    <Mark x={25.5} y={13.4} size={1.7} fill="#3a3f46">ESP32-WROOM</Mark>
+        <Mark x={25.5} y={13.4} size={1.7} fill="#3a3f46">ESP32-WROOM</Mark>
     <path
       d="M 37.5 4.9 L 46.5 4.9 L 46.5 6.6 L 39.2 6.6 L 39.2 8.3 L 46.5 8.3 L 46.5 10 L 39.2 10 L 39.2 11.7 L 46.5 11.7"
       fill="none"
@@ -513,15 +512,15 @@ const Esp32: ArtFn = (d) => (
     <SmdPassive x={34.5} y={23} w={1.6} h={0.9} body="#e8ecef" term={METAL_D} />
     <SmdPassive x={37.5} y={23} w={1.6} h={0.9} body="#e8593c" term={METAL_D} />
     <Silk x={44} y={26.4} size={1.2} weight={700} fill="#8f9aa6">DEVKIT</Silk>
-    <MaleHeader pts={d.pins.slice(0, 15)} />
-    <MaleHeader pts={d.pins.slice(15)} />
+    <MaleHeader pts={d.pins.filter((p) => p.x < d.size_mm.w / 2)} />
+    <MaleHeader pts={d.pins.filter((p) => p.x >= d.size_mm.w / 2)} />
   </g>
 );
 
 const NodeMcu: ArtFn = (d) => (
   <g>
     <Board w={49} h={26} fill={PCB_BLUE} edge={PCB_BLUE_D} rx={1.1} />
-    <UsbShell x={19} y={0.1} w={6.6} h={3.2} kind="micro" />
+    <UsbShell x={19} y={-0.9} w={6.6} h={3.4} kind="micro" />
     <rect x={7.6} y={4} width={17.4} height={12.4} rx={0.6} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.25} />
     <Mark x={16.3} y={11} size={1.5} fill="#3a3f46">ESP-12E</Mark>
     <path
@@ -534,15 +533,15 @@ const NodeMcu: ArtFn = (d) => (
     <SmdPassive x={30} y={20} w={1.6} h={0.9} body="#59d97e" term={METAL_D} />
     <SmdPassive x={33} y={20} w={1.6} h={0.9} body="#3a7bff" term={METAL_D} />
     <Silk x={39.5} y={22.4} size={1.2} weight={700}>NODEMCU</Silk>
-    <MaleHeader pts={d.pins.slice(0, 15)} />
-    <MaleHeader pts={d.pins.slice(15)} />
+    <MaleHeader pts={d.pins.filter((p) => p.x < d.size_mm.w / 2)} />
+    <MaleHeader pts={d.pins.filter((p) => p.x >= d.size_mm.w / 2)} />
   </g>
 );
 
 const Pico: ArtFn = (d) => (
   <g>
     <Board w={51} h={21} fill={PCB_GREEN} edge={PCB_GREEN_D} rx={1.1} />
-    <UsbShell x={2.2} y={0.2} w={7.4} h={3.6} kind="micro" />
+    <UsbShell x={2.2} y={-0.9} w={7.4} h={3.8} kind="micro" />
     <Qfn x={19.6} y={6.4} w={7} h={7} label="RP2040" pads={8} />
     <rect x={29.4} y={8} width={4.4} height={3.4} rx={0.4} fill="url(#matSteel)" stroke="#5c6570" strokeWidth={0.18} />
     <Mark x={31.6} y={10.1} size={0.85} fill="#3a3f46">W25Q16</Mark>
@@ -552,8 +551,8 @@ const Pico: ArtFn = (d) => (
     <SmdPassive x={36} y={7} w={1.6} h={0.9} body="#e8593c" term={METAL_D} />
     <SmdPassive x={36} y={12} w={1.6} h={0.9} body="#59d97e" term={METAL_D} />
     <Silk x={42} y={11.4} size={1.5} weight={700} spacing={0.2}>PICO</Silk>
-    <MaleHeader pts={d.pins.slice(0, 20)} />
-    <MaleHeader pts={d.pins.slice(20)} />
+    <MaleHeader pts={d.pins.filter((p) => p.x < d.size_mm.w / 2)} />
+    <MaleHeader pts={d.pins.filter((p) => p.x >= d.size_mm.w / 2)} />
   </g>
 );
 
